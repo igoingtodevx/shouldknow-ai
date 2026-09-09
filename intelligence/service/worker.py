@@ -40,7 +40,7 @@ def source_rows():
         return cur.fetchall()
 
 
-def summarize_change(tool_name: str, source_kind: str, materiality: str, diff: dict) -> tuple[str, str, str, str]:
+def summarize_change(tool_name: str, source_kind: str, materiality: str, diff: dict) -> tuple[str, str, str, str, str]:
     added = [line for line in diff['added'] if len(line) < 220][:3]
     removed = [line for line in diff['removed'] if len(line) < 220][:2]
     kind = 'pricing' if source_kind == 'pricing' else 'policy' if source_kind == 'policy' else 'capability'

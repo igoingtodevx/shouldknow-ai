@@ -3,7 +3,8 @@
     "toolId": "core-50-22",
     "name": "Context7",
     "sources": [
-      { "kind": "homepage", "url": "https://context7.com", "firstParty": true, "crawlEveryMinutes": 360 }
+      { "kind": "homepage", "url": "https://context7.com", "firstParty": true, "crawlEveryMinutes": 360 },
+      { "kind": "github", "url": "https://github.com/upstash/context7/releases", "firstParty": true, "crawlEveryMinutes": 360 }
     ]
   },
   {
@@ -11,35 +12,17 @@
     "name": "CodeRabbit",
     "sources": [
       { "kind": "homepage", "url": "https://www.coderabbit.ai", "firstParty": true, "crawlEveryMinutes": 360 },
-      { "kind": "pricing", "url": "https://www.coderabbit.ai/pricing", "firstParty": true, "crawlEveryMinutes": 180 }
-    ]
-  },
-  {
-    "toolId": "core-50-20",
-    "name": "Momentic",
-    "sources": [
-      { "kind": "homepage", "url": "https://momentic.ai", "firstParty": true, "crawlEveryMinutes": 360 }
+      { "kind": "pricing", "url": "https://www.coderabbit.ai/pricing", "firstParty": true, "crawlEveryMinutes": 180 },
+      { "kind": "changelog", "url": "https://coderabbit.ai/changelog", "firstParty": true, "crawlEveryMinutes": 360 }
     ]
   },
   {
     "toolId": "core-50-18",
     "name": "Semgrep",
     "sources": [
-      { "kind": "homepage", "url": "https://semgrep.dev", "firstParty": true, "crawlEveryMinutes": 360 }
-    ]
-  },
-  {
-    "toolId": "core-50-3",
-    "name": "Dovetail",
-    "sources": [
-      { "kind": "homepage", "url": "https://dovetail.com", "firstParty": true, "crawlEveryMinutes": 720 }
-    ]
-  },
-  {
-    "toolId": "core-50-11",
-    "name": "Relume",
-    "sources": [
-      { "kind": "homepage", "url": "https://www.relume.ai", "firstParty": true, "crawlEveryMinutes": 720 }
+      { "kind": "homepage", "url": "https://semgrep.dev", "firstParty": true, "crawlEveryMinutes": 360 },
+      { "kind": "pricing", "url": "https://semgrep.dev/pricing", "firstParty": true, "crawlEveryMinutes": 180 },
+      { "kind": "github", "url": "https://github.com/semgrep/semgrep/releases", "firstParty": true, "crawlEveryMinutes": 360 }
     ]
   }
 ]
