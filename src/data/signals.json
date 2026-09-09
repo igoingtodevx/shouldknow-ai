@@ -1,0 +1,86 @@
+[
+  {
+    "id": "demo-context7-api",
+    "toolId": "core-50-22",
+    "tool": "Context7",
+    "kind": "api",
+    "impact": "high",
+    "ageHours": 2,
+    "title": "Example: documentation access changed for agent workflows",
+    "summary": "Prototype signal showing how a material API or integration change would be summarized after snapshot comparison and source verification.",
+    "whyItMatters": "A documentation provider sits directly in the context path of coding agents, so interface changes can alter reliability across every downstream run.",
+    "sources": [
+      { "label": "Official site", "url": "https://context7.com" }
+    ]
+  },
+  {
+    "id": "demo-coderabbit-pricing",
+    "toolId": "core-50-13",
+    "tool": "CodeRabbit",
+    "kind": "pricing",
+    "impact": "high",
+    "ageHours": 5,
+    "title": "Example: a pricing or allowance change crossed the threshold",
+    "summary": "Prototype record for a pricing-page diff. The live engine will attach captured before/after evidence instead of relying on vendor copy.",
+    "whyItMatters": "Review automation is often embedded in team workflows; a material price or allowance change can affect the economics of every repository using it.",
+    "sources": [
+      { "label": "Official site", "url": "https://www.coderabbit.ai" }
+    ]
+  },
+  {
+    "id": "demo-momentic-capability",
+    "toolId": "core-50-20",
+    "tool": "Momentic",
+    "kind": "capability",
+    "impact": "medium",
+    "ageHours": 9,
+    "title": "Example: browser testing gained a workflow-relevant capability",
+    "summary": "Prototype signal representing a release that materially changes what can be automated, while cosmetic release-note churn would be dropped.",
+    "whyItMatters": "A meaningful browser-testing capability can remove repeated manual QA work; a renamed button cannot. The materiality filter exists to separate the two.",
+    "sources": [
+      { "label": "Official site", "url": "https://momentic.ai" }
+    ]
+  },
+  {
+    "id": "demo-semgrep-policy",
+    "toolId": "core-50-18",
+    "tool": "Semgrep",
+    "kind": "policy",
+    "impact": "medium",
+    "ageHours": 18,
+    "title": "Example: a security or data-handling policy changed",
+    "summary": "Prototype evidence type for terms, privacy or data-handling changes that can matter more than a visible product feature.",
+    "whyItMatters": "Security tooling may inspect sensitive repositories. Policy changes deserve a different level of scrutiny than ordinary UI updates.",
+    "sources": [
+      { "label": "Official site", "url": "https://semgrep.dev" }
+    ]
+  },
+  {
+    "id": "demo-dovetail-model",
+    "toolId": "core-50-3",
+    "tool": "Dovetail",
+    "kind": "model",
+    "impact": "medium",
+    "ageHours": 31,
+    "title": "Example: the underlying AI behaviour changed in a research workflow",
+    "summary": "Prototype signal for a model or analysis-layer update whose effect should be checked against source material rather than trusted from marketing language.",
+    "whyItMatters": "Research synthesis is only useful when evidence remains inspectable; a model change matters when it changes how claims are produced or traced.",
+    "sources": [
+      { "label": "Official site", "url": "https://dovetail.com" }
+    ]
+  },
+  {
+    "id": "demo-relume-launch",
+    "toolId": "core-50-11",
+    "tool": "Relume",
+    "kind": "launch",
+    "impact": "low",
+    "ageHours": 74,
+    "title": "Example: a new workflow entered the watchset but did not merit P0",
+    "summary": "Prototype record showing that discovery and publication are separate. A new capability can be tracked without being promoted as must-know news.",
+    "whyItMatters": "The value of Should Know is the rejection layer: discovery can be broad while the public feed remains deliberately narrow.",
+    "sources": [
+      { "label": "Official site", "url": "https://www.relume.ai" }
+    ]
+  }
+]

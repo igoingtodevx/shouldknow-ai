@@ -1,0 +1,98 @@
+[
+  {
+    "id": "core-50-22",
+    "name": "Context7",
+    "url": "https://context7.com",
+    "verdict": "A focused way to pull current library documentation into coding-agent context instead of relying on stale model memory.",
+    "axes": [
+      { "label": "LEVERAGE", "value": "High" },
+      { "label": "MATURITY", "value": "Emerging" },
+      { "label": "SETUP", "value": "Low" },
+      { "label": "CONTROL", "value": "High" },
+      { "label": "PRICE", "value": "$" },
+      { "label": "EVIDENCE", "value": "Medium" }
+    ],
+    "bestFor": ["Current library documentation in agent workflows", "Reducing stale API assumptions", "Source-aware coding context"],
+    "caveat": "Documentation can still be versioned, incomplete or ambiguous. Source and version remain worth checking on critical changes."
+  },
+  {
+    "id": "core-50-13",
+    "name": "CodeRabbit",
+    "url": "https://www.coderabbit.ai",
+    "verdict": "Useful when AI review is inserted into an existing pull-request process instead of becoming a second, disconnected coding surface.",
+    "axes": [
+      { "label": "LEVERAGE", "value": "High" },
+      { "label": "MATURITY", "value": "Proven" },
+      { "label": "SETUP", "value": "Medium" },
+      { "label": "CONTROL", "value": "Medium" },
+      { "label": "PRICE", "value": "$$" },
+      { "label": "EVIDENCE", "value": "Medium" }
+    ],
+    "bestFor": ["Pull-request review", "Repository-level quality loops", "Teams with explicit review conventions"],
+    "caveat": "Comments are suggestions. Repository permissions, false positives and high-risk changes still need human ownership."
+  },
+  {
+    "id": "core-50-20",
+    "name": "Momentic",
+    "url": "https://momentic.ai",
+    "verdict": "Interesting because it targets real browser paths and maintenance overhead rather than treating testing as prompt-generated boilerplate.",
+    "axes": [
+      { "label": "LEVERAGE", "value": "High" },
+      { "label": "MATURITY", "value": "Emerging" },
+      { "label": "SETUP", "value": "Medium" },
+      { "label": "CONTROL", "value": "Medium" },
+      { "label": "PRICE", "value": "$$" },
+      { "label": "EVIDENCE", "value": "Medium" }
+    ],
+    "bestFor": ["Browser E2E workflows", "Regression coverage", "Reducing brittle test maintenance"],
+    "caveat": "Payment, auth and other critical flows still benefit from deterministic assertions and explicit isolation."
+  },
+  {
+    "id": "core-50-18",
+    "name": "Semgrep",
+    "url": "https://semgrep.dev",
+    "verdict": "A strong counterweight to generic AI code review because rules and findings remain inspectable at the code level.",
+    "axes": [
+      { "label": "LEVERAGE", "value": "High" },
+      { "label": "MATURITY", "value": "Proven" },
+      { "label": "SETUP", "value": "Medium" },
+      { "label": "CONTROL", "value": "High" },
+      { "label": "PRICE", "value": "$$" },
+      { "label": "EVIDENCE", "value": "Strong" }
+    ],
+    "bestFor": ["Code security scanning", "Custom rule enforcement", "Inspectable findings"],
+    "caveat": "Rules and severity need project-specific tuning; scanner output is not the same thing as resolved risk."
+  },
+  {
+    "id": "core-50-3",
+    "name": "Dovetail",
+    "url": "https://dovetail.com",
+    "verdict": "Most useful when the AI layer keeps customer-research evidence traceable instead of collapsing interviews into uncheckable summaries.",
+    "axes": [
+      { "label": "LEVERAGE", "value": "Medium" },
+      { "label": "MATURITY", "value": "Proven" },
+      { "label": "SETUP", "value": "Medium" },
+      { "label": "CONTROL", "value": "High" },
+      { "label": "PRICE", "value": "$$" },
+      { "label": "EVIDENCE", "value": "Medium" }
+    ],
+    "bestFor": ["Interview repositories", "Research synthesis", "Keeping clips and evidence attached"],
+    "caveat": "Thin or biased research does not become valid because an AI layer can summarize it faster."
+  },
+  {
+    "id": "core-50-11",
+    "name": "Relume",
+    "url": "https://www.relume.ai",
+    "verdict": "Worth watching because it starts from structure and reusable components rather than treating a one-shot visual generation as the finished product.",
+    "axes": [
+      { "label": "LEVERAGE", "value": "Medium" },
+      { "label": "MATURITY", "value": "Proven" },
+      { "label": "SETUP", "value": "Low" },
+      { "label": "CONTROL", "value": "Medium" },
+      { "label": "PRICE", "value": "$$" },
+      { "label": "EVIDENCE", "value": "Medium" }
+    ],
+    "bestFor": ["Sitemap exploration", "Wireframe structure", "Component-led website planning"],
+    "caveat": "Brand direction, editorial judgement and unusual interaction design still need deliberate human work."
+  }
+]

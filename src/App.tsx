@@ -1,105 +1,150 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Bookmark, Check, ChevronDown, ExternalLink, GitBranch, Search, ShieldCheck, Shuffle, Sparkles, X } from 'lucide-react'
+import { ArrowRight, Bookmark, Check, Clock3, ExternalLink, Filter, GitBranch, Search, ShieldCheck, Sparkles, X } from 'lucide-react'
 import tools from './data/tools.json'
+import signals from './data/signals.json'
+import dossiers from './data/dossiers.json'
 
-type Tool = (typeof tools)[number]
-type Sort = 'score' | 'name' | 'newest'
+type Signal = (typeof signals)[number]
+type Dossier = (typeof dossiers)[number]
+type View = 'today' | 'week' | 'watchlist' | 'tools'
 
-const categoryMeta: Record<string, { label: string; note: string }> = {
-  'UI / UX': { label: 'UI / UX', note: 'Research, systems, accessibility & visual QA' },
-  'Dev': { label: 'Dev', note: 'Review, security & engineering leverage' },
-  'Dev Quality': { label: 'Dev quality', note: 'Tests, security and release confidence' },
-  'Daten & Quellenarbeit': { label: 'Research', note: 'Evidence, papers & inspectable analysis' },
-  'Data / Research': { label: 'Data & research', note: 'Notebooks, semantic layers & source work' },
-  'Wissen & Operations': { label: 'Knowledge', note: 'Controlled assistants and operational workflows' },
-  'Knowledge / Ops': { label: 'Knowledge & ops', note: 'Permission-aware company workflows' },
-  'Creative Production': { label: 'Creative', note: 'Real production, not content lottery' },
-  'Lernen, Sprache & persönlicher Kontext': { label: 'Learning', note: 'Practice, language & personal context' },
-  'Productivity': { label: 'Productivity', note: 'Meetings, calendar and focused work' },
+const impactLabel: Record<string, string> = { high: 'HIGH IMPACT', medium: 'WORTH A LOOK', low: 'INFO' }
+const kindLabel: Record<string, string> = { capability: 'CAPABILITY', pricing: 'PRICE', model: 'MODEL', api: 'API', policy: 'POLICY', launch: 'NEW' }
+
+function loadList(key: string) {
+  try { return JSON.parse(localStorage.getItem(key) || '[]') as string[] } catch { return [] }
 }
 
-function clean(text: string) {
-  return text.replace(/\*\*/g, '').replace(/`/g, '')
+function relativeHours(hours: number) {
+  if (hours < 1) return '<1h'
+  if (hours < 24) return `${hours}h`
+  return `${Math.floor(hours / 24)}d`
 }
 
 export default function App() {
+  const [view, setView] = useState<View>('today')
   const [query, setQuery] = useState('')
-  const [category, setCategory] = useState('All')
-  const [sort, setSort] = useState<Sort>('score')
-  const [saved, setSaved] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('shouldknow-saved') || '[]') } catch { return [] }
-  })
-  const [selected, setSelected] = useState<Tool | null>(null)
+  const [watchlist, setWatchlist] = useState<string[]>(() => loadList('shouldknow-watchlist'))
+  const [selected, setSelected] = useState<Dossier | null>(null)
+  const [lastVisit, setLastVisit] = useState<number | null>(null)
 
-  useEffect(() => localStorage.setItem('shouldknow-saved', JSON.stringify(saved)), [saved])
+  useEffect(() => {
+    const previous = Number(localStorage.getItem('shouldknow-last-visit') || 0)
+    if (previous) setLastVisit(previous)
+    localStorage.setItem('shouldknow-last-visit', String(Date.now()))
+  }, [])
+  useEffect(() => localStorage.setItem('shouldknow-watchlist', JSON.stringify(watchlist)), [watchlist])
 
-  const categories = useMemo(() => [...new Set(tools.map(t => t.category))], [])
-  const visible = useMemo(() => {
+  const sinceCount = useMemo(() => {
+    if (!lastVisit) return 0
+    const elapsedHours = (Date.now() - lastVisit) / 3_600_000
+    return signals.filter(signal => signal.ageHours <= elapsedHours).length
+  }, [lastVisit])
+
+  const filteredSignals = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return [...tools]
-      .filter(t => category === 'All' || t.category === category)
-      .filter(t => !needle || [t.name, t.job, t.why, t.category].join(' ').toLowerCase().includes(needle))
-      .sort((a, b) => sort === 'score' ? b.score - a.score : sort === 'name' ? a.name.localeCompare(b.name) : b.number - a.number)
-  }, [query, category, sort])
+    return signals.filter(signal => {
+      if (view === 'today' && signal.ageHours > 24) return false
+      if (view === 'week' && signal.ageHours > 168) return false
+      if (view === 'watchlist' && !watchlist.includes(signal.toolId)) return false
+      if (needle && ![signal.tool, signal.title, signal.summary, signal.whyItMatters, signal.kind].join(' ').toLowerCase().includes(needle)) return false
+      return true
+    })
+  }, [query, view, watchlist])
 
-  const toggleSaved = (id: string) => setSaved(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id])
-  const surprise = () => setSelected(tools[Math.floor(Math.random() * tools.length)])
+  const toggleWatch = (id: string) => setWatchlist(list => list.includes(id) ? list.filter(item => item !== id) : [...list, id])
+  const openDossier = (toolId: string) => setSelected(dossiers.find(item => item.id === toolId) || null)
 
   return <div className="site-shell">
     <header className="topbar">
-      <a className="brand" href="#top" aria-label="Should Know home"><span className="brand-mark">S</span><span>should <i>know</i></span></a>
-      <nav><a href="#discover">Discover</a><a href="#principles">Principles</a><button className="saved-link" onClick={() => { setCategory('All'); setQuery(''); window.scrollTo({ top: document.querySelector('#discover')?.getBoundingClientRect().top! + window.scrollY - 70, behavior: 'smooth' }) }}><Bookmark size={15} fill={saved.length ? 'currentColor' : 'none'} /> Saved <b>{saved.length}</b></button></nav>
+      <button className="brand" onClick={() => setView('today')}><span className="brand-mark">S</span><span>should <i>know</i></span></button>
+      <nav>
+        <button className={view === 'today' ? 'active' : ''} onClick={() => setView('today')}>Today</button>
+        <button className={view === 'week' ? 'active' : ''} onClick={() => setView('week')}>This week</button>
+        <button className={view === 'watchlist' ? 'active' : ''} onClick={() => setView('watchlist')}>My stack <b>{watchlist.length}</b></button>
+        <button className={view === 'tools' ? 'active' : ''} onClick={() => setView('tools')}>Tools</button>
+      </nav>
     </header>
 
-    <main id="top">
+    <main>
       <section className="hero">
         <div className="hero-copy">
-          <div className="eyebrow"><Sparkles size={15} /> Curated AI assistance, not a tool directory</div>
-          <h1>AI websites<br/><em>worth your time.</em></h1>
-          <p>70 researched tools that improve a real workflow — design quality, source-backed research, code review, production and more.</p>
-          <div className="hero-actions"><a className="primary" href="#discover">Explore the collection <ArrowRight size={17}/></a><button className="secondary" onClick={surprise}><Shuffle size={16}/> Surprise me</button></div>
+          <div className="eyebrow"><Sparkles size={15}/> SIGNAL, NOT INVENTORY</div>
+          <h1>Know what changed.<br/><em>Know what matters.</em></h1>
+          <p>Should Know tracks meaningful changes across AI products, filters the release-note noise and keeps the evidence attached.</p>
         </div>
-        <aside className="proof-card">
-          <div className="proof-top"><span>THE STANDARD</span><ShieldCheck size={19}/></div>
-          <p>Every tool gets one specific job, a real caveat and a source trail.</p>
-          <div className="proof-grid"><div><strong>70</strong><small>curated tools</small></div><div><strong>10</strong><small>work categories</small></div><div><strong>100%</strong><small>official links</small></div></div>
+        <aside className="signal-proof">
+          <div className="proof-row"><span>PROTOTYPE DATASET</span><ShieldCheck size={18}/></div>
+          <strong>{signals.filter(s => s.ageHours <= 24).length}</strong>
+          <p>demo signals in the last 24h</p>
+          <small>The live crawler is not connected yet. Every signal below is visibly marked as prototype evidence.</small>
         </aside>
       </section>
 
-      <section id="principles" className="principles">
-        <div><span className="mini-label">WHY THIS EXISTS</span><h2>Not another <em>AI tool list.</em></h2></div>
-        <div className="principle-list"><p><span>01</span><b>Concrete jobs.</b> Every pick answers what you can get done in minutes.</p><p><span>02</span><b>Quality loops.</b> Real components, source evidence, tests and human review beat one-shot generation.</p><p><span>03</span><b>Honest caveats.</b> A useful recommendation includes where it can fail.</p></div>
-      </section>
+      {lastVisit && <section className="return-strip">
+        <div><Clock3 size={17}/><span>Since your last visit</span></div>
+        <strong>{sinceCount ? `${sinceCount} signal${sinceCount === 1 ? '' : 's'} landed` : 'You are caught up'}</strong>
+        <button onClick={() => setView('week')}>Review changes <ArrowRight size={15}/></button>
+      </section>}
 
-      <section id="discover" className="catalog">
-        <div className="catalog-head"><div><span className="mini-label">THE COLLECTION</span><h2>Find the right <em>leverage.</em></h2></div><div className="result-count">{visible.length} <span>tools showing</span></div></div>
-        <div className="controls">
-          <label className="search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search a job, workflow or tool..."/><kbd>⌘ K</kbd></label>
-          <label className="sort-select">Sort <select value={sort} onChange={e => setSort(e.target.value as Sort)}><option value="score">Highest score</option><option value="newest">Newest wave</option><option value="name">A–Z</option></select><ChevronDown size={15}/></label>
+      {view !== 'tools' ? <>
+        <section className="feed-head">
+          <div><span className="mini-label">{view === 'watchlist' ? 'YOUR STACK' : view === 'week' ? 'LAST 7 DAYS' : 'TODAY'}</span><h2>{view === 'watchlist' ? 'Changes that touch your tools.' : 'Changes worth your attention.'}</h2></div>
+          <label className="search"><Search size={17}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search changes, tools, APIs..."/></label>
+        </section>
+
+        <section className="signal-feed">
+          {filteredSignals.map((signal, index) => <article className="signal-row" key={signal.id}>
+            <div className="signal-index">{String(index + 1).padStart(2, '0')}</div>
+            <div className="signal-main">
+              <div className="signal-meta"><span className={`impact ${signal.impact}`}>{impactLabel[signal.impact]}</span><span>{kindLabel[signal.kind] || signal.kind.toUpperCase()}</span><span>{relativeHours(signal.ageHours)}</span><span className="prototype">PROTOTYPE</span></div>
+              <button className="signal-tool" onClick={() => openDossier(signal.toolId)}>{signal.tool}</button>
+              <h3>{signal.title}</h3>
+              <p>{signal.summary}</p>
+              <div className="why"><b>Why it matters</b><span>{signal.whyItMatters}</span></div>
+              <div className="sources">{signal.sources.map(source => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.label}<ExternalLink size={12}/></a>)}</div>
+            </div>
+            <button className={watchlist.includes(signal.toolId) ? 'watch active' : 'watch'} onClick={() => toggleWatch(signal.toolId)} aria-label={`Watch ${signal.tool}`}><Bookmark size={18} fill={watchlist.includes(signal.toolId) ? 'currentColor' : 'none'}/></button>
+          </article>)}
+          {!filteredSignals.length && <div className="empty"><Filter size={22}/><h3>No signals here yet.</h3><p>{view === 'watchlist' ? 'Add tools to My stack and their meaningful changes will collect here.' : 'Try a broader search.'}</p></div>}
+        </section>
+      </> : <ToolDirectory watchlist={watchlist} toggleWatch={toggleWatch} openDossier={openDossier}/>} 
+
+      <section className="threshold">
+        <span className="mini-label">THE EDITORIAL CONTRACT</span>
+        <h2>Not everything that shipped.</h2>
+        <div className="threshold-grid">
+          <div><strong>P0</strong><b>Should know</b><p>Pricing, major capability, breaking API, shutdown, policy or genuinely new workflow.</p></div>
+          <div><strong>P1</strong><b>Worth a look</b><p>Meaningful feature, integration, platform expansion or measurable workflow improvement.</p></div>
+          <div><strong>P2</strong><b>Noise</b><p>Cosmetic polish, vague marketing, renames and low-signal release-note churn. Dropped.</p></div>
         </div>
-        <div className="chips"><button className={category === 'All' ? 'active' : ''} onClick={() => setCategory('All')}>All <span>{tools.length}</span></button>{categories.map(c => <button key={c} className={category === c ? 'active' : ''} onClick={() => setCategory(c)}>{categoryMeta[c]?.label || c} <span>{tools.filter(t => t.category === c).length}</span></button>)}</div>
-        <div className="tool-grid">
-          {visible.map((tool) => <ToolCard key={tool.id} tool={tool} saved={saved.includes(tool.id)} onSave={() => toggleSaved(tool.id)} onOpen={() => setSelected(tool)} />)}
-        </div>
-        {!visible.length && <div className="empty"><Search size={24}/><h3>No match yet.</h3><p>Try a workflow like “accessibility”, “research” or “video”.</p><button onClick={() => { setQuery(''); setCategory('All') }}>Clear filters</button></div>}
       </section>
     </main>
-    <footer><div className="brand"><span className="brand-mark">S</span><span>should <i>know</i></span></div><p>Curated from official product sources, research and quality signals.<br/>Editorial scores are not vendor claims.</p><a href="https://github.com/igoingtodevx/shouldknow-ai" target="_blank" rel="noreferrer"><GitBranch size={16}/> Source</a></footer>
-    {selected && <ToolModal tool={selected} saved={saved.includes(selected.id)} onSave={() => toggleSaved(selected.id)} onClose={() => setSelected(null)} />}
+
+    <footer><div className="brand"><span className="brand-mark">S</span><span>should <i>know</i></span></div><p>Evidence-first AI product intelligence. Prototype feed until the live crawler is connected.</p><a href="https://github.com/igoingtodevx/shouldknow-ai" target="_blank" rel="noreferrer"><GitBranch size={15}/> Source</a></footer>
+    {selected && <DossierModal dossier={selected} watched={watchlist.includes(selected.id)} onWatch={() => toggleWatch(selected.id)} onClose={() => setSelected(null)}/>} 
   </div>
 }
 
-function ToolCard({ tool, saved, onSave, onOpen }: { tool: Tool; saved: boolean; onSave: () => void; onOpen: () => void }) {
-  const meta = categoryMeta[tool.category]
-  return <article className="tool-card">
-    <div className="card-top"><div className="tag">{meta?.label || tool.category}</div><button className={saved ? 'save active' : 'save'} onClick={onSave} aria-label={`Save ${tool.name}`}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} /></button></div>
-    <div className="tool-title"><h3>{tool.name}</h3><span>{tool.score.toFixed(1)}</span></div>
-    <p className="job">{clean(tool.job)}</p>
-    <p className="reason">{clean(tool.why)}</p>
-    <div className="card-bottom"><button onClick={onOpen}>Why it matters <ArrowRight size={15}/></button><a href={tool.url} target="_blank" rel="noreferrer">Visit <ExternalLink size={14}/></a></div>
-  </article>
+function ToolDirectory({ watchlist, toggleWatch, openDossier }: { watchlist: string[]; toggleWatch: (id: string) => void; openDossier: (id: string) => void }) {
+  const dossierIds = new Set(dossiers.map(item => item.id))
+  const visibleTools = tools.filter(tool => dossierIds.has(tool.id))
+  return <section className="directory">
+    <div className="feed-head"><div><span className="mini-label">LIVING DOSSIERS</span><h2>Know the tool before you adopt it.</h2></div><p className="directory-note">The legacy 70-tool catalog remains in the repository as seed material; V1 surfaces only dossiers with richer evidence structure.</p></div>
+    <div className="dossier-grid">{visibleTools.map(tool => <article key={tool.id} className="dossier-card"><div><span>{tool.category}</span><button className={watchlist.includes(tool.id) ? 'watch active' : 'watch'} onClick={() => toggleWatch(tool.id)}><Bookmark size={17} fill={watchlist.includes(tool.id) ? 'currentColor' : 'none'}/></button></div><h3>{tool.name}</h3><p>{tool.job.replace(/\*\*/g, '')}</p><button onClick={() => openDossier(tool.id)}>Open dossier <ArrowRight size={15}/></button></article>)}</div>
+  </section>
 }
 
-function ToolModal({ tool, saved, onSave, onClose }: { tool: Tool; saved: boolean; onSave: () => void; onClose: () => void }) {
-  return <div className="modal-backdrop" role="presentation" onMouseDown={onClose}><article className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onMouseDown={e => e.stopPropagation()}><button className="modal-close" onClick={onClose} aria-label="Close"><X size={20}/></button><div className="tag">{categoryMeta[tool.category]?.label || tool.category}</div><div className="modal-title"><h2 id="modal-title">{tool.name}</h2><strong>{tool.score.toFixed(1)}<small>/10</small></strong></div><section><span>THE JOB</span><p>{clean(tool.job)}</p></section><section><span>WHY IT MADE THE CUT</span><p>{clean(tool.why)}</p></section><section className="caveat"><span>KEEP IN MIND</span><p>{clean(tool.caveat)}</p></section><div className="modal-actions"><a className="primary" href={tool.url} target="_blank" rel="noreferrer">Visit website <ExternalLink size={16}/></a><a className="evidence" href={tool.evidenceUrl} target="_blank" rel="noreferrer">Source trail <ArrowRight size={15}/></a><button className={saved ? 'bookmark active' : 'bookmark'} onClick={onSave}>{saved ? <Check size={16}/> : <Bookmark size={16}/>} {saved ? 'Saved' : 'Save pick'}</button></div></article></div>
+function DossierModal({ dossier, watched, onWatch, onClose }: { dossier: Dossier; watched: boolean; onWatch: () => void; onClose: () => void }) {
+  const history = signals.filter(signal => signal.toolId === dossier.id)
+  return <div className="modal-backdrop" onMouseDown={onClose}><article className="modal" role="dialog" aria-modal="true" onMouseDown={e => e.stopPropagation()}>
+    <button className="modal-close" onClick={onClose} aria-label="Close"><X size={20}/></button>
+    <div className="dossier-kicker">LIVING DOSSIER · SEED STATE</div>
+    <div className="dossier-title"><div><h2>{dossier.name}</h2><p>{dossier.verdict}</p></div><button className={watched ? 'watch active' : 'watch'} onClick={onWatch}>{watched ? <Check size={16}/> : <Bookmark size={16}/>} {watched ? 'Watching' : 'Watch'}</button></div>
+    <section className="axis-grid">{dossier.axes.map(axis => <div key={axis.label}><span>{axis.label}</span><strong>{axis.value}</strong></div>)}</section>
+    <section className="dossier-section"><span>BEST FOR</span><ul>{dossier.bestFor.map(item => <li key={item}>{item}</li>)}</ul></section>
+    <section className="dossier-section"><span>KEEP IN MIND</span><p>{dossier.caveat}</p></section>
+    <section className="dossier-section"><span>WHAT CHANGED</span>{history.length ? history.map(signal => <div className="history" key={signal.id}><b>{impactLabel[signal.impact]}</b><span>{signal.title}</span><small>{relativeHours(signal.ageHours)}</small></div>) : <p>No prototype changes attached yet.</p>}</section>
+    <div className="modal-actions"><a className="primary" href={dossier.url} target="_blank" rel="noreferrer">Official site <ExternalLink size={15}/></a><small>Last verification: seed data · live engine pending</small></div>
+  </article></div>
 }
