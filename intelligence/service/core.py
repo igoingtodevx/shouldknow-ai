@@ -11,10 +11,13 @@ import psycopg
 DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://shouldknow:shouldknow@localhost:5432/shouldknow')
 SEARXNG_URL = os.getenv('SEARXNG_URL', '').rstrip('/')
 CRAWL4AI_ENDPOINT = os.getenv('CRAWL4AI_ENDPOINT', '').rstrip('/')
-AUTO_PUBLISH_P0 = os.getenv('AUTO_PUBLISH_P0', 'false').lower() == 'true'
+# Shadow mode is a hard safety invariant for this rollout. Do not make public
+# publication configurable by environment until the review gate is explicitly lifted.
+AUTO_PUBLISH_P0 = False
 WATCHSET_PATH = Path(os.getenv('WATCHSET_PATH', Path(__file__).resolve().parents[1] / 'watchset.json'))
 
 P0 = [
+    re.compile(r'(?:[$€£¥]\s?\d|\d[\d,.]*\s?(?:USD|EUR|GBP|JPY|CNY))', re.I),
     re.compile(r'price|pricing|plan|tier|credit|limit|allowance', re.I),
     re.compile(r'deprecated|deprecation|shutdown|sunset|discontinued|removed|breaking', re.I),
     re.compile(r'privacy|data retention|training data|terms of service|policy', re.I),
@@ -83,7 +86,7 @@ CONSENT_PLATFORM_RE = re.compile(
 # Standalone consent-banner lines: button chains ("DenyManage CookiesAccept")
 # or the boilerplate sentence some vendors render next to the buttons.
 CONSENT_BUTTON_LINE_RE = re.compile(
-    r'^(?:Accept|Deny|Reject|Decline|Agree|Allow|Manage Cookies|Customize|Settings|Got it|OK|Learn More|Accept All|Reject All|Decline All|Allow All|I Agree)+$',
+    r'^(?:Accept|Deny|Reject|Decline|Agree|Allow|Manage Cookies|Customize|Settings|Got it|OK|Learn More|Accept ?All|Reject ?All|Decline ?All|Allow ?All|I Agree)+$',
     re.I,
 )
 CONSENT_BOILERPLATE_RE = re.compile(r'^By clicking .{0,60}(cookie|consent).{0,120}$', re.I)
@@ -124,6 +127,11 @@ def _strip_tracking_params(text: str) -> str:
     def _clean_url(match: re.Match) -> str:
         url = match.group(0)
         stripped = TRACKING_QUERY_RE.sub('', url)
+        # Removing the first query parameter can leave an ampersand at the
+        # query boundary ("?utm_source=x&ref=y" -> "&ref=y" or "/page&ref=y").
+        if '?' in url and '?' not in stripped and '&' in stripped:
+            stripped = stripped.replace('&', '?', 1)
+        stripped = re.sub(r'^&', '?', stripped)
         # remove dangling '?'/'&' left behind by the strip
         stripped = re.sub(r'[?&]+([#\s)])', r'\1', stripped)
         stripped = re.sub(r'\?&', '?', stripped)

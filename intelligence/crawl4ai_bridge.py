@@ -67,7 +67,12 @@ def _handle_crawl(urls: list[str], page_timeout_ms: int) -> tuple[int, dict]:
     if not urls:
         return 400, {"success": False, "error": "empty urls list"}
     urls = urls[:MAX_URLS_PER_REQUEST]
-    results = [_crawl_one(url, page_timeout_ms) for url in urls]
+    results = []
+    for url in urls:
+        try:
+            results.append(_crawl_one(url, page_timeout_ms))
+        except Exception as exc:  # noqa: BLE001 - isolate one URL from the batch
+            results.append({"url": url, "success": False, "error": str(exc), "status_code": None, "markdown": ""})
     ok = [r for r in results if r["success"]]
     if not ok:
         return 502, {"success": False, "error": "all requested URLs failed", "results": results}

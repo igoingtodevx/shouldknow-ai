@@ -31,7 +31,7 @@ def seed_watchset() -> None:
 def source_rows():
     with db() as conn, conn.cursor() as cur:
         cur.execute(
-            '''SELECT s.id, s.tool_id, t.name, s.kind, s.url
+            '''SELECT s.id, s.tool_id, t.name, s.kind, s.url, s.first_party
                FROM sources s JOIN tools t ON t.id=s.tool_id
                WHERE s.enabled=true
                  AND (s.last_crawled_at IS NULL OR s.last_crawled_at <= now() - (s.crawl_every_minutes * interval '1 minute'))
@@ -58,7 +58,7 @@ def summarize_change(tool_name: str, source_kind: str, materiality: str, diff: d
 
 def crawl_once() -> None:
     seed_watchset()
-    for source_id, tool_id, tool_name, source_kind, url in source_rows():
+    for source_id, tool_id, tool_name, source_kind, url, first_party in source_rows():
         try:
             text = crawl(url)
             digest = hash_text(text)
@@ -74,17 +74,31 @@ def crawl_once() -> None:
                 )
                 inserted = cur.fetchone()
                 cur.execute('UPDATE sources SET last_crawled_at=now() WHERE id=%s', (source_id,))
-                if not inserted:
+                if inserted:
+                    after_id = inserted[0]
+                elif not previous or previous[2] == digest:
+                    # The newest snapshot already has this content hash.
                     conn.commit()
                     continue
-                after_id = inserted[0]
+                else:
+                    # A historical hash can reappear after a later version. Reuse
+                    # that immutable snapshot so the revert still becomes a diff.
+                    cur.execute(
+                        'SELECT id FROM snapshots WHERE source_id=%s AND content_hash=%s ORDER BY captured_at ASC LIMIT 1',
+                        (source_id, digest),
+                    )
+                    historical = cur.fetchone()
+                    if not historical:
+                        conn.commit()
+                        continue
+                    after_id = historical[0]
                 if previous:
                     diff = diff_lines(previous[1], text)
                     materiality, reason = classify(diff)
                     if materiality != 'P2':
                         kind, impact, title, summary, why = summarize_change(tool_name, source_kind, materiality, diff)
                         status = 'published' if AUTO_PUBLISH_P0 and materiality == 'P0' else 'review'
-                        evidence = [{'label': f'Official {source_kind}', 'url': url, 'firstParty': True}]
+                        evidence = [{'label': f'Official {source_kind}', 'url': url, 'firstParty': bool(first_party)}]
                         cur.execute(
                             '''INSERT INTO changes(tool_id, source_id, before_snapshot_id, after_snapshot_id,
                                kind, impact, materiality, confidence, title, summary, why_it_matters,
