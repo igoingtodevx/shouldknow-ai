@@ -57,7 +57,8 @@ TRACKING_QUERY_RE = re.compile(
 )
 TRACKING_PIXEL_RE = re.compile(
     r'(?:'
-    r'bat\.bing\.net|adroll\.com|t\.co/1/i/adsct|google-analytics\.com|googletagmanager\.com/gtag|'
+    r'bat\.bing\.net|adroll\.com|t\.co/1/i/adsct|analytics\.twitter\.com|static\.ads-twitter\.com|'
+    r'google-analytics\.com|googletagmanager\.com/gtag|'
     r'googleadservices\.com/pagead|facebook\.com/tr|connect\.facebook\.net|doubleclick\.net|'
     r'scorecardresearch\.com|hotjar\.com|static\.hotjar\.com|clarity\.ms|c\.clarity\.ms|'
     r'mixpanel\.com|segment\.io/analytics|fullstory\.com|amplitude\.com|snap\.licdn\.com|'
@@ -72,6 +73,20 @@ TRACKING_PIXEL_RE = re.compile(
     r')',
     re.I,
 )
+# Link tokens pointing at consent-management platforms (their banner content and
+# the banner itself rotate with the visitor's consent state).
+CONSENT_PLATFORM_RE = re.compile(
+    r'(?:ketch\.com|cookiebot\.com|onetrust\.com|cookielaw\.org|usercentrics\.com|'
+    r'didomi\.io|consentmanager\.net|cookieconsent\.com|iubenda\.com|axept\.io)',
+    re.I,
+)
+# Standalone consent-banner lines: button chains ("DenyManage CookiesAccept")
+# or the boilerplate sentence some vendors render next to the buttons.
+CONSENT_BUTTON_LINE_RE = re.compile(
+    r'^(?:Accept|Deny|Reject|Decline|Agree|Allow|Manage Cookies|Customize|Settings|Got it|OK|Learn More|Accept All|Reject All|Decline All|Allow All|I Agree)+$',
+    re.I,
+)
+CONSENT_BOILERPLATE_RE = re.compile(r'^By clicking .{0,60}(cookie|consent).{0,120}$', re.I)
 # Lines that are only a reaction counter/summary on GitHub pages: a reaction image
 # or emoji prefix, an optional count, usernames ("alice and bob"), and either
 # "reacted with <x> emoji" or "N reactions". Deliberately linear (single .* per
@@ -127,6 +142,17 @@ def _strip_tracking_images(line: str) -> str:
     return re.sub(r'!\[[^\]]*\]\((https?://[^)\s]+)\)', _repl, line)
 
 
+def _is_consent_noise(line: str) -> bool:
+    """True for consent-banner artifacts that differ between visits."""
+    if CONSENT_BUTTON_LINE_RE.match(line):
+        return True
+    if CONSENT_BOILERPLATE_RE.match(line):
+        return True
+    # link tokens to consent platforms (e.g. "[](https://www.ketch.com/?...&org=...)")
+    stripped = re.sub(r'!?\[[^\]]*\]\((https?://[^)\s]+)\)', lambda m: m.group(1), line)
+    return bool(CONSENT_PLATFORM_RE.search(stripped))
+
+
 def normalize(text: str) -> str:
     text = text.replace('\r', '')
     text = re.sub(r'[ \t]+', ' ', text)
@@ -137,6 +163,8 @@ def normalize(text: str) -> str:
         line = _strip_tracking_images(line).strip()
         line = re.sub(r'[ \t]{2,}', ' ', line)  # collapse gaps left by removed tokens
         if not line:
+            continue
+        if _is_consent_noise(line):
             continue
         if GITHUB_REACTION_RE.match(line):
             continue

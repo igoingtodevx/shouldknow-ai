@@ -31,15 +31,20 @@ MAX_URLS_PER_REQUEST = 10
 
 
 def _crawl_one(url: str, page_timeout_ms: int) -> dict:
-    run_config = CrawlerRunConfig(
-        verbose=False,
-        page_timeout=page_timeout_ms,
-        # Wait for lazy-loaded content so repeated crawls of the same page
-        # render identically (marketing pages otherwise show different subsets
-        # of images/forms on every visit). Playwright spelling: "networkidle".
-        wait_until='networkidle',
-    )
-    async def _run() -> dict:
+    async def _run(wait_until: str, timeout_ms: int) -> dict:
+        run_config = CrawlerRunConfig(
+            verbose=False,
+            page_timeout=timeout_ms,
+            # Wait for lazy-loaded content so repeated crawls of the same page
+            # render identically (marketing pages otherwise show different
+            # subsets of images/forms on every visit). Playwright spelling:
+            # "networkidle". Pages that never go idle (analytics polling, live
+            # widgets) time out; the caller retries with domcontentloaded.
+            wait_until=wait_until,
+            # Drop recognized consent banners (cookiebot/onetrust/...); Ketch and
+            # other banners that crawl4ai misses are filtered textually in core.py.
+            remove_consent_popups=True,
+        )
         async with AsyncWebCrawler() as crawler:
             result = await crawler.arun(url=url, config=run_config)
             if result is None:
@@ -51,7 +56,11 @@ def _crawl_one(url: str, page_timeout_ms: int) -> dict:
                 "status_code": getattr(result, "status_code", None),
                 "markdown": getattr(result, "markdown", "") or "",
             }
-    return asyncio.run(_run())
+
+    result = asyncio.run(_run('networkidle', min(page_timeout_ms, 25000)))
+    if not result["success"]:
+        result = asyncio.run(_run('domcontentloaded', page_timeout_ms))
+    return result
 
 
 def _handle_crawl(urls: list[str], page_timeout_ms: int) -> tuple[int, dict]:
