@@ -14,13 +14,11 @@ Selecting any product opens a **living dossier** that combines its old baseline 
 
 ## Verified seed feed
 
-The branch ships with a deliberately small set of real, first-party-sourced changes so the product can be evaluated before an automated crawler is trusted. The seed feed is not presented as a live scanner.
+The frontend ships with a deliberately small set of real, first-party-sourced changes so the product can be evaluated before an automated crawler is trusted. The seed feed is not presented as a live scanner.
 
-Continuous collection is the next activation step.
+## Intelligence service
 
-## Planned intelligence engine
-
-The intended production loop is:
+`services/intelligence/` now contains the server-side activation layer for continuous monitoring:
 
 ```text
 SearXNG / targeted source monitors
@@ -29,20 +27,32 @@ possible change
         ↓
 Crawl4AI extraction
         ↓
-source snapshot
+immutable source snapshot
         ↓
 previous ↔ current diff
         ↓
-materiality filter
+deterministic materiality filter
         ↓
-first-party verification
+optional structured LLM review
         ↓
 published change + evidence
         ↓
-Today / Watchlist / Dossier
+read-only API
 ```
 
+The repository-level `docker-compose.intelligence.yml` runs PostgreSQL, the read API and the worker while reusing existing SearXNG and Crawl4AI services. The service source is implemented and locally unit-tested, but it is **not claimed as live until the VPS deployment is completed and observed against real source changes**.
+
 SearXNG is discovery, not truth. Product claims should resolve to first-party sources such as official changelogs, docs, pricing pages, GitHub releases or policy pages wherever possible.
+
+### Trust defaults
+
+- a first crawl creates a baseline, never a fake change
+- unchanged normalized content is ignored
+- obvious low-materiality diffs are rejected before LLM review
+- broad SearXNG discovery cannot auto-add a monitored source or publish a signal
+- `AUTO_PUBLISH=false` by default
+- published signals and snapshots are append-only history
+- crawler targets are restricted to public HTTP(S) URLs before Crawl4AI is called
 
 ## Product principles
 
@@ -54,15 +64,17 @@ SearXNG is discovery, not truth. Product claims should resolve to first-party so
 
 ## Current implementation
 
-- React + TypeScript + Vite
+- React + TypeScript + Vite frontend
 - Static baseline catalog in `src/data/tools.json`
 - Verified seed changes in `src/data/signals.ts`
 - Browser-local watchlist + last-visit timestamp
-- Vercel frontend deployment
+- FastAPI + PostgreSQL intelligence service source in `services/intelligence/`
+- source snapshots, hash-based change detection, unified diffs and materiality classification
+- optional OpenAI-compatible structured editorial reviewer
+- SearXNG candidate discovery and Crawl4AI first-party source capture adapters
+- Vercel frontend preview deployment
 
-There is no crawler, database, server API or automated source-monitoring worker in this branch yet. Those belong to the intelligence-engine activation phase and must not be claimed as live until deployed and observed.
-
-## Local development
+## Frontend development
 
 ```bash
 npm install
@@ -70,3 +82,14 @@ npm run dev
 npm run check
 npm run build
 ```
+
+## Intelligence service development
+
+```bash
+cd services/intelligence
+python -m unittest discover -s tests -v
+python -m app.worker --once
+uvicorn app.main:app --host 0.0.0.0 --port 8080
+```
+
+See [`services/intelligence/README.md`](services/intelligence/README.md) and [`.env.intelligence.example`](.env.intelligence.example) before deployment.
