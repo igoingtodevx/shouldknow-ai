@@ -26,6 +26,60 @@ P1 = [
 ]
 P2 = [re.compile(r'spacing|padding|button|icon|color|copy update|typo|navigation polish', re.I)]
 
+# --- Crawl-output noise filters -------------------------------------------------
+# Marketing pages embed per-request tracking (UUID query params, pixel images) and
+# GitHub release pages render reaction churn. Without stripping these, identical
+# pages hash differently on every crawl and every run looks like a change. The
+# lists below are deliberately generic; they are not per-site hardcodes.
+TRACKING_QUERY_PARAMS = {
+    # campaign/attribution
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_id',
+    'utm_cid', 'utm_reader', 'utm_brand', 'utm_place', 'utm_userid', 'utm_viz_id',
+    'utm_pubreferrer', 'utm_swu', 'utm_referrer', 'utm_social', 'utm_social-type',
+    'utm_network', 'utm_account', 'utm_adgroup', 'utm_placement', 'utm_device',
+    'mc_cid', 'mc_eid', 'mkt_tok', 'oly_anon_id', 'oly_enc_id', 'vero_id', 'vero_conv',
+    'pk_source', 'pk_medium', 'pk_campaign', 'pk_keyword', 'pk_content', 'mtm_source',
+    'mtm_medium', 'mtm_campaign', 'mtm_keyword', 'mtm_content', 'matomo_ignore',
+    # click/redirect/session ids
+    'fbclid', 'gclid', 'gclsrc', 'dclid', 'msclkid', 'srsltid', 'wbraid', 'gbraid',
+    'igshid', 'irclickid', 'aff_id', 'aff_sub', 'aff_sub2', 'cjevent', 'clickid',
+    'subid', 'sub_id', 'scid', 'campaign_id', 'campaignid', 'adgroupid', 'ad_id',
+    'banner_id', 'siteid', 'cr_acquisition_id', 'attribution_version', 'yclid',
+    'wickedid', 'twclid', 'ttclid', 'li_fat_id', 'hsa_cam', 'hsa_grp', 'hsa_ad',
+    'hsa_src', 'hsa_tgt', 'hsa_acc', 'hsa_net', 'hsa_ver', '_hsenc', '_hsmi',
+    'hsCtaTracking', 'gad_source', 'gad_campaign', 'gbraid', 'dclid', 'epik',
+    's_kwcid', 's_cid', 'oly_enc_id', 'vero_conv', 'vero_id', 'cmpid', 'otm_source',
+    'otm_medium', 'otm_campaign', 'otm_term', 'otm_content',
+}
+TRACKING_QUERY_RE = re.compile(
+    r'([?&])(?:' + '|'.join(sorted(TRACKING_QUERY_PARAMS)) + r')=[^&#\s()]*',
+    re.I,
+)
+TRACKING_PIXEL_RE = re.compile(
+    r'(?:'
+    r'bat\.bing\.net|adroll\.com|t\.co/1/i/adsct|google-analytics\.com|googletagmanager\.com/gtag|'
+    r'googleadservices\.com/pagead|facebook\.com/tr|connect\.facebook\.net|doubleclick\.net|'
+    r'scorecardresearch\.com|hotjar\.com|static\.hotjar\.com|clarity\.ms|c\.clarity\.ms|'
+    r'mixpanel\.com|segment\.io/analytics|fullstory\.com|amplitude\.com|snap\.licdn\.com|'
+    r'ads\.linkedin\.com|px\.ads\.linkedin\.com|redditstatic\.com/ads|criteo\.net|taboola\.com|'
+    r'outbrain\.com|quantserve\.com|chartbeat\.com|newrelic\.com|nr-data\.net|browser-intake-'
+    r')',
+    re.I,
+)
+# Lines that are only a reaction counter/summary on GitHub pages: a reaction image
+# or emoji prefix, an optional count, zero or more usernames ("alice and bob"), and
+# either "reacted with <x> emoji" or "N reactions". Usernames may contain dots,
+# dashes and underscores; GitHub joins multiple names with " and ".
+GITHUB_REACTION_RE = re.compile(
+    r'^[\s>*\-+]*!?\[[^\]]*\]\([^)]*\)\s*(?:\d+\s+)?(?:[\w.-]+(?:\s+and\s+)?\s*)*reacted with .*emoji\s*$'
+    r'|^[\s>*\-+]*!?\[[^\]]*\]\([^)]*\)\s*(?:\d+\s*)?reactions?\s*$'
+    r'|^[\s>*\-+]*(?:👍|👎|🎉|😄|❤️|🚀|👀)\s*(?:\d+\s+)?(?:[\w.-]+(?:\s+and\s+)?\s*)*reacted with .*emoji\s*$'
+    r'|^[\s>*\-+]*(?:👍|👎|🎉|😄|❤️|🚀|👀)\s*(?:\d+\s*)?reactions?\s*$',
+    re.I,
+)
+# Lines that are nothing but a tracking pixel image: ![alt](https://tracking.domain/...)
+TRACKING_PIXEL_LINE_RE = re.compile(r'^\s*!?\[[^\]]*\]\(https?://[^)]*\)\s*$')
+
 
 def db():
     return psycopg.connect(DATABASE_URL)
@@ -39,11 +93,41 @@ def init_db() -> None:
         conn.commit()
 
 
+def _strip_tracking_params(text: str) -> str:
+    """Remove per-request tracking query params from any URL in the text."""
+    def _clean_url(match: re.Match) -> str:
+        url = match.group(0)
+        stripped = TRACKING_QUERY_RE.sub('', url)
+        # remove dangling '?'/'&' left behind by the strip
+        stripped = re.sub(r'[?&]+([#\s)])', r'\1', stripped)
+        stripped = re.sub(r'\?&', '?', stripped)
+        stripped = re.sub(r'&{2,}', '&', stripped)
+        stripped = stripped.rstrip('?&')
+        return stripped
+    return re.sub(r'https?://[^\s<>"\')\]]+', _clean_url, text)
+
+
+def _is_tracking_pixel_line(line: str) -> bool:
+    if not TRACKING_PIXEL_LINE_RE.match(line):
+        return False
+    return bool(TRACKING_PIXEL_RE.search(line))
+
+
 def normalize(text: str) -> str:
     text = text.replace('\r', '')
     text = re.sub(r'[ \t]+', ' ', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
-    return text.strip()
+    cleaned: list[str] = []
+    for line in text.splitlines():
+        line = _strip_tracking_params(line.strip())
+        if not line:
+            continue
+        if _is_tracking_pixel_line(line):
+            continue
+        if GITHUB_REACTION_RE.match(line):
+            continue
+        cleaned.append(line)
+    return '\n'.join(cleaned).strip()
 
 
 def hash_text(text: str) -> str:
