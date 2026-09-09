@@ -1,12 +1,33 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Bookmark, Check, Clock3, ExternalLink, Filter, GitBranch, Search, ShieldCheck, Sparkles, X } from 'lucide-react'
 import tools from './data/tools.json'
-import signals from './data/signals.json'
+import prototypeSignalsRaw from './data/signals.json'
 import dossiers from './data/dossiers.json'
 
-type Signal = (typeof signals)[number]
+type Source = { label: string; url: string; firstParty?: boolean }
+type Signal = {
+  id: string
+  toolId: string
+  tool: string
+  kind: string
+  impact: string
+  ageHours: number
+  title: string
+  summary: string
+  whyItMatters: string
+  sources: Source[]
+  prototype?: boolean
+  materiality?: string
+  confidence?: number
+  detectedAt?: string
+  publishedAt?: string | null
+}
 type Dossier = (typeof dossiers)[number]
 type View = 'today' | 'week' | 'watchlist' | 'tools'
+type SourceMode = 'live' | 'prototype' | 'fallback'
+
+const prototypeSignals = prototypeSignalsRaw as Signal[]
+const API_BASE = ((import.meta.env.VITE_INTELLIGENCE_API as string | undefined) || '').replace(/\/$/, '')
 
 const impactLabel: Record<string, string> = { high: 'HIGH IMPACT', medium: 'WORTH A LOOK', low: 'INFO' }
 const kindLabel: Record<string, string> = { capability: 'CAPABILITY', pricing: 'PRICE', model: 'MODEL', api: 'API', policy: 'POLICY', launch: 'NEW' }
@@ -27,6 +48,8 @@ export default function App() {
   const [watchlist, setWatchlist] = useState<string[]>(() => loadList('shouldknow-watchlist'))
   const [selected, setSelected] = useState<Dossier | null>(null)
   const [lastVisit, setLastVisit] = useState<number | null>(null)
+  const [feedSignals, setFeedSignals] = useState<Signal[]>(prototypeSignals)
+  const [sourceMode, setSourceMode] = useState<SourceMode>(API_BASE ? 'fallback' : 'prototype')
 
   useEffect(() => {
     const previous = Number(localStorage.getItem('shouldknow-last-visit') || 0)
@@ -35,25 +58,52 @@ export default function App() {
   }, [])
   useEffect(() => localStorage.setItem('shouldknow-watchlist', JSON.stringify(watchlist)), [watchlist])
 
+  useEffect(() => {
+    if (!API_BASE) return
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 5000)
+    fetch(`${API_BASE}/v1/signals?hours=${24 * 90}`, { signal: controller.signal })
+      .then(response => {
+        if (!response.ok) throw new Error(`Intelligence API returned ${response.status}`)
+        return response.json()
+      })
+      .then((payload: unknown) => {
+        if (!Array.isArray(payload)) throw new Error('Intelligence API returned an invalid signal payload')
+        setFeedSignals(payload as Signal[])
+        setSourceMode('live')
+      })
+      .catch(() => {
+        setFeedSignals(prototypeSignals)
+        setSourceMode('fallback')
+      })
+      .finally(() => window.clearTimeout(timeout))
+    return () => {
+      window.clearTimeout(timeout)
+      controller.abort()
+    }
+  }, [])
+
   const sinceCount = useMemo(() => {
     if (!lastVisit) return 0
     const elapsedHours = (Date.now() - lastVisit) / 3_600_000
-    return signals.filter(signal => signal.ageHours <= elapsedHours).length
-  }, [lastVisit])
+    return feedSignals.filter(signal => signal.ageHours <= elapsedHours).length
+  }, [feedSignals, lastVisit])
 
   const filteredSignals = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return signals.filter(signal => {
+    return feedSignals.filter(signal => {
       if (view === 'today' && signal.ageHours > 24) return false
       if (view === 'week' && signal.ageHours > 168) return false
       if (view === 'watchlist' && !watchlist.includes(signal.toolId)) return false
       if (needle && ![signal.tool, signal.title, signal.summary, signal.whyItMatters, signal.kind].join(' ').toLowerCase().includes(needle)) return false
       return true
     })
-  }, [query, view, watchlist])
+  }, [feedSignals, query, view, watchlist])
 
   const toggleWatch = (id: string) => setWatchlist(list => list.includes(id) ? list.filter(item => item !== id) : [...list, id])
   const openDossier = (toolId: string) => setSelected(dossiers.find(item => item.id === toolId) || null)
+  const dailyCount = feedSignals.filter(signal => signal.ageHours <= 24).length
+  const isLive = sourceMode === 'live'
 
   return <div className="site-shell">
     <header className="topbar">
@@ -74,10 +124,10 @@ export default function App() {
           <p>Should Know tracks meaningful changes across AI products, filters the release-note noise and keeps the evidence attached.</p>
         </div>
         <aside className="signal-proof">
-          <div className="proof-row"><span>PROTOTYPE DATASET</span><ShieldCheck size={18}/></div>
-          <strong>{signals.filter(s => s.ageHours <= 24).length}</strong>
-          <p>demo signals in the last 24h</p>
-          <small>The live crawler is not connected yet. Every signal below is visibly marked as prototype evidence.</small>
+          <div className="proof-row"><span>{isLive ? 'LIVE INTELLIGENCE' : sourceMode === 'fallback' ? 'OFFLINE FALLBACK' : 'PROTOTYPE DATASET'}</span><ShieldCheck size={18}/></div>
+          <strong>{dailyCount}</strong>
+          <p>{isLive ? 'reviewed signals in the last 24h' : 'demo signals in the last 24h'}</p>
+          <small>{isLive ? 'Only changes that passed the manual publication gate are visible here.' : sourceMode === 'fallback' ? 'The live intelligence endpoint is unavailable, so the visibly marked prototype dataset is shown instead.' : 'Set VITE_INTELLIGENCE_API to switch this build to the reviewed live feed.'}</small>
         </aside>
       </section>
 
@@ -97,7 +147,7 @@ export default function App() {
           {filteredSignals.map((signal, index) => <article className="signal-row" key={signal.id}>
             <div className="signal-index">{String(index + 1).padStart(2, '0')}</div>
             <div className="signal-main">
-              <div className="signal-meta"><span className={`impact ${signal.impact}`}>{impactLabel[signal.impact]}</span><span>{kindLabel[signal.kind] || signal.kind.toUpperCase()}</span><span>{relativeHours(signal.ageHours)}</span><span className="prototype">PROTOTYPE</span></div>
+              <div className="signal-meta"><span className={`impact ${signal.impact}`}>{impactLabel[signal.impact] || signal.impact.toUpperCase()}</span><span>{kindLabel[signal.kind] || signal.kind.toUpperCase()}</span><span>{relativeHours(signal.ageHours)}</span>{signal.prototype !== false && <span className="prototype">PROTOTYPE</span>}</div>
               <button className="signal-tool" onClick={() => openDossier(signal.toolId)}>{signal.tool}</button>
               <h3>{signal.title}</h3>
               <p>{signal.summary}</p>
@@ -106,7 +156,7 @@ export default function App() {
             </div>
             <button className={watchlist.includes(signal.toolId) ? 'watch active' : 'watch'} onClick={() => toggleWatch(signal.toolId)} aria-label={`Watch ${signal.tool}`}><Bookmark size={18} fill={watchlist.includes(signal.toolId) ? 'currentColor' : 'none'}/></button>
           </article>)}
-          {!filteredSignals.length && <div className="empty"><Filter size={22}/><h3>No signals here yet.</h3><p>{view === 'watchlist' ? 'Add tools to My stack and their meaningful changes will collect here.' : 'Try a broader search.'}</p></div>}
+          {!filteredSignals.length && <div className="empty"><Filter size={22}/><h3>No signals here yet.</h3><p>{view === 'watchlist' ? 'Add tools to My stack and their meaningful changes will collect here.' : isLive ? 'Nothing has passed the review threshold for this window.' : 'Try a broader search.'}</p></div>}
         </section>
       </> : <ToolDirectory watchlist={watchlist} toggleWatch={toggleWatch} openDossier={openDossier}/>} 
 
@@ -121,8 +171,8 @@ export default function App() {
       </section>
     </main>
 
-    <footer><div className="brand"><span className="brand-mark">S</span><span>should <i>know</i></span></div><p>Evidence-first AI product intelligence. Prototype feed until the live crawler is connected.</p><a href="https://github.com/igoingtodevx/shouldknow-ai" target="_blank" rel="noreferrer"><GitBranch size={15}/> Source</a></footer>
-    {selected && <DossierModal dossier={selected} watched={watchlist.includes(selected.id)} onWatch={() => toggleWatch(selected.id)} onClose={() => setSelected(null)}/>} 
+    <footer><div className="brand"><span className="brand-mark">S</span><span>should <i>know</i></span></div><p>{isLive ? 'Evidence-first AI product intelligence. Public signals passed a manual review gate.' : 'Evidence-first AI product intelligence. Prototype feed until the live API is configured.'}</p><a href="https://github.com/igoingtodevx/shouldknow-ai" target="_blank" rel="noreferrer"><GitBranch size={15}/> Source</a></footer>
+    {selected && <DossierModal dossier={selected} watched={watchlist.includes(selected.id)} allSignals={feedSignals} onWatch={() => toggleWatch(selected.id)} onClose={() => setSelected(null)}/>} 
   </div>
 }
 
@@ -135,16 +185,16 @@ function ToolDirectory({ watchlist, toggleWatch, openDossier }: { watchlist: str
   </section>
 }
 
-function DossierModal({ dossier, watched, onWatch, onClose }: { dossier: Dossier; watched: boolean; onWatch: () => void; onClose: () => void }) {
-  const history = signals.filter(signal => signal.toolId === dossier.id)
+function DossierModal({ dossier, watched, allSignals, onWatch, onClose }: { dossier: Dossier; watched: boolean; allSignals: Signal[]; onWatch: () => void; onClose: () => void }) {
+  const history = allSignals.filter(signal => signal.toolId === dossier.id)
   return <div className="modal-backdrop" onMouseDown={onClose}><article className="modal" role="dialog" aria-modal="true" onMouseDown={e => e.stopPropagation()}>
     <button className="modal-close" onClick={onClose} aria-label="Close"><X size={20}/></button>
-    <div className="dossier-kicker">LIVING DOSSIER · SEED STATE</div>
+    <div className="dossier-kicker">LIVING DOSSIER</div>
     <div className="dossier-title"><div><h2>{dossier.name}</h2><p>{dossier.verdict}</p></div><button className={watched ? 'watch active' : 'watch'} onClick={onWatch}>{watched ? <Check size={16}/> : <Bookmark size={16}/>} {watched ? 'Watching' : 'Watch'}</button></div>
     <section className="axis-grid">{dossier.axes.map(axis => <div key={axis.label}><span>{axis.label}</span><strong>{axis.value}</strong></div>)}</section>
     <section className="dossier-section"><span>BEST FOR</span><ul>{dossier.bestFor.map(item => <li key={item}>{item}</li>)}</ul></section>
     <section className="dossier-section"><span>KEEP IN MIND</span><p>{dossier.caveat}</p></section>
-    <section className="dossier-section"><span>WHAT CHANGED</span>{history.length ? history.map(signal => <div className="history" key={signal.id}><b>{impactLabel[signal.impact]}</b><span>{signal.title}</span><small>{relativeHours(signal.ageHours)}</small></div>) : <p>No prototype changes attached yet.</p>}</section>
-    <div className="modal-actions"><a className="primary" href={dossier.url} target="_blank" rel="noreferrer">Official site <ExternalLink size={15}/></a><small>Last verification: seed data · live engine pending</small></div>
+    <section className="dossier-section"><span>WHAT CHANGED</span>{history.length ? history.map(signal => <div className="history" key={signal.id}><b>{impactLabel[signal.impact] || signal.impact.toUpperCase()}</b><span>{signal.title}</span><small>{relativeHours(signal.ageHours)}</small></div>) : <p>No reviewed changes attached yet.</p>}</section>
+    <div className="modal-actions"><a className="primary" href={dossier.url} target="_blank" rel="noreferrer">Official site <ExternalLink size={15}/></a><small>Public history contains reviewed signals only when live intelligence is configured.</small></div>
   </article></div>
 }
