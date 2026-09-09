@@ -67,13 +67,14 @@ TRACKING_PIXEL_RE = re.compile(
     re.I,
 )
 # Lines that are only a reaction counter/summary on GitHub pages: a reaction image
-# or emoji prefix, an optional count, zero or more usernames ("alice and bob"), and
-# either "reacted with <x> emoji" or "N reactions". Usernames may contain dots,
-# dashes and underscores; GitHub joins multiple names with " and ".
+# or emoji prefix, an optional count, usernames ("alice and bob"), and either
+# "reacted with <x> emoji" or "N reactions". Deliberately linear (single .* per
+# branch): nested quantifiers here caused catastrophic backtracking on long
+# URL-only lines, hanging the worker for minutes on every GitHub page.
 GITHUB_REACTION_RE = re.compile(
-    r'^[\s>*\-+]*!?\[[^\]]*\]\([^)]*\)\s*(?:\d+\s+)?(?:[\w.-]+(?:\s+and\s+)?\s*)*reacted with .*emoji\s*$'
+    r'^[\s>*\-+]*!?\[[^\]]*\]\([^)]*\)\s*(?:\d+\s+)?.*reacted with .*emoji\s*$'
     r'|^[\s>*\-+]*!?\[[^\]]*\]\([^)]*\)\s*(?:\d+\s*)?reactions?\s*$'
-    r'|^[\s>*\-+]*(?:👍|👎|🎉|😄|❤️|🚀|👀)\s*(?:\d+\s+)?(?:[\w.-]+(?:\s+and\s+)?\s*)*reacted with .*emoji\s*$'
+    r'|^[\s>*\-+]*(?:👍|👎|🎉|😄|❤️|🚀|👀)\s*(?:\d+\s+)?.*reacted with .*emoji\s*$'
     r'|^[\s>*\-+]*(?:👍|👎|🎉|😄|❤️|🚀|👀)\s*(?:\d+\s*)?reactions?\s*$',
     re.I,
 )
