@@ -1,63 +1,72 @@
-# should know — AI tools worth your time
+# Should Know — signal over volume
 
-A deliberately small, source-aware discovery site for AI products that improve a real workflow instead of a generic tool directory.
+Should Know is evolving from a static AI-tool directory into a product-intelligence surface: a small feed of changes that are worth acting on, backed by first-party evidence and organised around a personal watchlist.
 
-## Status
+## Current branch architecture
 
-`shouldknow-ai` is a client-side MVP with a static editorial catalog. The current data file contains **70 tools across 10 categories**. An anonymous public deployment was verified at:
+The current product surface has three layers:
 
-**https://shouldknow-ai.vercel.app**
+1. **Today** — a consequence-first change feed. Each signal carries impact, change type, why it matters, optional action/deadline and explicit evidence links.
+2. **Watchlist** — browser-local product tracking. No account is required; the watchlist is stored locally and becomes the basis for “changes to my stack”.
+3. **Library** — the original 70-tool catalog remains as a baseline discovery/watchset. The old 9.x score is deliberately no longer shown as if it were objective precision.
 
-The page responded with HTTP 200 and the title `Should Know — AI tools worth your time`.
+Selecting any product opens a **living dossier** that combines its old baseline context with captured change history and evidence sources.
 
-## Implemented scope
+## Verified seed feed
 
-- Search the catalog by tool name, job, reason, or category.
-- Filter by category and sort by score, name, or catalog order/newness.
-- Open a detail modal with the job, rationale, caveat, score, official product link, and source trail.
-- Save picks in the browser with `localStorage`.
-- Choose a random tool with **Surprise me**.
-- Keep the catalog in `src/data/tools.json` with fields for product URL, category, job, rationale, caveat, score, and evidence URL.
+The branch ships with a deliberately small set of real, first-party-sourced changes so the product can be evaluated before an automated crawler is trusted. The seed feed is not presented as a live scanner.
 
-## Planned / not implemented
+Continuous collection is the next activation step.
 
-There is no backend or account system in the repository. User accounts, cross-device saved lists, submissions, collaborative editing, server-side search, analytics, and automated verification of vendor claims are not implemented. Editorial scores are research-fit judgements, not vendor, market-share, or performance guarantees.
+## Planned intelligence engine
 
-## Stack
+The intended production loop is:
 
-- React and React DOM.
-- TypeScript.
-- Vite with `@vitejs/plugin-react`.
-- `lucide-react` for icons.
-- Vercel deployment configuration in `vercel.json` (`npm run build`, output directory `dist`).
+```text
+SearXNG / targeted source monitors
+        ↓
+possible change
+        ↓
+Crawl4AI extraction
+        ↓
+source snapshot
+        ↓
+previous ↔ current diff
+        ↓
+materiality filter
+        ↓
+first-party verification
+        ↓
+published change + evidence
+        ↓
+Today / Watchlist / Dossier
+```
 
-The repository has a lockfile; package versions should be taken from `package-lock.json` rather than inferred from this overview.
+SearXNG is discovery, not truth. Product claims should resolve to first-party sources such as official changelogs, docs, pricing pages, GitHub releases or policy pages wherever possible.
 
-## Setup and use
+## Product principles
+
+- **Materiality before volume.** Cosmetic release noise should disappear.
+- **Evidence is part of the UI.** A summary without the source is incomplete.
+- **Changes are append-only history.** Tool dossiers accumulate state instead of replacing the past.
+- **No pseudo-precise universal score.** Impact and consequence are more useful than a floating 9.2/10.
+- **Personal relevance without an account.** Watchlist and last-visit state stay browser-local for the first version.
+
+## Current implementation
+
+- React + TypeScript + Vite
+- Static baseline catalog in `src/data/tools.json`
+- Verified seed changes in `src/data/signals.ts`
+- Browser-local watchlist + last-visit timestamp
+- Vercel frontend deployment
+
+There is no crawler, database, server API or automated source-monitoring worker in this branch yet. Those belong to the intelligence-engine activation phase and must not be claimed as live until deployed and observed.
+
+## Local development
 
 ```bash
 npm install
 npm run dev
-```
-
-Open the local Vite URL shown in the terminal. For a production-style local check:
-
-```bash
-npm run build
-npm run preview
-```
-
-The type-check command is:
-
-```bash
 npm run check
+npm run build
 ```
-
-No environment variables or server-side services are required for the catalog itself.
-
-## Limitations
-
-- The catalog is bundled into the frontend; updates require changing and redeploying the repository.
-- Saved items are local to one browser and are not an account-backed collection.
-- Product availability, pricing, privacy terms, and the linked evidence should be checked independently before adoption.
-- No claim is made here that the anonymous deployment is identical to a particular commit beyond the live page check above.
