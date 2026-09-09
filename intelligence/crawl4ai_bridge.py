@@ -31,7 +31,15 @@ MAX_URLS_PER_REQUEST = 10
 
 
 def _crawl_one(url: str, page_timeout_ms: int) -> dict:
-    run_config = CrawlerRunConfig(verbose=False, page_timeout=page_timeout_ms)
+    run_config = CrawlerRunConfig(
+        verbose=False,
+        page_timeout=page_timeout_ms,
+        # Wait for lazy-loaded content and drop consent banners so repeated
+        # crawls of the same page hash identically (marketing pages otherwise
+        # render different subsets of images/forms on every visit).
+        wait_until='network_idle',
+        remove_consent_popups=True,
+    )
     async def _run() -> dict:
         async with AsyncWebCrawler() as crawler:
             result = await crawler.arun(url=url, config=run_config)

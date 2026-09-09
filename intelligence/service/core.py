@@ -62,7 +62,13 @@ TRACKING_PIXEL_RE = re.compile(
     r'scorecardresearch\.com|hotjar\.com|static\.hotjar\.com|clarity\.ms|c\.clarity\.ms|'
     r'mixpanel\.com|segment\.io/analytics|fullstory\.com|amplitude\.com|snap\.licdn\.com|'
     r'ads\.linkedin\.com|px\.ads\.linkedin\.com|redditstatic\.com/ads|criteo\.net|taboola\.com|'
-    r'outbrain\.com|quantserve\.com|chartbeat\.com|newrelic\.com|nr-data\.net|browser-intake-'
+    r'outbrain\.com|quantserve\.com|chartbeat\.com|newrelic\.com|nr-data\.net|browser-intake-|'
+    # A/B testing platforms rotate page content per request; without stripping
+    # their assets the same page hashes differently on every visit.
+    # (bare "spiralyze" also matches its res.cloudinary.com/spiralyze/... path)
+    r'spiralyze|vwo\.com|vwo\.net|optimizely\.com|cdn\.optimizely\.com|'
+    r'googleoptimize\.com|kameleoon\.com|dynamicyield\.com|abtasty\.com|'
+    r'inspectlet\.com|everestjs\.net'
     r')',
     re.I,
 )
@@ -79,8 +85,7 @@ GITHUB_REACTION_RE = re.compile(
     re.I,
 )
 # Lines that are nothing but a tracking pixel image: ![alt](https://tracking.domain/...)
-TRACKING_PIXEL_LINE_RE = re.compile(r'^\s*!?\[[^\]]*\]\(https?://[^)]*\)\s*$')
-
+# (inline removal in _strip_tracking_images covers this and mixed lines)
 
 def db():
     return psycopg.connect(DATABASE_URL)
@@ -108,10 +113,18 @@ def _strip_tracking_params(text: str) -> str:
     return re.sub(r'https?://[^\s<>"\')\]]+', _clean_url, text)
 
 
-def _is_tracking_pixel_line(line: str) -> bool:
-    if not TRACKING_PIXEL_LINE_RE.match(line):
-        return False
-    return bool(TRACKING_PIXEL_RE.search(line))
+def _strip_tracking_images(line: str) -> str:
+    """Remove image tokens whose URL points at a tracking/A-B domain.
+
+    Works inline (a line may contain a tracking pixel next to real content) and
+    as a whole-line matcher. Kept linear: single character-class quantifiers.
+    """
+    def _repl(match: re.Match) -> str:
+        url = match.group(1)
+        if TRACKING_PIXEL_RE.search(url):
+            return ''
+        return match.group(0)
+    return re.sub(r'!\[[^\]]*\]\((https?://[^)\s]+)\)', _repl, line)
 
 
 def normalize(text: str) -> str:
@@ -121,9 +134,9 @@ def normalize(text: str) -> str:
     cleaned: list[str] = []
     for line in text.splitlines():
         line = _strip_tracking_params(line.strip())
+        line = _strip_tracking_images(line).strip()
+        line = re.sub(r'[ \t]{2,}', ' ', line)  # collapse gaps left by removed tokens
         if not line:
-            continue
-        if _is_tracking_pixel_line(line):
             continue
         if GITHUB_REACTION_RE.match(line):
             continue
