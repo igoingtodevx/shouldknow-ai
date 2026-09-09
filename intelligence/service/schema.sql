@@ -44,8 +44,18 @@ CREATE TABLE IF NOT EXISTS changes (
   summary TEXT NOT NULL,
   why_it_matters TEXT NOT NULL,
   publication_status TEXT NOT NULL DEFAULT 'review',
-  evidence JSONB NOT NULL DEFAULT '[]'::jsonb
+  evidence JSONB NOT NULL DEFAULT '[]'::jsonb,
+  reviewed_at TIMESTAMPTZ,
+  reviewed_by TEXT,
+  review_note TEXT,
+  published_at TIMESTAMPTZ
 );
+
+-- Existing shadow databases are upgraded in place when init_db() re-runs.
+ALTER TABLE changes ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
+ALTER TABLE changes ADD COLUMN IF NOT EXISTS reviewed_by TEXT;
+ALTER TABLE changes ADD COLUMN IF NOT EXISTS review_note TEXT;
+ALTER TABLE changes ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS discovery_candidates (
   id BIGSERIAL PRIMARY KEY,
@@ -60,4 +70,5 @@ CREATE TABLE IF NOT EXISTS discovery_candidates (
 
 CREATE INDEX IF NOT EXISTS idx_changes_detected_at ON changes(detected_at DESC);
 CREATE INDEX IF NOT EXISTS idx_changes_tool_id ON changes(tool_id);
+CREATE INDEX IF NOT EXISTS idx_changes_publication_status ON changes(publication_status, detected_at DESC);
 CREATE INDEX IF NOT EXISTS idx_snapshots_source_time ON snapshots(source_id, captured_at DESC);
