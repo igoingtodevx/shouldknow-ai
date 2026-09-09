@@ -57,7 +57,7 @@ TRACKING_QUERY_RE = re.compile(
 )
 TRACKING_PIXEL_RE = re.compile(
     r'(?:'
-    r'bat\.bing\.net|adroll\.com|t\.co/1/i/adsct|analytics\.twitter\.com|static\.ads-twitter\.com|'
+    r'bat\.bing\.net|adroll\.com|t\.co/(?:1/)?i/adsct|analytics\.twitter\.com|static\.ads-twitter\.com|'
     r'google-analytics\.com|googletagmanager\.com/gtag|'
     r'googleadservices\.com/pagead|facebook\.com/tr|connect\.facebook\.net|doubleclick\.net|'
     r'scorecardresearch\.com|hotjar\.com|static\.hotjar\.com|clarity\.ms|c\.clarity\.ms|'
@@ -87,6 +87,11 @@ CONSENT_BUTTON_LINE_RE = re.compile(
     re.I,
 )
 CONSENT_BOILERPLATE_RE = re.compile(r'^By clicking .{0,60}(cookie|consent).{0,120}$', re.I)
+CONSENT_BANNER_START_RE = re.compile(
+    r'^(?:By clicking .{0,200}\b(?:cookies?|consent)\b|'
+    r'#{1,6}\s*(?:privacy preference center|manage consent preferences))',
+    re.I,
+)
 # Lines that are only a reaction counter/summary on GitHub pages: a reaction image
 # or emoji prefix, an optional count, usernames ("alice and bob"), and either
 # "reacted with <x> emoji" or "N reactions". Deliberately linear (single .* per
@@ -153,16 +158,52 @@ def _is_consent_noise(line: str) -> bool:
     return bool(CONSENT_PLATFORM_RE.search(stripped))
 
 
+MARKDOWN_LINK_CELL_RE = re.compile(r'\[[^\]]+\]\(https?://[^)]+\)')
+MARKDOWN_METRIC_CELL_RE = re.compile(
+    r'(?:\d+(?:\.\d+)?(?:\s*[KMB%])?|\d+(?:\.\d+)?\s+(?:minutes?|hours?|days?|weeks?|months?|years?))',
+    re.I,
+)
+
+
+def _normalize_volatile_metric_row(line: str) -> str:
+    """Blank volatile metric cells in link-heavy Markdown data-table rows.
+
+    Some directories render popularity scores, usage counts, and relative-age
+    values alongside stable library links. These values change between identical
+    crawls, while the linked entity is unchanged. Only rows whose first two cells
+    are links and whose remaining non-empty cells are clearly metric/time values
+    are normalized; pricing/version/content tables remain untouched.
+    """
+    if not (line.startswith('|') and line.endswith('|')):
+        return line
+    cells = [cell.strip() for cell in line[1:-1].split('|')]
+    if len(cells) < 4 or not all(MARKDOWN_LINK_CELL_RE.search(cell) for cell in cells[:2]):
+        return line
+    suffix = cells[2:]
+    if not any(suffix) or not all(not cell or MARKDOWN_METRIC_CELL_RE.fullmatch(cell) for cell in suffix):
+        return line
+    return '| ' + ' | '.join(cells[:2] + [''] * len(suffix)) + ' |'
+
+
 def normalize(text: str) -> str:
     text = text.replace('\r', '')
     text = re.sub(r'[ \t]+', ' ', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
     cleaned: list[str] = []
+    consent_tail = False
     for line in text.splitlines():
         line = _strip_tracking_params(line.strip())
         line = _strip_tracking_images(line).strip()
         line = re.sub(r'[ \t]{2,}', ' ', line)  # collapse gaps left by removed tokens
+        line = _normalize_volatile_metric_row(line)
         if not line:
+            continue
+        if consent_tail:
+            continue
+        if CONSENT_BANNER_START_RE.match(line):
+            # Crawl4AI can append a complete preference-center DOM after the
+            # actual page. It is visitor-state noise and usually runs to EOF.
+            consent_tail = True
             continue
         if _is_consent_noise(line):
             continue
