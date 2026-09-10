@@ -1,5 +1,6 @@
 import argparse
 import json
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -56,62 +57,91 @@ def summarize_change(tool_name: str, source_kind: str, materiality: str, diff: d
     return kind, impact, title, summary, why
 
 
-def crawl_once() -> None:
-    seed_watchset()
-    for source_id, tool_id, tool_name, source_kind, url, first_party in source_rows():
-        try:
-            text = crawl(url)
-            digest = hash_text(text)
-            with db() as conn, conn.cursor() as cur:
-                cur.execute('SELECT id, normalized_text, content_hash FROM snapshots WHERE source_id=%s ORDER BY captured_at DESC LIMIT 1', (source_id,))
-                previous = cur.fetchone()
-                cur.execute(
-                    '''INSERT INTO snapshots(source_id, content_hash, normalized_text, http_status)
-                       VALUES(%s,%s,%s,200)
-                       ON CONFLICT(source_id, content_hash) DO NOTHING
-                       RETURNING id''',
-                    (source_id, digest, text),
-                )
-                inserted = cur.fetchone()
-                cur.execute('UPDATE sources SET last_crawled_at=now() WHERE id=%s', (source_id,))
-                if inserted:
-                    after_id = inserted[0]
-                elif not previous or previous[2] == digest:
-                    # The newest snapshot already has this content hash.
-                    conn.commit()
-                    continue
-                else:
-                    # A historical hash can reappear after a later version. Reuse
-                    # that immutable snapshot so the revert still becomes a diff.
-                    cur.execute(
-                        'SELECT id FROM snapshots WHERE source_id=%s AND content_hash=%s ORDER BY captured_at ASC LIMIT 1',
-                        (source_id, digest),
-                    )
-                    historical = cur.fetchone()
-                    if not historical:
-                        conn.commit()
-                        continue
-                    after_id = historical[0]
-                if previous:
-                    diff = diff_lines(previous[1], text)
-                    materiality, reason = classify(diff)
-                    if materiality != 'P2':
-                        kind, impact, title, summary, why = summarize_change(tool_name, source_kind, materiality, diff)
-                        status = 'published' if AUTO_PUBLISH_P0 and materiality == 'P0' else 'review'
-                        evidence = [{'label': f'Official {source_kind}', 'url': url, 'firstParty': bool(first_party)}]
-                        cur.execute(
-                            '''INSERT INTO changes(tool_id, source_id, before_snapshot_id, after_snapshot_id,
-                               kind, impact, materiality, confidence, title, summary, why_it_matters,
-                               publication_status, evidence)
-                               VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb)''',
-                            (tool_id, source_id, previous[0], after_id, kind, impact, materiality,
-                             0.9 if materiality == 'P0' else 0.7, title, summary,
-                             why + ' ' + reason, status, json.dumps(evidence)),
-                        )
+@dataclass(frozen=True)
+class CrawlRunResult:
+    due: int
+    success: int
+    failed: int
+
+
+def crawl_exit_code(result: CrawlRunResult) -> int:
+    return 1 if result.failed else 0
+
+
+def _crawl_source(row) -> None:
+    source_id, tool_id, tool_name, source_kind, url, first_party = row
+    text = crawl(url)
+    digest = hash_text(text)
+    with db() as conn, conn.cursor() as cur:
+        cur.execute('SELECT id, normalized_text, content_hash FROM snapshots WHERE source_id=%s ORDER BY captured_at DESC LIMIT 1', (source_id,))
+        previous = cur.fetchone()
+        cur.execute(
+            '''INSERT INTO snapshots(source_id, content_hash, normalized_text, http_status)
+               VALUES(%s,%s,%s,200)
+               ON CONFLICT(source_id, content_hash) DO NOTHING
+               RETURNING id''',
+            (source_id, digest, text),
+        )
+        inserted = cur.fetchone()
+        cur.execute('UPDATE sources SET last_crawled_at=now() WHERE id=%s', (source_id,))
+        if inserted:
+            after_id = inserted[0]
+        elif not previous or previous[2] == digest:
+            # The newest snapshot already has this content hash.
+            conn.commit()
+            return
+        else:
+            # A historical hash can reappear after a later version. Reuse
+            # that immutable snapshot so the revert still becomes a diff.
+            cur.execute(
+                'SELECT id FROM snapshots WHERE source_id=%s AND content_hash=%s ORDER BY captured_at ASC LIMIT 1',
+                (source_id, digest),
+            )
+            historical = cur.fetchone()
+            if not historical:
                 conn.commit()
-            print(f'crawled {tool_name} {source_kind}: {url}')
+                return
+            after_id = historical[0]
+        if previous:
+            diff = diff_lines(previous[1], text)
+            materiality, reason = classify(diff)
+            if materiality != 'P2':
+                kind, impact, title, summary, why = summarize_change(tool_name, source_kind, materiality, diff)
+                status = 'published' if AUTO_PUBLISH_P0 and materiality == 'P0' else 'review'
+                evidence = [{'label': f'Official {source_kind}', 'url': url, 'firstParty': bool(first_party)}]
+                cur.execute(
+                    '''INSERT INTO changes(tool_id, source_id, before_snapshot_id, after_snapshot_id,
+                       kind, impact, materiality, confidence, title, summary, why_it_matters,
+                       publication_status, evidence)
+                       VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb)''',
+                    (tool_id, source_id, previous[0], after_id, kind, impact, materiality,
+                     0.9 if materiality == 'P0' else 0.7, title, summary,
+                     why + ' ' + reason, status, json.dumps(evidence)),
+                )
+        conn.commit()
+
+
+def process_crawl_sources(rows, process_source=_crawl_source) -> CrawlRunResult:
+    rows = list(rows)
+    successes = 0
+    failures = 0
+    for row in rows:
+        try:
+            process_source(row)
         except Exception as exc:
-            print(f'crawl failed {url}: {exc}')
+            failures += 1
+            print(f'crawl failed {row[4]}: {exc}')
+        else:
+            successes += 1
+            print(f'crawled {row[2]} {row[3]}: {row[4]}')
+    return CrawlRunResult(due=len(rows), success=successes, failed=failures)
+
+
+def crawl_once() -> CrawlRunResult:
+    seed_watchset()
+    result = process_crawl_sources(source_rows())
+    print(f'crawl summary: due={result.due} success={result.success} failed={result.failed}')
+    return result
 
 
 def discover_once() -> None:
@@ -139,18 +169,20 @@ def discover_once() -> None:
         conn.commit()
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', choices=['crawl', 'discover', 'once', 'seed'], default='once', nargs='?')
     args = parser.parse_args()
     init_db()
+    exit_code = 0
     if args.mode in {'seed', 'crawl', 'once'}:
         seed_watchset()
     if args.mode in {'crawl', 'once'}:
-        crawl_once()
+        exit_code = crawl_exit_code(crawl_once())
     if args.mode in {'discover', 'once'}:
         discover_once()
+    return exit_code
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())
