@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import secrets
 from datetime import datetime, timezone
 from typing import Any, Literal
@@ -10,7 +11,7 @@ from pydantic import BaseModel, Field
 
 from core import db, diff_lines, init_db
 
-app = FastAPI(title='Should Know Intelligence API', version='0.2.0')
+app = FastAPI(title='Should Know Intelligence API', version='0.3.0')
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -76,6 +77,52 @@ def signals(hours: int = Query(168, ge=1, le=24 * 90)) -> list[dict[str, Any]]:
     return result
 
 
+@app.get('/v1/discovery')
+def discovery(limit: int = Query(12, ge=1, le=30)) -> list[dict[str, Any]]:
+    with db() as conn, conn.cursor() as cur:
+        cur.execute(
+            '''
+            SELECT title, url, source_name, source_url, score, last_seen_at
+            FROM discovery_candidates
+            WHERE source_kind='directory'
+              AND title IS NOT NULL
+              AND last_seen_at >= now() - interval '14 days'
+            ORDER BY score DESC, last_seen_at DESC
+            LIMIT 500
+            '''
+        )
+        rows = cur.fetchall()
+
+    grouped: dict[str, dict[str, Any]] = {}
+    for title, candidate_url, source_name, source_url, score, last_seen_at in rows:
+        key = re.sub(r'[^a-z0-9]+', '', title.casefold())
+        if not key:
+            continue
+        item = grouped.setdefault(key, {
+            'id': f'radar-{key[:48]}',
+            'title': title,
+            'score': float(score or 0),
+            'lastSeenAt': last_seen_at.isoformat(),
+            'sources': [],
+        })
+        item['score'] = max(item['score'], float(score or 0))
+        if last_seen_at.isoformat() > item['lastSeenAt']:
+            item['lastSeenAt'] = last_seen_at.isoformat()
+        source = {
+            'name': source_name or 'AI directory',
+            'url': source_url or candidate_url,
+            'candidateUrl': candidate_url,
+        }
+        if not any(existing['name'] == source['name'] for existing in item['sources']):
+            item['sources'].append(source)
+
+    items = list(grouped.values())
+    for item in items:
+        item['sourceCount'] = len(item['sources'])
+    items.sort(key=lambda item: (item['sourceCount'], item['score'], item['lastSeenAt']), reverse=True)
+    return items[:limit]
+
+
 @app.get('/v1/tools')
 def tools() -> list[dict[str, Any]]:
     with db() as conn, conn.cursor() as cur:
@@ -117,8 +164,6 @@ def tool(tool_id: str) -> dict[str, Any]:
 
 
 def require_admin(authorization: str | None) -> None:
-    # Review is deliberately fail-closed. A missing server-side token disables
-    # mutation rather than creating a default credential or unauthenticated path.
     if not ADMIN_TOKEN:
         raise HTTPException(status_code=503, detail='Review API is disabled')
     prefix = 'Bearer '
