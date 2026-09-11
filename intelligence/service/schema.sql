@@ -65,10 +65,24 @@ CREATE TABLE IF NOT EXISTS discovery_candidates (
   snippet TEXT,
   discovered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   status TEXT NOT NULL DEFAULT 'new',
+  source_name TEXT,
+  source_url TEXT,
+  source_kind TEXT NOT NULL DEFAULT 'search',
+  score DOUBLE PRECISION NOT NULL DEFAULT 0,
+  last_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  seen_count INTEGER NOT NULL DEFAULT 1,
   UNIQUE(url)
 );
+
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS source_name TEXT;
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS source_url TEXT;
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS source_kind TEXT NOT NULL DEFAULT 'search';
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS score DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ NOT NULL DEFAULT now();
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS seen_count INTEGER NOT NULL DEFAULT 1;
 
 CREATE INDEX IF NOT EXISTS idx_changes_detected_at ON changes(detected_at DESC);
 CREATE INDEX IF NOT EXISTS idx_changes_tool_id ON changes(tool_id);
 CREATE INDEX IF NOT EXISTS idx_changes_publication_status ON changes(publication_status, detected_at DESC);
 CREATE INDEX IF NOT EXISTS idx_snapshots_source_time ON snapshots(source_id, captured_at DESC);
+CREATE INDEX IF NOT EXISTS idx_discovery_kind_seen ON discovery_candidates(source_kind, last_seen_at DESC);
