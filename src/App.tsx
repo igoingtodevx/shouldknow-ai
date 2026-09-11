@@ -3,6 +3,7 @@ import { ArrowRight, Bookmark, Check, Clock3, ExternalLink, Filter, GitBranch, S
 import tools from './data/tools.json'
 import prototypeSignalsRaw from './data/signals.json'
 import dossiers from './data/dossiers.json'
+import DiscoveryRadar from './DiscoveryRadar'
 
 type Source = { label: string; url: string; firstParty?: boolean }
 type Signal = {
@@ -159,6 +160,8 @@ export default function App() {
           {!filteredSignals.length && <div className="empty"><Filter size={22}/><h3>No signals here yet.</h3><p>{view === 'watchlist' ? 'Add tools to My stack and their meaningful changes will collect here.' : isLive ? 'Nothing has passed the review threshold for this window.' : 'Try a broader search.'}</p></div>}
         </section>
       </> : <ToolDirectory watchlist={watchlist} toggleWatch={toggleWatch} openDossier={openDossier}/>} 
+
+      <DiscoveryRadar />
 
       <section className="threshold">
         <span className="mini-label">THE EDITORIAL CONTRACT</span>
