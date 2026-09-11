@@ -1,0 +1,26 @@
+[
+  {
+    "id": "product-hunt-ai",
+    "name": "Product Hunt — AI Software",
+    "url": "https://www.producthunt.com/categories/ai-software",
+    "candidatePathPrefixes": ["/products/"],
+    "maxCandidates": 40,
+    "weight": 3.0
+  },
+  {
+    "id": "futurepedia",
+    "name": "Futurepedia",
+    "url": "https://www.futurepedia.io/",
+    "candidatePathPrefixes": ["/tool/"],
+    "maxCandidates": 40,
+    "weight": 2.0
+  },
+  {
+    "id": "toolify-new",
+    "name": "Toolify — New AIs",
+    "url": "https://www.toolify.ai/new",
+    "candidatePathPrefixes": ["/tool/"],
+    "maxCandidates": 50,
+    "weight": 2.5
+  }
+]
