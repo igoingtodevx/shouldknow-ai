@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 from core import AUTO_PUBLISH_P0, classify, crawl, db, diff_lines, hash_text, init_db, load_watchset, search
+from discovery import extract_directory_candidates, load_discovery_sources
 
 
 def seed_watchset() -> None:
@@ -87,12 +88,9 @@ def _crawl_source(row) -> None:
         if inserted:
             after_id = inserted[0]
         elif not previous or previous[2] == digest:
-            # The newest snapshot already has this content hash.
             conn.commit()
             return
         else:
-            # A historical hash can reappear after a later version. Reuse
-            # that immutable snapshot so the revert still becomes a diff.
             cur.execute(
                 'SELECT id FROM snapshots WHERE source_id=%s AND content_hash=%s ORDER BY captured_at ASC LIMIT 1',
                 (source_id, digest),
@@ -144,6 +142,36 @@ def crawl_once() -> CrawlRunResult:
     return result
 
 
+def _upsert_discovery_candidate(
+    cur,
+    *,
+    query: str,
+    url: str,
+    title: str | None,
+    snippet: str | None,
+    source_name: str | None,
+    source_url: str | None,
+    source_kind: str,
+    score: float,
+) -> None:
+    cur.execute(
+        '''INSERT INTO discovery_candidates(
+             query, url, title, snippet, source_name, source_url, source_kind, score, last_seen_at, seen_count
+           ) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,now(),1)
+           ON CONFLICT(url) DO UPDATE SET
+             query=excluded.query,
+             title=COALESCE(excluded.title, discovery_candidates.title),
+             snippet=COALESCE(excluded.snippet, discovery_candidates.snippet),
+             source_name=COALESCE(excluded.source_name, discovery_candidates.source_name),
+             source_url=COALESCE(excluded.source_url, discovery_candidates.source_url),
+             source_kind=excluded.source_kind,
+             score=GREATEST(discovery_candidates.score, excluded.score),
+             last_seen_at=now(),
+             seen_count=discovery_candidates.seen_count + 1''',
+        (query, url, title, snippet, source_name, source_url, source_kind, score),
+    )
+
+
 def discover_once() -> None:
     queries = [
         'AI tool changelog pricing update',
@@ -158,14 +186,39 @@ def discover_once() -> None:
                     url = result.get('url')
                     if not url or urlparse(url).scheme not in {'http', 'https'}:
                         continue
-                    cur.execute(
-                        '''INSERT INTO discovery_candidates(query, url, title, snippet)
-                           VALUES(%s,%s,%s,%s)
-                           ON CONFLICT(url) DO NOTHING''',
-                        (query, url, result.get('title'), result.get('content') or result.get('snippet')),
+                    _upsert_discovery_candidate(
+                        cur,
+                        query=query,
+                        url=url,
+                        title=result.get('title'),
+                        snippet=result.get('content') or result.get('snippet'),
+                        source_name='Search discovery',
+                        source_url=None,
+                        source_kind='search',
+                        score=0.5,
                     )
             except Exception as exc:
                 print(f'discovery failed {query}: {exc}')
+
+        for source in load_discovery_sources():
+            try:
+                markdown = crawl(source['url'])
+                candidates = extract_directory_candidates(markdown, source)
+                for candidate in candidates:
+                    _upsert_discovery_candidate(
+                        cur,
+                        query=f"directory:{source['id']}",
+                        url=candidate['url'],
+                        title=candidate['title'],
+                        snippet=None,
+                        source_name=candidate['sourceName'],
+                        source_url=candidate['sourceUrl'],
+                        source_kind='directory',
+                        score=float(candidate['score']),
+                    )
+                print(f"directory discovery {source['name']}: {len(candidates)} candidates")
+            except Exception as exc:
+                print(f"directory discovery failed {source['name']}: {exc}")
         conn.commit()
 
 
