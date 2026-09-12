@@ -180,7 +180,8 @@ def _candidate_rows(limit: int, scan_limit: int) -> list[tuple[Any, ...]]:
                WHERE source_kind='directory'
                  AND title IS NOT NULL
                  AND (enrichment_status IS NULL OR enrichment_status IN ('pending', 'partial'))
-               ORDER BY score DESC, last_seen_at DESC
+               ORDER BY CASE WHEN enrichment_status='pending' THEN 0 ELSE 1 END,
+                        score DESC, last_seen_at DESC
                LIMIT %s''',
             (scan_limit,),
         )
