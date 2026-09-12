@@ -265,7 +265,7 @@ def extract_crawl_text(payload: Any) -> str:
 def crawl(url: str) -> str:
     if not CRAWL4AI_ENDPOINT:
         raise RuntimeError('CRAWL4AI_ENDPOINT is not configured')
-    with httpx.Client(timeout=90) as client:
+    with httpx.Client(timeout=httpx.Timeout(60.0, connect=5.0, read=60.0, write=10.0, pool=5.0)) as client:
         response = client.post(CRAWL4AI_ENDPOINT, json={'urls': [url]})
         response.raise_for_status()
         return normalize(extract_crawl_text(response.json()))
@@ -274,7 +274,7 @@ def crawl(url: str) -> str:
 def search(query: str) -> list[dict[str, Any]]:
     if not SEARXNG_URL:
         raise RuntimeError('SEARXNG_URL is not configured')
-    with httpx.Client(timeout=30) as client:
+    with httpx.Client(timeout=httpx.Timeout(12.0, connect=3.0, read=10.0, write=5.0, pool=3.0)) as client:
         response = client.get(f'{SEARXNG_URL}/search', params={'q': query, 'format': 'json'})
         response.raise_for_status()
         data = response.json()

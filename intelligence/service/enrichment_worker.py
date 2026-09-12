@@ -196,7 +196,7 @@ def enrich_once(
 ) -> dict[str, int]:
     if limit < 1:
         raise ValueError('limit must be at least 1')
-    rows = _candidate_rows(limit, max(limit * 4, 20))
+    rows = _candidate_rows(limit, limit)
     enriched = 0
     scanned = 0
     source_count = 0
