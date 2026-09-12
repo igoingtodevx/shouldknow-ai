@@ -258,10 +258,13 @@ def find_first_party_sources_detailed(
     failed_queries = 0
 
     def fetch(kind: str) -> tuple[str, list[dict[str, Any]], bool]:
-        try:
-            return kind, search_fn(queries[kind]), False
-        except Exception:
-            return kind, [], True
+        for attempt in range(2):
+            try:
+                return kind, search_fn(queries[kind]), False
+            except Exception:
+                if attempt == 1:
+                    return kind, [], True
+        return kind, [], True
 
     def accept_results(kind: str, results: list[dict[str, Any]]) -> None:
         nonlocal trusted_hosts, trusted_github_owners
@@ -293,7 +296,7 @@ def find_first_party_sources_detailed(
     failed_queries += int(failed)
     accept_results(kind, results)
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         futures = {kind: executor.submit(fetch, kind) for kind in SOURCE_KINDS if kind != 'homepage'}
         for kind in SOURCE_KINDS:
             if kind == 'homepage':
