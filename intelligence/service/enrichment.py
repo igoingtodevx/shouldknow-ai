@@ -4,6 +4,7 @@ import hashlib
 import ipaddress
 import re
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
@@ -255,22 +256,27 @@ def find_first_party_sources_detailed(
     trusted_hosts: set[str] = set()
     trusted_github_owners: set[str] = set()
     failed_queries = 0
-    for requested_kind in SOURCE_KINDS:
+
+    def fetch(kind: str) -> tuple[str, list[dict[str, Any]], bool]:
         try:
-            results = search_fn(queries[requested_kind])
+            return kind, search_fn(queries[kind]), False
         except Exception:
-            failed_queries += 1
-            continue
+            return kind, [], True
+
+    def accept_results(kind: str, results: list[dict[str, Any]]) -> None:
+        nonlocal trusted_hosts, trusted_github_owners
         for result in results[:20]:
             match = classify_source_result(
                 result,
                 candidate_title=candidate_title,
                 seed_url=seed_url,
-                requested_kind=requested_kind,
+                requested_kind=kind,
                 trusted_hosts=trusted_hosts,
                 trusted_github_owners=trusted_github_owners,
             )
             if not match or match.kind in matches:
+                continue
+            if kind == 'homepage' and match.kind != 'homepage':
                 continue
             matches[match.kind] = match
             if match.kind == 'homepage':
@@ -282,6 +288,19 @@ def find_first_party_sources_detailed(
                     trusted_hosts.update(OFFICIAL_HOST_ALIASES.get(profile, set()))
                     trusted_github_owners.update(OFFICIAL_GITHUB_OWNERS.get(profile, set()))
             break
+
+    kind, results, failed = fetch('homepage')
+    failed_queries += int(failed)
+    accept_results(kind, results)
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {kind: executor.submit(fetch, kind) for kind in SOURCE_KINDS if kind != 'homepage'}
+        for kind in SOURCE_KINDS:
+            if kind == 'homepage':
+                continue
+            _kind, results, failed = futures[kind].result()
+            failed_queries += int(failed)
+            accept_results(_kind, results)
     return matches, failed_queries
 
 
