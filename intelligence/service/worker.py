@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 
 from core import AUTO_PUBLISH_P0, classify, crawl, db, diff_lines, hash_text, init_db, load_watchset, search
 from discovery import extract_directory_candidates, load_discovery_sources
+from enrichment_worker import enrich_once
+from enrichment import canonical_url
 
 
 def seed_watchset() -> None:
@@ -67,6 +69,53 @@ class CrawlRunResult:
 
 def crawl_exit_code(result: CrawlRunResult) -> int:
     return 1 if result.failed else 0
+
+
+@dataclass(frozen=True)
+class DiscoveryRunResult:
+    directory_sources: int
+    directory_success: int
+    directory_failed: int
+    directory_candidates: int
+    search_queries: int = 0
+    search_failed: int = 0
+
+
+def _directory_search_fallback(source) -> list[dict]:
+    host = urlparse(source['url']).hostname or ''
+    prefix = (source.get('candidatePathPrefixes') or ['/'])[0]
+    if not host:
+        return []
+    results = search(f'site:{host} {prefix}')
+    markdown = ' '.join(
+        f"[{item.get('title') or ''}]({item.get('url') or ''})"
+        for item in results[:30]
+        if item.get('url')
+    )
+    return extract_directory_candidates(markdown, source)
+
+
+def _looks_like_directory_challenge(markdown: str) -> bool:
+    haystack = markdown.casefold()
+    return any(marker in haystack for marker in (
+        'captcha', 'verify you are human', 'verify your identity', 'access denied',
+        'just a moment', 'checking your browser', 'enable javascript',
+    ))
+
+
+def _store_directory_candidates(cur, source, candidates, query: str) -> None:
+    for candidate in candidates:
+        _upsert_discovery_candidate(
+            cur,
+            query=query,
+            url=candidate['url'],
+            title=candidate['title'],
+            snippet=None,
+            source_name=candidate['sourceName'],
+            source_url=candidate['sourceUrl'],
+            source_kind='directory',
+            score=float(candidate['score']),
+        )
 
 
 def _crawl_source(row) -> None:
@@ -172,19 +221,20 @@ def _upsert_discovery_candidate(
     )
 
 
-def discover_once() -> None:
+def discover_once() -> DiscoveryRunResult:
     queries = [
         'AI tool changelog pricing update',
         'AI agent release notes new API',
         'AI coding assistant pricing free tier change',
         'AI video model changelog API release',
     ]
+    search_failed = 0
     with db() as conn, conn.cursor() as cur:
         for query in queries:
             try:
                 for result in search(query)[:20]:
-                    url = result.get('url')
-                    if not url or urlparse(url).scheme not in {'http', 'https'}:
+                    url = canonical_url(str(result.get('url') or ''))
+                    if not url:
                         continue
                     _upsert_discovery_candidate(
                         cur,
@@ -198,34 +248,66 @@ def discover_once() -> None:
                         score=0.5,
                     )
             except Exception as exc:
+                search_failed += 1
                 print(f'discovery failed {query}: {exc}')
 
-        for source in load_discovery_sources():
+        directory_sources = load_discovery_sources()
+        directory_success = 0
+        directory_failed = 0
+        directory_candidate_count = 0
+        for source in directory_sources:
             try:
                 markdown = crawl(source['url'])
                 candidates = extract_directory_candidates(markdown, source)
-                for candidate in candidates:
-                    _upsert_discovery_candidate(
-                        cur,
-                        query=f"directory:{source['id']}",
-                        url=candidate['url'],
-                        title=candidate['title'],
-                        snippet=None,
-                        source_name=candidate['sourceName'],
-                        source_url=candidate['sourceUrl'],
-                        source_kind='directory',
-                        score=float(candidate['score']),
-                    )
+                if not candidates or _looks_like_directory_challenge(markdown):
+                    raise RuntimeError('directory returned no usable candidates or a challenge page')
+                _store_directory_candidates(cur, source, candidates, f"directory:{source['id']}")
+                directory_success += 1
+                directory_candidate_count += len(candidates)
                 print(f"directory discovery {source['name']}: {len(candidates)} candidates")
             except Exception as exc:
-                print(f"directory discovery failed {source['name']}: {exc}")
+                try:
+                    candidates = _directory_search_fallback(source)
+                except Exception as fallback_exc:
+                    candidates = []
+                    print(f"directory fallback failed {source['name']}: {fallback_exc}")
+                if candidates:
+                    fallback_source = dict(source)
+                    fallback_source['name'] = f"{source['name']} (SearXNG fallback)"
+                    _store_directory_candidates(cur, fallback_source, candidates, f"directory:{source['id']}:search-fallback")
+                    directory_success += 1
+                    directory_candidate_count += len(candidates)
+                    print(f"directory discovery {source['name']}: {len(candidates)} candidates via SearXNG fallback")
+                else:
+                    directory_failed += 1
+                    print(f"directory discovery failed {source['name']}: {exc}")
         conn.commit()
+    result = DiscoveryRunResult(
+        directory_sources=len(directory_sources),
+        directory_success=directory_success,
+        directory_failed=directory_failed,
+        directory_candidates=directory_candidate_count,
+        search_queries=len(queries),
+        search_failed=search_failed,
+    )
+    print(
+        f'discovery summary: sources={result.directory_sources} success={result.directory_success} '
+        f'failed={result.directory_failed} candidates={result.directory_candidates} '
+        f'search_failed={result.search_failed}'
+    )
+    return result
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('mode', choices=['crawl', 'discover', 'once', 'seed'], default='once', nargs='?')
+    parser.add_argument('mode', choices=['crawl', 'discover', 'enrich', 'once', 'seed'], default='once', nargs='?')
+    parser.add_argument('--limit', type=int, default=5)
+    parser.add_argument('--days', type=int, default=30)
     args = parser.parse_args()
+    if args.limit < 1 or args.limit > 100:
+        parser.error('--limit must be between 1 and 100')
+    if args.days < 1 or args.days > 365:
+        parser.error('--days must be between 1 and 365')
     init_db()
     exit_code = 0
     if args.mode in {'seed', 'crawl', 'once'}:
@@ -233,7 +315,13 @@ def main() -> int:
     if args.mode in {'crawl', 'once'}:
         exit_code = crawl_exit_code(crawl_once())
     if args.mode in {'discover', 'once'}:
-        discover_once()
+        discovery_result = discover_once()
+        if discovery_result.directory_failed or discovery_result.search_failed:
+            exit_code = max(exit_code, 1)
+    if args.mode == 'enrich':
+        enrichment_result = enrich_once(limit=args.limit, days=args.days)
+        if enrichment_result.get('failed', 0):
+            exit_code = 1
     return exit_code
 
 

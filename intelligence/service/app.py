@@ -4,12 +4,14 @@ import re
 import secrets
 from datetime import datetime, timezone
 from typing import Any, Literal
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from core import db, diff_lines, init_db
+from enrichment import canonical_url
 
 app = FastAPI(title='Should Know Intelligence API', version='0.3.0')
 app.add_middleware(
@@ -77,6 +79,16 @@ def signals(hours: int = Query(168, ge=1, le=24 * 90)) -> list[dict[str, Any]]:
     return result
 
 
+def _safe_directory_candidate(candidate_url: str, source_url: str | None) -> bool:
+    candidate = canonical_url(candidate_url)
+    source = canonical_url(source_url or '')
+    if not candidate or not source:
+        return False
+    candidate_host = (urlparse(candidate).hostname or '').casefold().removeprefix('www.')
+    source_host = (urlparse(source).hostname or '').casefold().removeprefix('www.')
+    return bool(candidate_host and candidate_host == source_host)
+
+
 @app.get('/v1/discovery')
 def discovery(limit: int = Query(12, ge=1, le=30)) -> list[dict[str, Any]]:
     with db() as conn, conn.cursor() as cur:
@@ -95,6 +107,8 @@ def discovery(limit: int = Query(12, ge=1, le=30)) -> list[dict[str, Any]]:
 
     grouped: dict[str, dict[str, Any]] = {}
     for title, candidate_url, source_name, source_url, score, last_seen_at in rows:
+        if not _safe_directory_candidate(candidate_url, source_url):
+            continue
         key = re.sub(r'[^a-z0-9]+', '', title.casefold())
         if not key:
             continue

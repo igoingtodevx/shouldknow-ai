@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS sources (
   first_party BOOLEAN NOT NULL DEFAULT true,
   crawl_every_minutes INTEGER NOT NULL DEFAULT 360,
   enabled BOOLEAN NOT NULL DEFAULT true,
-  last_crawled_at TIMESTAMPTZ
+  last_crawled_at TIMESTAMPTZ,
+  source_confidence DOUBLE PRECISION NOT NULL DEFAULT 0.5
 );
 
 CREATE TABLE IF NOT EXISTS snapshots (
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS changes (
   why_it_matters TEXT NOT NULL,
   publication_status TEXT NOT NULL DEFAULT 'review',
   evidence JSONB NOT NULL DEFAULT '[]'::jsonb,
+  backfill_key TEXT,
   reviewed_at TIMESTAMPTZ,
   reviewed_by TEXT,
   review_note TEXT,
@@ -56,6 +58,8 @@ ALTER TABLE changes ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
 ALTER TABLE changes ADD COLUMN IF NOT EXISTS reviewed_by TEXT;
 ALTER TABLE changes ADD COLUMN IF NOT EXISTS review_note TEXT;
 ALTER TABLE changes ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ;
+ALTER TABLE changes ADD COLUMN IF NOT EXISTS backfill_key TEXT;
+ALTER TABLE sources ADD COLUMN IF NOT EXISTS source_confidence DOUBLE PRECISION NOT NULL DEFAULT 0.5;
 
 CREATE TABLE IF NOT EXISTS discovery_candidates (
   id BIGSERIAL PRIMARY KEY,
@@ -71,6 +75,10 @@ CREATE TABLE IF NOT EXISTS discovery_candidates (
   score DOUBLE PRECISION NOT NULL DEFAULT 0,
   last_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   seen_count INTEGER NOT NULL DEFAULT 1,
+  enriched_tool_id TEXT,
+  enrichment_status TEXT NOT NULL DEFAULT 'pending',
+  enrichment_checked_at TIMESTAMPTZ,
+  enrichment_note TEXT,
   UNIQUE(url)
 );
 
@@ -80,9 +88,14 @@ ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS source_kind TEXT NOT N
 ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS score DOUBLE PRECISION NOT NULL DEFAULT 0;
 ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ NOT NULL DEFAULT now();
 ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS seen_count INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS enriched_tool_id TEXT;
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS enrichment_status TEXT NOT NULL DEFAULT 'pending';
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS enrichment_checked_at TIMESTAMPTZ;
+ALTER TABLE discovery_candidates ADD COLUMN IF NOT EXISTS enrichment_note TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_changes_detected_at ON changes(detected_at DESC);
 CREATE INDEX IF NOT EXISTS idx_changes_tool_id ON changes(tool_id);
 CREATE INDEX IF NOT EXISTS idx_changes_publication_status ON changes(publication_status, detected_at DESC);
 CREATE INDEX IF NOT EXISTS idx_snapshots_source_time ON snapshots(source_id, captured_at DESC);
 CREATE INDEX IF NOT EXISTS idx_discovery_kind_seen ON discovery_candidates(source_kind, last_seen_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_changes_backfill_key ON changes(backfill_key) WHERE backfill_key IS NOT NULL;

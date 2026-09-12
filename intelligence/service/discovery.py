@@ -2,7 +2,9 @@ import json
 import re
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin, urlparse, urlunparse
+from urllib.parse import urljoin, urlparse
+
+from enrichment import canonical_url
 
 DISCOVERY_SOURCES_PATH = Path(__file__).resolve().parents[1] / 'discovery_sources.json'
 MARKDOWN_LINK_RE = re.compile(r'\[([^\]]+)\]\((https?://[^)\s]+|/[^)\s]+)\)')
@@ -37,10 +39,14 @@ def _clean_title(raw: str) -> str | None:
 
 def _canonical_url(raw_url: str, source_url: str) -> str | None:
     absolute = urljoin(source_url, raw_url)
-    parsed = urlparse(absolute)
-    if parsed.scheme not in {'http', 'https'} or not parsed.netloc:
+    safe_url = canonical_url(absolute)
+    if not safe_url:
         return None
-    return urlunparse((parsed.scheme, parsed.netloc.lower(), parsed.path.rstrip('/') or '/', '', '', ''))
+    source_host = (urlparse(source_url).hostname or '').casefold().removeprefix('www.')
+    candidate_host = (urlparse(safe_url).hostname or '').casefold().removeprefix('www.')
+    if source_host and candidate_host != source_host:
+        return None
+    return safe_url
 
 
 def extract_directory_candidates(markdown: str, source: dict[str, Any]) -> list[dict[str, Any]]:
