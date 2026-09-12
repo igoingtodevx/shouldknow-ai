@@ -109,6 +109,14 @@ class WorkerCliTests(unittest.TestCase):
         init_db.assert_called_once_with()
         enrich_once.assert_called_once_with(limit=5, days=30)
 
+    @patch('worker.init_db')
+    @patch('worker.enrich_once', return_value={'scanned': 1, 'enriched': 0, 'partial': 1, 'failed': 0, 'sources': 0, 'changes': 0})
+    def test_partial_enrich_queue_returns_nonzero(self, enrich_once, init_db):
+        with patch.object(sys, 'argv', ['worker.py', 'enrich', '--limit', '5']):
+            self.assertEqual(main(), 1)
+        init_db.assert_called_once_with()
+        enrich_once.assert_called_once_with(limit=5, days=30)
+
 
 if __name__ == '__main__':
     unittest.main()

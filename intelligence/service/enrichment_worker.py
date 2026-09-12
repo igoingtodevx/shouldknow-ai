@@ -8,6 +8,7 @@ from typing import Any, Callable
 
 from core import AUTO_PUBLISH_P0, crawl, db, search
 from enrichment import (
+    BACKFILL_DAYS,
     RecentEntry,
     SourceMatch,
     backfill_key,
@@ -208,6 +209,8 @@ def enrich_once(
 ) -> dict[str, int]:
     if limit < 1:
         raise ValueError('limit must be at least 1')
+    if days != BACKFILL_DAYS:
+        raise ValueError(f'backfill window is fixed at {BACKFILL_DAYS} days')
     rows = _candidate_rows(limit, limit)
     enriched = 0
     scanned = 0

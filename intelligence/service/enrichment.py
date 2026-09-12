@@ -12,6 +12,7 @@ from urllib.parse import urlparse, urlunparse
 
 
 SOURCE_KINDS = ('homepage', 'pricing', 'changelog', 'docs', 'github')
+BACKFILL_DAYS = 30
 
 GENERIC_TOKENS = {
     'ai', 'app', 'apps', 'assistant', 'best', 'code', 'directory', 'free', 'google',
@@ -39,9 +40,6 @@ OFFICIAL_GITHUB_OWNERS = {
     'google.com': {'google-gemini'},
     'grok.com': {'xai'},
     'midjourney.com': {'midjourney-official'},
-}
-KNOWN_OFFICIAL_REGISTRABLE_HOSTS = set(OFFICIAL_HOST_ALIASES) | {
-    alias for aliases in OFFICIAL_HOST_ALIASES.values() for alias in aliases
 }
 GITHUB_REPOSITORY_STOPWORDS = {
     'alternative', 'alternatives', 'awesome', 'community', 'examples', 'list',
@@ -91,7 +89,10 @@ SearchFn = Callable[[str], list[dict[str, Any]]]
 
 
 def canonical_url(raw_url: str) -> str | None:
-    parsed = urlparse(raw_url.strip())
+    try:
+        parsed = urlparse(raw_url.strip())
+    except ValueError:
+        return None
     if parsed.scheme not in {'http', 'https'} or not parsed.netloc:
         return None
     if parsed.username or parsed.password:
@@ -109,6 +110,8 @@ def canonical_url(raw_url: str) -> str | None:
         address = ipaddress.ip_address(host)
     except ValueError:
         address = None
+    if not address and ('.' not in host or re.fullmatch(r'[0-9.]+', host)):
+        return None
     if address and (address.is_private or address.is_loopback or address.is_link_local or address.is_reserved or address.is_multicast or address.is_unspecified):
         return None
     return urlunparse((parsed.scheme, host, parsed.path.rstrip('/') or '/', '', '', ''))
@@ -217,11 +220,8 @@ def classify_source_result(
         return None
     if kind == 'homepage':
         registrable_tokens = _tokens(registrable)
-        host_tokens = _tokens(host)
-        result_tokens = _tokens(title)
         if not candidate_tokens & registrable_tokens:
-            if registrable not in KNOWN_OFFICIAL_REGISTRABLE_HOSTS or not candidate_tokens & (host_tokens | result_tokens):
-                return None
+            return None
         if registrable in AGGREGATOR_HOSTS:
             return None
         if urlparse(url).path not in {'', '/'} and not any(token in _tokens(title) for token in candidate_tokens):
@@ -351,6 +351,8 @@ def extract_recent_entries(
     max_entries: int = 20,
 ) -> list[RecentEntry]:
     now = now or datetime.now(timezone.utc)
+    if days != BACKFILL_DAYS:
+        raise ValueError(f'backfill window is fixed at {BACKFILL_DAYS} days')
     if now.tzinfo is None:
         now = now.replace(tzinfo=timezone.utc)
     cutoff = now - timedelta(days=days)

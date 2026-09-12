@@ -17,16 +17,14 @@ def seed_watchset() -> None:
             cur.execute(
                 '''INSERT INTO tools(id, name, canonical_url)
                    VALUES(%s,%s,%s)
-                   ON CONFLICT(id) DO UPDATE SET name=excluded.name, canonical_url=excluded.canonical_url, updated_at=now()''',
+                   ON CONFLICT(id) DO NOTHING''',
                 (tool['toolId'], tool['name'], canonical),
             )
             for source in tool['sources']:
                 cur.execute(
                     '''INSERT INTO sources(tool_id, kind, url, first_party, crawl_every_minutes)
                        VALUES(%s,%s,%s,%s,%s)
-                       ON CONFLICT(url) DO UPDATE SET
-                         tool_id=excluded.tool_id, kind=excluded.kind, first_party=excluded.first_party,
-                         crawl_every_minutes=excluded.crawl_every_minutes, enabled=true''',
+                       ON CONFLICT(url) DO NOTHING''',
                     (tool['toolId'], source['kind'], source['url'], source.get('firstParty', True), source.get('crawlEveryMinutes', 360)),
                 )
         conn.commit()
@@ -211,9 +209,14 @@ def _upsert_discovery_candidate(
              query=excluded.query,
              title=COALESCE(excluded.title, discovery_candidates.title),
              snippet=COALESCE(excluded.snippet, discovery_candidates.snippet),
-             source_name=COALESCE(excluded.source_name, discovery_candidates.source_name),
-             source_url=COALESCE(excluded.source_url, discovery_candidates.source_url),
-             source_kind=excluded.source_kind,
+             source_name=CASE WHEN discovery_candidates.source_kind='directory'
+                              THEN COALESCE(discovery_candidates.source_name, excluded.source_name)
+                              ELSE COALESCE(excluded.source_name, discovery_candidates.source_name) END,
+             source_url=CASE WHEN discovery_candidates.source_kind='directory'
+                             THEN COALESCE(discovery_candidates.source_url, excluded.source_url)
+                             ELSE COALESCE(excluded.source_url, discovery_candidates.source_url) END,
+             source_kind=CASE WHEN discovery_candidates.source_kind='directory'
+                              THEN 'directory' ELSE excluded.source_kind END,
              score=GREATEST(discovery_candidates.score, excluded.score),
              last_seen_at=now(),
              seen_count=discovery_candidates.seen_count + 1''',
@@ -306,8 +309,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.limit < 1 or args.limit > 100:
         parser.error('--limit must be between 1 and 100')
-    if args.days < 1 or args.days > 365:
-        parser.error('--days must be between 1 and 365')
+    if args.days != 30:
+        parser.error('--days is fixed at 30 for review backfill')
     init_db()
     exit_code = 0
     if args.mode in {'seed', 'crawl', 'once'}:
@@ -320,7 +323,7 @@ def main() -> int:
             exit_code = max(exit_code, 1)
     if args.mode == 'enrich':
         enrichment_result = enrich_once(limit=args.limit, days=args.days)
-        if enrichment_result.get('failed', 0):
+        if enrichment_result.get('failed', 0) or enrichment_result.get('partial', 0):
             exit_code = 1
     return exit_code
 

@@ -21,6 +21,10 @@ class FirstPartySourceTests(unittest.TestCase):
         self.assertIsNone(canonical_url('https://user:pass@claude.com/'))
         self.assertIsNone(canonical_url('https://claude.com:8443/'))
         self.assertIsNone(canonical_url('https://service.internal/'))
+        self.assertIsNone(canonical_url('https://internal/'))
+        self.assertIsNone(canonical_url('http://2130706433/'))
+        self.assertIsNone(canonical_url('http://127.1/'))
+        self.assertIsNone(canonical_url('http://[::1'))
 
     def test_classifies_official_source_kinds_and_rejects_aggregator(self):
         common = {'candidate_title': 'Claude', 'seed_url': 'https://www.futurepedia.io/tool/claude'}
@@ -55,7 +59,7 @@ class FirstPartySourceTests(unittest.TestCase):
             candidate_title='Claude', seed_url='https://futurepedia.io/tool/claude',
             requested_kind='homepage', trusted_hosts=set(),
         ))
-        self.assertIsNotNone(classify_source_result(
+        self.assertIsNone(classify_source_result(
             {'title': 'ChatGPT by OpenAI official website', 'url': 'https://openai.com/'},
             candidate_title='ChatGPT', seed_url='https://futurepedia.io/tool/chatgpt',
             requested_kind='homepage', trusted_hosts=set(),
@@ -162,6 +166,10 @@ Published Sept 9, 2026. Model update is available.
         now = datetime(2026, 9, 12, tzinfo=timezone.utc)
         markdown = '# Future release - September 13, 2026\nNot released yet and must be ignored.'
         self.assertEqual(extract_recent_entries(markdown, now=now, days=30), [])
+
+    def test_backfill_window_is_fixed(self):
+        with self.assertRaises(ValueError):
+            extract_recent_entries('# Release - September 10, 2026\nA valid release body.', now=datetime(2026, 9, 12, tzinfo=timezone.utc), days=31)
 
     def test_canonical_tool_id_is_safe_and_bounded(self):
         self.assertEqual(canonical_tool_id('Google Gemini', 'https://gemini.google.com/'), 'google-gemini')
