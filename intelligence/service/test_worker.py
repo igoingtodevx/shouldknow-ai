@@ -4,6 +4,7 @@ import sys
 import unittest
 from unittest.mock import patch
 
+from enrichment_worker import _candidate_search_title
 from worker import DiscoveryRunResult, CrawlRunResult, _directory_search_fallback, crawl_exit_code, main, process_crawl_sources
 
 
@@ -59,6 +60,10 @@ class CrawlBatchTests(unittest.TestCase):
 
 
 class WorkerCliTests(unittest.TestCase):
+    def test_candidate_search_title_removes_directory_headline_suffix(self):
+        self.assertEqual(_candidate_search_title('Digen AI: Free AI video generator | Product Hunt'), 'Digen AI')
+        self.assertEqual(_candidate_search_title('ChatGPT'), 'ChatGPT')
+
     @patch('worker.init_db')
     @patch('worker.seed_watchset')
     @patch('worker.crawl_once', return_value=CrawlRunResult(due=2, success=1, failed=1))

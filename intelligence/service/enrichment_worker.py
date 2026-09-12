@@ -31,6 +31,11 @@ def _materiality_for_entry(entry: RecentEntry) -> tuple[str, str, str]:
     return 'REVIEW', 'low', 'capability'
 
 
+def _candidate_search_title(title: str) -> str:
+    compact = re.sub(r'\s+', ' ', title).strip()
+    return re.split(r'\s+[|]\s+|:\s+', compact, maxsplit=1)[0].strip() or compact
+
+
 def _upsert_tool_and_sources(
     candidate_id: int,
     candidate_title: str,
@@ -175,12 +180,18 @@ def _backfill_entries(
 def _candidate_rows(limit: int, scan_limit: int) -> list[tuple[Any, ...]]:
     with db() as conn, conn.cursor() as cur:
         cur.execute(
-            '''SELECT id, title, url, score
+            '''SELECT id, title, url, score, source_name
                FROM discovery_candidates
                WHERE source_kind='directory'
                  AND title IS NOT NULL
                  AND (enrichment_status IS NULL OR enrichment_status IN ('pending', 'partial'))
                ORDER BY CASE WHEN enrichment_status='pending' THEN 0 ELSE 1 END,
+                        CASE
+                          WHEN source_name='Futurepedia' THEN 0
+                          WHEN source_name LIKE 'Product Hunt%%' THEN 1
+                          WHEN source_name LIKE 'Toolify%%' THEN 2
+                          ELSE 3
+                        END,
                         score DESC, last_seen_at DESC
                LIMIT %s''',
             (scan_limit,),
@@ -206,11 +217,12 @@ def enrich_once(
     failed = 0
     now = datetime.now(timezone.utc)
 
-    for candidate_id, title, seed_url, _score in rows:
+    for candidate_id, title, seed_url, _score, _source_name in rows:
         if enriched >= limit:
             break
         scanned += 1
-        matches, search_failures = find_first_party_sources_detailed(title, seed_url, search_fn)
+        search_title = _candidate_search_title(title)
+        matches, search_failures = find_first_party_sources_detailed(search_title, seed_url, search_fn)
         if search_failures:
             failed += 1
         verified: dict[str, SourceMatch] = {}
@@ -239,7 +251,7 @@ def enrich_once(
             continue
 
         try:
-            tool_id, source_ids, note = _upsert_tool_and_sources(candidate_id, title, seed_url, verified)
+            tool_id, source_ids, note = _upsert_tool_and_sources(candidate_id, search_title, seed_url, verified)
         except Exception as exc:
             failed += 1
             _mark_candidate(candidate_id, status='partial', note=f'source upsert failed: {exc}')
