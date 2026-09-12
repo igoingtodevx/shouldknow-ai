@@ -94,7 +94,7 @@ class WorkerCliTests(unittest.TestCase):
         candidates = _directory_search_fallback(source)
         self.assertEqual(candidates[0]['title'], 'Alpha AI')
         self.assertEqual(candidates[0]['url'], 'https://www.producthunt.com/products/alpha-ai')
-        search.assert_called_once_with('site:www.producthunt.com /products/')
+        search.assert_called_once_with('site:www.producthunt.com/products/ AI')
 
     @patch('worker.init_db')
     @patch('worker.enrich_once', return_value={'scanned': 0, 'enriched': 0, 'partial': 0, 'failed': 0, 'sources': 0, 'changes': 0})

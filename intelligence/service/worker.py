@@ -86,7 +86,7 @@ def _directory_search_fallback(source) -> list[dict]:
     prefix = (source.get('candidatePathPrefixes') or ['/'])[0]
     if not host:
         return []
-    results = search(f'site:{host} {prefix}')
+    results = search(f'site:{host}{prefix} AI')
     markdown = ' '.join(
         f"[{item.get('title') or ''}]({item.get('url') or ''})"
         for item in results[:30]
