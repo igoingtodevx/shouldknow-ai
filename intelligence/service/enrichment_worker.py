@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from typing import Any, Callable
 
@@ -230,15 +231,22 @@ def enrich_once(
             failed += 1
         verified: dict[str, SourceMatch] = {}
         bodies: dict[str, str] = {}
-        for kind, match in matches.items():
+
+        def validate(item: tuple[str, SourceMatch]) -> tuple[str, SourceMatch, str | None]:
+            kind, match = item
             try:
                 body = crawl_fn(match.url)
             except Exception:
-                continue
+                return kind, match, None
             if not body or len(body.strip()) < 40:
-                continue
-            verified[kind] = match
-            bodies[kind] = body
+                return kind, match, None
+            return kind, match, body
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            for kind, match, body in executor.map(validate, matches.items()):
+                if body is not None:
+                    verified[kind] = match
+                    bodies[kind] = body
         good, _confidence = source_coverage(verified)
         validation_failures = set(matches) - set(verified)
         if not good:
