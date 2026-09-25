@@ -1,86 +1,772 @@
 [
   {
-    "id": "seed-stackie-ai",
-    "title": "Stackie.AI",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-claudebyanthropicafamilyoffoundationalaimodelspr",
+    "title": "Claude by Anthropic: A family of foundational AI models | Product Hunt",
+    "score": 4.0,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/claude"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-tripo-ai",
-    "title": "Tripo AI",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-googlelabsgooglesaiandproductexperimentsproducth",
+    "title": "Google Labs: Google's AI and product experiments | Product Hunt",
+    "score": 4.0,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/google-labs"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-honcho",
-    "title": "Honcho",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-aiaccesschatgptanywhereyoutypeaiproducthunt",
+    "title": "ai: Access ChatGPT anywhere you type '/ai' | Product Hunt",
+    "score": 4.0,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/ai-4"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-models-dev",
-    "title": "Models.dev",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-1minaiallinoneaiapppoweredbyvariousaimodelsprodu",
+    "title": "1min.AI: All-in-one AI app, powered by various AI models | Product Hunt",
+    "score": 4.0,
+    "lastSeenAt": "2026-09-23T10:00:06.119902+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/1min-ai"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-agentkit",
-    "title": "Agentkit",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-120artificialintelligenceresourcesdiscoverthebes",
+    "title": "120+ Artificial Intelligence Resources: Discover the best... | Product Hunt",
+    "score": 3.975,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/120-artificial-intelligence-resources"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-evoforge",
-    "title": "EvoForge",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-duckaiprivateaichatfromduckduckgoproducthunt",
+    "title": "Duck.ai: Private AI Chat from DuckDuckGo | Product Hunt",
+    "score": 3.975,
+    "lastSeenAt": "2026-09-23T22:00:02.697564+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/duck-ai"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-anam",
-    "title": "Anam",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-bearlyaiworldsbestaimodelsatyourfingertipsproduc",
+    "title": "Bearly Ai: World's best AI models at your fingertips. | Product Hunt",
+    "score": 3.95,
+    "lastSeenAt": "2026-09-17T16:00:03.873042+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/bearly-ai"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-fastshot",
-    "title": "Fastshot",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Toolify — New AIs", "url": "https://www.toolify.ai/new"}]
+    "id": "radar-polloaiunboundedaivideogeneratorthatvisualizespr",
+    "title": "Pollo.ai: Unbounded AI video generator that visualizes... | Product Hunt",
+    "score": 3.95,
+    "lastSeenAt": "2026-09-16T10:00:04.744966+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/pollo-ai"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-suno",
-    "title": "Suno.ai",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Product Hunt — AI Software", "url": "https://www.producthunt.com/categories/ai-software"}]
+    "id": "radar-playgroundaidesignanythinglikeapronodesignproduc",
+    "title": "Playground AI: Design anything like a pro, no design... | Product Hunt",
+    "score": 3.95,
+    "lastSeenAt": "2026-09-15T04:00:05.699471+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/playground-ai"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-klu",
-    "title": "Klu",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Product Hunt — AI Software", "url": "https://www.producthunt.com/categories/ai-software"}]
+    "id": "radar-magnificoneaiplatformforimagevideoandaudioproduc",
+    "title": "Magnific: One AI platform for image, video, and audio. | Product Hunt",
+    "score": 3.925,
+    "lastSeenAt": "2026-09-22T22:00:15.686922+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/magnific"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-instance",
-    "title": "Instance",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Product Hunt — AI Software", "url": "https://www.producthunt.com/categories/ai-software"}]
+    "id": "radar-wallesaiyouraibrowsersidekickgetinstantproducthu",
+    "title": "Walles.ai - Your AI Browser Sidekick : Get instant... | Product Hunt",
+    "score": 3.9,
+    "lastSeenAt": "2026-09-22T04:00:03.580779+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/walles-ai-your-ai-browser-sidekick"
+      }
+    ],
+    "sourceCount": 1
   },
   {
-    "id": "seed-mebot",
-    "title": "Me.bot",
-    "sourceCount": 1,
-    "lastSeenAt": "2026-09-11T00:00:00Z",
-    "sources": [{"name": "Product Hunt — AI Software", "url": "https://www.producthunt.com/categories/ai-software"}]
+    "id": "radar-groktheworldssmartestaiproducthunt",
+    "title": "Grok: The world’s smartest AI | Product Hunt",
+    "score": 3.9,
+    "lastSeenAt": "2026-09-19T22:00:04.480333+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/grok"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-butternutaibuildwebsitesinstantlyusinggenerative",
+    "title": "Butternut AI: Build websites instantly using generative AI | Product Hunt",
+    "score": 3.9,
+    "lastSeenAt": "2026-09-14T10:00:01.831953+00:00",
+    "sources": [
+      {
+        "name": "Product Hunt — AI Software",
+        "url": "https://www.producthunt.com/categories/ai-software",
+        "candidateUrl": "https://www.producthunt.com/products/butternut-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-tinyaiplatformtocreateyourownaibychatting",
+    "title": "Tiny AI: Platform to create your own AI by chatting.",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/tiny-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-geminigenaimultimodalaicontentgenerationforimage",
+    "title": "GeminiGenAI: Multi-modal AI content generation for images, videos...",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/geminigenai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-ggptthirdpartyaiapigatewayforopenaiclaudeandmult",
+    "title": "G GPT中转站 Third-party AI API gateway for OpenAI, Claude, and multiple models",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-23T22:00:02.697564+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/gpt%E4%B8%AD%E8%BD%AC%E7%AB%99"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-yollyaiallinoneaivideoandimagegeneratorfor4kvide",
+    "title": "Yolly AI: All-in-one AI video and image generator for 4K videos and...",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-23T04:00:05.453272+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/yolly-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-weightsaiplatformwithfreetoolsforvoicecoverstext",
+    "title": "Weights: AI platform with free tools for voice covers, text-to-speech, AI...",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-22T22:00:15.686922+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/weights-gg"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-digenaifreeaivideogeneratortransformingimagesint",
+    "title": "Digen AI: Free AI video generator transforming images into...",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-22T22:00:15.686922+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/digen-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-jjoxosharedprojectworkspaceforteamsusingaicoding",
+    "title": "J Joxo Shared project workspace for teams using AI coding agents",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-21T22:00:12.803454+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/joxo"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-top100aidirectoryfordiscoveringcomparingandrevie",
+    "title": "Top100.ai: Directory for discovering, comparing, and reviewing AI tools",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-15T16:00:11.895634+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/top100-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-journeyartaiaiartplatformusingmidjourneyapioffer",
+    "title": "JourneyArt AI: AI art platform using Midjourney API, offering image...",
+    "score": 3.5,
+    "lastSeenAt": "2026-09-15T10:00:01.617033+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/midjourney-art-ai-generator"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-modelsdevopensourcedatabaseforcomparingaimodelsp",
+    "title": "Models.dev: Open-source database for comparing AI models, providers...",
+    "score": 3.48,
+    "lastSeenAt": "2026-09-16T16:00:14.145020+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/models-dev"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-dangaidangaiisadirectorywith5000aitoolsacrossvar",
+    "title": "Dang.ai: Dang.ai is a directory with 5000+ AI tools across various...",
+    "score": 3.48,
+    "lastSeenAt": "2026-09-14T10:00:01.831953+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/dang-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-viggleaiaianimationtoolandimagetovideogeneratorf",
+    "title": "Viggle AI: AI animation tool and image-to-video generator for creating...",
+    "score": 3.46,
+    "lastSeenAt": "2026-09-22T04:00:03.580779+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/viggleai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-neuronaiprivateondeviceaichatandproductivitytool",
+    "title": "Neuron AI: Private, on-device AI chat and productivity tool with no...",
+    "score": 3.46,
+    "lastSeenAt": "2026-09-21T04:00:02.249358+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/neuron-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-mediaiofreeonlineaitoolsforvideoimageandaudiogen",
+    "title": "Media.io: Free online AI tools for video, image, and audio generation.",
+    "score": 3.46,
+    "lastSeenAt": "2026-09-14T04:00:02.937565+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/media-io"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-bgremaipoweredplatformforcreatingandeditingimage",
+    "title": "BgRem: AI-powered platform for creating and editing images and videos.",
+    "score": 3.44,
+    "lastSeenAt": "2026-09-16T16:00:14.145020+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/bgrem-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-duckduckgoprivacyfocusedsearchengineandbrowserwi",
+    "title": "DuckDuckGo: Privacy-focused search engine and browser with AI chat...",
+    "score": 3.42,
+    "lastSeenAt": "2026-09-15T22:00:04.897875+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/duck-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-otteraiaimeetingassistantforrealtimetranscriptio",
+    "title": "Otter.ai: AI meeting assistant for real-time transcription, summaries...",
+    "score": 3.42,
+    "lastSeenAt": "2026-09-13T16:00:02.398955+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/otter-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-journeyaipoweredpresentationtoolforb2bsalesandma",
+    "title": "Journey: AI-powered presentation tool for B2B sales and marketing.",
+    "score": 3.42,
+    "lastSeenAt": "2026-09-13T10:00:03.268117+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/journey-automagic-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-voiceaifreerealtimeaivoicechangerwithvoiceclonin",
+    "title": "Voice.ai: Free real-time AI voice changer with voice cloning and...",
+    "score": 3.4,
+    "lastSeenAt": "2026-09-12T16:00:04.223208+00:00",
+    "sources": [
+      {
+        "name": "Toolify — New AIs",
+        "url": "https://www.toolify.ai/new",
+        "candidateUrl": "https://www.toolify.ai/tool/voice-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-humataaireviewsusecasespricingalternatives",
+    "title": "Humata AI Reviews: Use Cases, Pricing & Alternatives",
+    "score": 3.0,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/humata-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-chatgptaireviewsusecasespricingalternatives",
+    "title": "ChatGPT AI Reviews: Use Cases, Pricing & Alternatives",
+    "score": 3.0,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/chatgpt"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-claudeaireviewsusecasespricingalternatives",
+    "title": "Claude AI Reviews: Use Cases, Pricing & Alternatives",
+    "score": 2.975,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/claude"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-hubspotaeosensor",
+    "title": "HubSpot AEO Sensor",
+    "score": 2.95,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/hubspot-aeo-sensor"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-oneaireviewsusecasespricingalternatives",
+    "title": "One AI Reviews: Use Cases, Pricing & Alternatives",
+    "score": 2.925,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/one-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-googlegeminiaireviewsusecasespricingalternatives",
+    "title": "Google Gemini AI Reviews: Use Cases, Pricing & Alternatives",
+    "score": 2.925,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/google-gemini"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-perplexity",
+    "title": "Perplexity",
+    "score": 2.925,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/perplexity-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-aiphoneaireviewsusecasespricingalternatives",
+    "title": "AI Phone AI Reviews: Use Cases, Pricing & Alternatives",
+    "score": 2.875,
+    "lastSeenAt": "2026-09-25T10:00:48.697929+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/ai-phone"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-midjourney",
+    "title": "Midjourney",
+    "score": 2.875,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/midjourney"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-grok",
+    "title": "Grok",
+    "score": 2.85,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/grok"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-blackboxai",
+    "title": "BLACKBOX.AI",
+    "score": 2.825,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/blackbox-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-ideogram",
+    "title": "Ideogram",
+    "score": 2.8,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/ideogram"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-runway",
+    "title": "Runway",
+    "score": 2.775,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/runway"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-gamma",
+    "title": "Gamma",
+    "score": 2.75,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/gamma"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-hubspotaeo",
+    "title": "HubSpot AEO",
+    "score": 2.725,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/hubspot-aeo"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-facecheckid",
+    "title": "FaceCheck ID",
+    "score": 2.7,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/facecheck-id"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-magicschoolai",
+    "title": "Magic School AI",
+    "score": 2.675,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/magic-school-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-looka",
+    "title": "Looka",
+    "score": 2.65,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/looka"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-uberduck",
+    "title": "Uberduck",
+    "score": 2.625,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/uberduck"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-playgroundai",
+    "title": "Playground AI",
+    "score": 2.6,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/playground-ai"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-gencraft",
+    "title": "Gencraft",
+    "score": 2.575,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/gencraft"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-gravitywrite",
+    "title": "GravityWrite",
+    "score": 2.55,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/gravitywrite"
+      }
+    ],
+    "sourceCount": 1
+  },
+  {
+    "id": "radar-seaartai",
+    "title": "SeaArt AI",
+    "score": 2.525,
+    "lastSeenAt": "2026-09-24T16:00:13.011065+00:00",
+    "sources": [
+      {
+        "name": "Futurepedia",
+        "url": "https://www.futurepedia.io/",
+        "candidateUrl": "https://www.futurepedia.io/tool/seaart"
+      }
+    ],
+    "sourceCount": 1
   }
 ]

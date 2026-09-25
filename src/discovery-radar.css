@@ -1,5 +1,220 @@
-.discovery-radar{margin:72px 0 20px;padding-top:42px;border-top:1px solid #252932}.radar-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.7fr);gap:48px;align-items:end}.radar-head h2{font-size:clamp(30px,4vw,48px);letter-spacing:-.045em;margin:8px 0 0}.radar-head>p{margin:0;color:#858f9d;line-height:1.6}.radar-status{display:flex;justify-content:space-between;gap:16px;margin-top:28px;padding:10px 0;border-top:1px solid #252932;border-bottom:1px solid #252932;color:#707a88;font-size:10px;font-weight:700;letter-spacing:.11em}.radar-list{border-bottom:1px solid #252932}.radar-row{display:grid;grid-template-columns:48px minmax(0,1fr) minmax(190px,.55fr);gap:24px;align-items:center;padding:19px 0;border-bottom:1px solid #20242b}.radar-row:last-child{border-bottom:0}.radar-index{color:#596371;font-size:11px}.radar-main{display:flex;flex-direction:column;gap:6px;min-width:0}.radar-title{width:max-content;max-width:100%;overflow:hidden;text-overflow:ellipsis;color:#e4e8ed;text-decoration:none;font-size:18px;font-weight:700;letter-spacing:-.025em;white-space:nowrap}.radar-title:hover{color:#fff}.radar-summary{color:#7f8997;font-size:12px}.radar-sources{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.radar-sources a{color:#7d8795;text-decoration:none;font-size:11px}.radar-sources a:hover{color:#d9dee5}.radar-footnote{margin:14px 0 0;color:#626c79;font-size:11px;line-height:1.5}@media(max-width:900px){.radar-head{grid-template-columns:1fr;gap:18px}.radar-row{grid-template-columns:34px minmax(0,1fr)}.radar-sources{grid-column:2;justify-content:flex-start}}@media(max-width:620px){.discovery-radar{margin-top:56px}.radar-row{gap:14px}.radar-title{font-size:17px}.radar-status{align-items:flex-start;flex-direction:column;gap:6px}}
-.radar-actions{display:flex;justify-content:center;margin-top:24px}
-.radar-toggle-btn{background:#16191f;color:#c5cdd8;border:1px solid #2d333f;padding:10px 22px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease}
-.radar-toggle-btn:hover{background:#20252e;color:#fff;border-color:#485264}
+/* ==========================================================================
+   DISCOVERY RADAR — AWWWARDS ARCHITECTURE & ANTI-SLOP STYLING
+   ========================================================================== */
 
+.discovery-radar-section {
+  padding: 40px 4vw 60px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.radar-header-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.radar-title-group {
+  max-width: 780px;
+}
+
+.radar-main-title {
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.radar-explanation {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.radar-status-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.status-mode {
+  color: var(--accent-lime);
+  background: var(--accent-lime-dim);
+  border: 1px solid var(--accent-lime-border);
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.status-count {
+  color: var(--text-muted);
+}
+
+.radar-controls-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.radar-source-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.radar-chip {
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: 3px;
+  transition: all 0.15s ease;
+}
+
+.radar-chip:hover {
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.radar-chip.active {
+  background: var(--bg-panel);
+  color: var(--accent-lime);
+  border-color: var(--accent-lime-border);
+}
+
+.radar-entries-table {
+  border-top: 1px solid var(--border-hairline);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.radar-row-entry {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border-hairline);
+  transition: background 0.15s ease;
+}
+
+.radar-row-entry:last-child {
+  border-bottom: 0;
+}
+
+.radar-row-entry:hover {
+  background: rgba(14, 18, 24, 0.5);
+}
+
+.radar-entry-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.radar-entry-core {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.radar-external-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  transition: color 0.15s ease;
+}
+
+.radar-external-title:hover {
+  color: var(--accent-lime);
+}
+
+.radar-entry-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.radar-source-summary {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.radar-sources-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.radar-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  padding: 3px 8px;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+}
+
+.radar-source-link:hover {
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.radar-disclaimer {
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .radar-header-block {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .radar-status-badge {
+    align-items: flex-start;
+  }
+  .radar-row-entry {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .radar-entry-num {
+    display: none;
+  }
+  .radar-sources-pills {
+    justify-content: flex-start;
+  }
+}

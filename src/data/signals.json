@@ -1,5 +1,189 @@
 [
   {
+    "id": "live-919",
+    "toolId": "claude",
+    "tool": "Claude",
+    "kind": "capability",
+    "impact": "high",
+    "ageHours": 1,
+    "detectedAt": "2026-09-25T13:19:10.826557+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "Claude: v2 Release tag and active session revocation",
+    "summary": "Published new official GitHub release tags and rolled out granular session management and billing controls across client platforms.",
+    "whyItMatters": "Strengthens security posture and multi-client access control for teams using Claude across desktop and web.",
+    "sources": [
+      {
+        "url": "https://github.com/anthropics/claude-code/releases",
+        "label": "Official github",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P0",
+    "confidence": 0.9,
+    "prototype": false
+  },
+  {
+    "id": "live-916",
+    "toolId": "gamma",
+    "tool": "Gamma",
+    "kind": "pricing",
+    "impact": "high",
+    "ageHours": 1,
+    "detectedAt": "2026-09-25T13:18:59.564935+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "Gamma: Credit pool restructuring across paid tiers",
+    "summary": "Restructured monthly credit allowances with explicit 1,000, 4,000, and 20,000 credit packages across Pro and Plus tiers.",
+    "whyItMatters": "Changes generation velocity and cost predictability for teams generating high volumes of slide decks and docs.",
+    "sources": [
+      {
+        "url": "https://gamma.app/pricing",
+        "label": "Official pricing",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P0",
+    "confidence": 0.9,
+    "prototype": false
+  },
+  {
+    "id": "live-908",
+    "toolId": "perplexity",
+    "tool": "Perplexity",
+    "kind": "pricing",
+    "impact": "high",
+    "ageHours": 1,
+    "detectedAt": "2026-09-25T13:16:02.224929+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "Perplexity: Fast Search API tier introduced ($5 / 1k requests)",
+    "summary": "Added Fast Search option to Perplexity API pricing: Standard search in Fast Mode is now available at $5 per 1,000 requests with reduced latency.",
+    "whyItMatters": "Directly impacts API cost modeling for developers integrating Perplexity search and retrieval pipelines.",
+    "sources": [
+      {
+        "url": "https://docs.perplexity.ai/docs/getting-started/pricing",
+        "label": "Official pricing",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P0",
+    "confidence": 0.9,
+    "prototype": false
+  },
+  {
+    "id": "live-897",
+    "toolId": "chatgpt",
+    "tool": "ChatGPT",
+    "kind": "capability",
+    "impact": "high",
+    "ageHours": 1,
+    "detectedAt": "2026-09-25T13:13:32.332713+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "ChatGPT: Direct drag-and-drop support for modern image formats",
+    "summary": "Added native drag-and-drop upload support for .avif, .heic, .heif, and .webp containers directly on the web client.",
+    "whyItMatters": "Removes client-side conversion friction when uploading mobile photos and modern web screenshots into vision models.",
+    "sources": [
+      {
+        "url": "https://chatgpt.com/",
+        "label": "Official homepage",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P0",
+    "confidence": 0.9,
+    "prototype": false
+  },
+  {
+    "id": "live-896",
+    "toolId": "duckduckgo",
+    "tool": "DuckDuckGo",
+    "kind": "capability",
+    "impact": "medium",
+    "ageHours": 1,
+    "detectedAt": "2026-09-25T13:13:29.386599+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "DuckDuckGo: Duck.ai private AI chat expanded to mobile",
+    "summary": "Integrated private, zero-retention AI chat natively into DuckDuckGo mobile browser applications.",
+    "whyItMatters": "Provides frictionless mobile access to multiple underlying models (GPT-4o mini, Claude 3 Haiku) with strict privacy guarantees.",
+    "sources": [
+      {
+        "url": "https://duckduckgo.com/",
+        "label": "Official homepage",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P1",
+    "confidence": 0.7,
+    "prototype": false
+  },
+  {
+    "id": "live-731",
+    "toolId": "runway",
+    "tool": "Runway",
+    "kind": "pricing",
+    "impact": "high",
+    "ageHours": 1,
+    "detectedAt": "2026-09-23T01:02:28.833409+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "Runway: Dedicated Team Plan and collaborative workspaces",
+    "summary": "Introduced dedicated Team Plan pricing tier with shared workspace limits, pooled generation credits, and centralized billing.",
+    "whyItMatters": "Key transition from single-seat creator plans to collaborative production pipelines for video generation.",
+    "sources": [
+      {
+        "url": "https://runway.com/pricing",
+        "label": "Official pricing",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P0",
+    "confidence": 0.9,
+    "prototype": false
+  },
+  {
+    "id": "live-698",
+    "toolId": "magnific",
+    "tool": "Magnific",
+    "kind": "capability",
+    "impact": "high",
+    "ageHours": 1,
+    "detectedAt": "2026-09-22T19:03:42.447757+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "Magnific: 3D 360-degree panoramic generation launched",
+    "summary": "Introduced 3D 360 panoramic generation tool directly in the AI suite for immersive environment creation.",
+    "whyItMatters": "Expands upscale and generative capabilities beyond flat images into spatial computing and VR workflows.",
+    "sources": [
+      {
+        "url": "https://www.magnific.com/",
+        "label": "Official homepage",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P0",
+    "confidence": 0.9,
+    "prototype": false
+  },
+  {
+    "id": "live-681",
+    "toolId": "viggle-ai",
+    "tool": "Viggle AI",
+    "kind": "capability",
+    "impact": "high",
+    "ageHours": 1,
+    "detectedAt": "2026-09-22T13:02:32.393094+00:00",
+    "publishedAt": "2026-09-25T13:21:41.465094+00:00",
+    "title": "Viggle AI: Developer API & Documentation Portal launched",
+    "summary": "Opened public developer API documentation (v1) and introduced programmatic animation endpoints for video character generation.",
+    "whyItMatters": "Enables automated pipeline integration for character motion and animation outside of the Discord/web interface.",
+    "sources": [
+      {
+        "url": "https://viggle.ai/",
+        "label": "Official homepage",
+        "firstParty": true
+      }
+    ],
+    "materiality": "P0",
+    "confidence": 0.9,
+    "prototype": false
+  },
+  {
     "id": "demo-context7-api",
     "toolId": "core-50-22",
     "tool": "Context7",
@@ -10,7 +194,10 @@
     "summary": "Prototype signal showing how a material API or integration change would be summarized after snapshot comparison and source verification.",
     "whyItMatters": "A documentation provider sits directly in the context path of coding agents, so interface changes can alter reliability across every downstream run.",
     "sources": [
-      { "label": "Official site", "url": "https://context7.com" }
+      {
+        "label": "Official site",
+        "url": "https://context7.com"
+      }
     ]
   },
   {
@@ -24,7 +211,10 @@
     "summary": "Prototype record for a pricing-page diff. The live engine will attach captured before/after evidence instead of relying on vendor copy.",
     "whyItMatters": "Review automation is often embedded in team workflows; a material price or allowance change can affect the economics of every repository using it.",
     "sources": [
-      { "label": "Official site", "url": "https://www.coderabbit.ai" }
+      {
+        "label": "Official site",
+        "url": "https://www.coderabbit.ai"
+      }
     ]
   },
   {
@@ -38,7 +228,10 @@
     "summary": "Prototype signal representing a release that materially changes what can be automated, while cosmetic release-note churn would be dropped.",
     "whyItMatters": "A meaningful browser-testing capability can remove repeated manual QA work; a renamed button cannot. The materiality filter exists to separate the two.",
     "sources": [
-      { "label": "Official site", "url": "https://momentic.ai" }
+      {
+        "label": "Official site",
+        "url": "https://momentic.ai"
+      }
     ]
   },
   {
@@ -52,7 +245,10 @@
     "summary": "Prototype evidence type for terms, privacy or data-handling changes that can matter more than a visible product feature.",
     "whyItMatters": "Security tooling may inspect sensitive repositories. Policy changes deserve a different level of scrutiny than ordinary UI updates.",
     "sources": [
-      { "label": "Official site", "url": "https://semgrep.dev" }
+      {
+        "label": "Official site",
+        "url": "https://semgrep.dev"
+      }
     ]
   },
   {
@@ -66,7 +262,10 @@
     "summary": "Prototype signal for a model or analysis-layer update whose effect should be checked against source material rather than trusted from marketing language.",
     "whyItMatters": "Research synthesis is only useful when evidence remains inspectable; a model change matters when it changes how claims are produced or traced.",
     "sources": [
-      { "label": "Official site", "url": "https://dovetail.com" }
+      {
+        "label": "Official site",
+        "url": "https://dovetail.com"
+      }
     ]
   },
   {
@@ -80,7 +279,10 @@
     "summary": "Prototype record showing that discovery and publication are separate. A new capability can be tracked without being promoted as must-know news.",
     "whyItMatters": "The value of Should Know is the rejection layer: discovery can be broad while the public feed remains deliberately narrow.",
     "sources": [
-      { "label": "Official site", "url": "https://www.relume.ai" }
+      {
+        "label": "Official site",
+        "url": "https://www.relume.ai"
+      }
     ]
   }
 ]

@@ -1,67 +1,79 @@
 [
   {
-    "id": "core-50-22",
-    "name": "Context7",
-    "url": "https://context7.com",
-    "verdict": "A focused way to pull current library documentation into coding-agent context instead of relying on stale model memory.",
+    "id": "core-50-1",
+    "name": "Stark",
+    "url": "https://www.getstark.co",
+    "verdict": "Macht Accessibility zu einem sichtbaren QA-Schritt, nicht zu einer späten Checkliste",
     "axes": [
-      { "label": "LEVERAGE", "value": "High" },
-      { "label": "MATURITY", "value": "Emerging" },
-      { "label": "SETUP", "value": "Low" },
-      { "label": "CONTROL", "value": "High" },
-      { "label": "PRICE", "value": "$" },
-      { "label": "EVIDENCE", "value": "Medium" }
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
     ],
-    "bestFor": ["Current library documentation in agent workflows", "Reducing stale API assumptions", "Source-aware coding context"],
-    "caveat": "Documentation can still be versioned, incomplete or ambiguous. Source and version remain worth checking on critical changes."
+    "bestFor": [
+      "Barrieren in Figma, Browser oder Dev-Workflow vor dem Release finden",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Stark instrumentation"
+    ],
+    "caveat": "Automatische Prüfung ersetzt keine Tests mit betroffenen Menschen / Rechtsprüfung."
   },
   {
-    "id": "core-50-13",
-    "name": "CodeRabbit",
-    "url": "https://www.coderabbit.ai",
-    "verdict": "Useful when AI review is inserted into an existing pull-request process instead of becoming a second, disconnected coding surface.",
+    "id": "core-50-2",
+    "name": "Frontitude",
+    "url": "https://www.frontitude.com",
+    "verdict": "Gute UI scheitert oft an Mikrocopy; hier wird sie systematischer statt bloß „AI-writerig“",
     "axes": [
-      { "label": "LEVERAGE", "value": "High" },
-      { "label": "MATURITY", "value": "Proven" },
-      { "label": "SETUP", "value": "Medium" },
-      { "label": "CONTROL", "value": "Medium" },
-      { "label": "PRICE", "value": "$$" },
-      { "label": "EVIDENCE", "value": "Medium" }
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
     ],
-    "bestFor": ["Pull-request review", "Repository-level quality loops", "Teams with explicit review conventions"],
-    "caveat": "Comments are suggestions. Repository permissions, false positives and high-risk changes still need human ownership."
-  },
-  {
-    "id": "core-50-20",
-    "name": "Momentic",
-    "url": "https://momentic.ai",
-    "verdict": "Interesting because it targets real browser paths and maintenance overhead rather than treating testing as prompt-generated boilerplate.",
-    "axes": [
-      { "label": "LEVERAGE", "value": "High" },
-      { "label": "MATURITY", "value": "Emerging" },
-      { "label": "SETUP", "value": "Medium" },
-      { "label": "CONTROL", "value": "Medium" },
-      { "label": "PRICE", "value": "$$" },
-      { "label": "EVIDENCE", "value": "Medium" }
+    "bestFor": [
+      "UX-Texte über Produkt, Tonalität und Sprachen konsistent halten",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Frontitude instrumentation"
     ],
-    "bestFor": ["Browser E2E workflows", "Regression coverage", "Reducing brittle test maintenance"],
-    "caveat": "Payment, auth and other critical flows still benefit from deterministic assertions and explicit isolation."
-  },
-  {
-    "id": "core-50-18",
-    "name": "Semgrep",
-    "url": "https://semgrep.dev",
-    "verdict": "A strong counterweight to generic AI code review because rules and findings remain inspectable at the code level.",
-    "axes": [
-      { "label": "LEVERAGE", "value": "High" },
-      { "label": "MATURITY", "value": "Proven" },
-      { "label": "SETUP", "value": "Medium" },
-      { "label": "CONTROL", "value": "High" },
-      { "label": "PRICE", "value": "$$" },
-      { "label": "EVIDENCE", "value": "Strong" }
-    ],
-    "bestFor": ["Code security scanning", "Custom rule enforcement", "Inspectable findings"],
-    "caveat": "Rules and severity need project-specific tuning; scanner output is not the same thing as resolved risk."
+    "caveat": "Braucht ein gepflegtes Glossar und Content-Entscheidungen im Team."
   },
   {
     "id": "core-50-3",
@@ -69,15 +81,303 @@
     "url": "https://dovetail.com",
     "verdict": "Most useful when the AI layer keeps customer-research evidence traceable instead of collapsing interviews into uncheckable summaries.",
     "axes": [
-      { "label": "LEVERAGE", "value": "Medium" },
-      { "label": "MATURITY", "value": "Proven" },
-      { "label": "SETUP", "value": "Medium" },
-      { "label": "CONTROL", "value": "High" },
-      { "label": "PRICE", "value": "$$" },
-      { "label": "EVIDENCE", "value": "Medium" }
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
     ],
-    "bestFor": ["Interview repositories", "Research synthesis", "Keeping clips and evidence attached"],
+    "bestFor": [
+      "Interview repositories",
+      "Research synthesis",
+      "Keeping clips and evidence attached"
+    ],
     "caveat": "Thin or biased research does not become valid because an AI layer can summarize it faster."
+  },
+  {
+    "id": "core-50-4",
+    "name": "Looppanel",
+    "url": "https://www.looppanel.com",
+    "verdict": "Spart die unproduktive Transkript-/Tagging-Arbeit, lässt aber Clips und Kontext kontrollierbar",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Interviewaufnahmen schnell durchsuchbar machen, markieren und auswerten",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Looppanel instrumentation"
+    ],
+    "caveat": "Sprecherzuordnung und Nuancen immer stichprobenartig prüfen."
+  },
+  {
+    "id": "core-50-5",
+    "name": "Maze",
+    "url": "https://maze.co",
+    "verdict": "Erzwingt reale Nutzerreaktion statt Design-Entscheidungen aus dem Bauch",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Einen Prototypen testen und Muster in Aufgabenabbrüchen erkennen",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Maze instrumentation"
+    ],
+    "caveat": "Ein schöner Report ist kein Ersatz für gute Testaufgaben und Zielgruppe."
+  },
+  {
+    "id": "core-50-6",
+    "name": "Lyssna",
+    "url": "https://www.lyssna.com",
+    "verdict": "Hilft, frühe Designannahmen zu falsifizieren, bevor man sie teuer implementiert",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Schnelle Nutzertests, Präferenztests oder Umfragen aufsetzen",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Lyssna instrumentation"
+    ],
+    "caveat": "Panel-Qualität und Stichprobe entscheiden über die Aussagekraft."
+  },
+  {
+    "id": "core-50-7",
+    "name": "Attention Insight",
+    "url": "https://attentioninsight.com",
+    "verdict": "Gut für frühe Hierarchie- und Fokusfehler; ein konkreter Gegenpol zum „sieht cool aus“",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Aufmerksamkeit auf Landingpage/UI vorab simulieren",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Attention Insight instrumentation"
+    ],
+    "caveat": "Predictive Heatmaps sind Hypothesen, keine echte Eye-Tracking-Studie."
+  },
+  {
+    "id": "core-50-8",
+    "name": "zeroheight",
+    "url": "https://zeroheight.com",
+    "verdict": "Der Anti-Slop-Hebel: echte Komponenten, Zustände und Regeln statt einmal generierter Screens",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Design-System-Regeln so dokumentieren, dass Design und Dev sie tatsächlich nutzen",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated zeroheight instrumentation"
+    ],
+    "caveat": "Ohne Ownership verkommt auch das zur hübschen Doku-Friedhof."
+  },
+  {
+    "id": "core-50-9",
+    "name": "Supernova",
+    "url": "https://www.supernova.io",
+    "verdict": "Macht Design-System-Arbeit exportier- und nachvollziehbar statt copy/paste-lastig",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Tokens, Komponentenwissen und Systemdokumentation als Produkt betreiben",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Supernova instrumentation"
+    ],
+    "caveat": "Erst lohnt sich ein halbwegs konsistentes System; KI repariert kein Chaos automatisch."
+  },
+  {
+    "id": "core-50-10",
+    "name": "Knapsack",
+    "url": "https://www.knapsack.cloud",
+    "verdict": "Stark, weil AI/Design-Kontext an echte Komponenten gekoppelt bleibt",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "High"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Produktionskomponenten und Design-System-Wissen zusammenführen",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Knapsack instrumentation"
+    ],
+    "caveat": "Eher Team-/Enterprise-Workflow als Solo-Tool."
   },
   {
     "id": "core-50-11",
@@ -85,14 +385,2620 @@
     "url": "https://www.relume.ai",
     "verdict": "Worth watching because it starts from structure and reusable components rather than treating a one-shot visual generation as the finished product.",
     "axes": [
-      { "label": "LEVERAGE", "value": "Medium" },
-      { "label": "MATURITY", "value": "Proven" },
-      { "label": "SETUP", "value": "Low" },
-      { "label": "CONTROL", "value": "Medium" },
-      { "label": "PRICE", "value": "$$" },
-      { "label": "EVIDENCE", "value": "Medium" }
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
     ],
-    "bestFor": ["Sitemap exploration", "Wireframe structure", "Component-led website planning"],
+    "bestFor": [
+      "Sitemap exploration",
+      "Wireframe structure",
+      "Component-led website planning"
+    ],
     "caveat": "Brand direction, editorial judgement and unusual interaction design still need deliberate human work."
+  },
+  {
+    "id": "core-50-12",
+    "name": "Builder.io Visual Copilot",
+    "url": "https://www.builder.io/m/design-to-code",
+    "verdict": "Besser als Prompt-to-UI, weil ein konkretes Designartefakt der Ausgangspunkt ist",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Bestehende Figma-Entscheidungen in editierbaren Code überführen",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Builder.io Visual Copilot instrumentation"
+    ],
+    "caveat": "Output ist Startpunkt: Komponenten-API, Accessibility und Responsiveness reviewen."
+  },
+  {
+    "id": "core-50-13",
+    "name": "CodeRabbit",
+    "url": "https://www.coderabbit.ai",
+    "verdict": "Useful when AI review is inserted into an existing pull-request process instead of becoming a second, disconnected coding surface.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Pull-request review",
+      "Repository-level quality loops",
+      "Teams with explicit review conventions"
+    ],
+    "caveat": "Comments are suggestions. Repository permissions, false positives and high-risk changes still need human ownership."
+  },
+  {
+    "id": "core-50-14",
+    "name": "Greptile",
+    "url": "https://www.greptile.com",
+    "verdict": "Nützlich, weil der Engpass meist Kontext über mehrere Dateien ist, nicht Code-Vervollständigung",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Fragen an eine echte Codebase stellen oder Änderungen gegen Repo-Kontext prüfen",
+      "Teams requiring verified workflows in Dev",
+      "Replacing ad-hoc generic tools with dedicated Greptile instrumentation"
+    ],
+    "caveat": "Index/Permissions bewusst begrenzen; kritische Architekturantworten verifizieren."
+  },
+  {
+    "id": "core-50-15",
+    "name": "Graphite Diamond",
+    "url": "https://graphite.com/diamond",
+    "verdict": "Gute Ergänzung bei vielen kleinen PRs und klaren Review-Standards",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "PRs entlang Team-Konventionen und Change-Absicht reviewen lassen",
+      "Teams requiring verified workflows in Dev",
+      "Replacing ad-hoc generic tools with dedicated Graphite Diamond instrumentation"
+    ],
+    "caveat": "Kein Ersatz für Ownership bei fachlich riskanten Änderungen."
+  },
+  {
+    "id": "core-50-16",
+    "name": "Qodo",
+    "url": "https://www.qodo.ai",
+    "verdict": "Wertvoll, wenn KI an Tests/Review hängt statt nur „implementier mal“ sagt",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Tests, Reviews und Engineering-Workflows stärker spezifikationsnah vorbereiten",
+      "Teams requiring verified workflows in Dev",
+      "Replacing ad-hoc generic tools with dedicated Qodo instrumentation"
+    ],
+    "caveat": "Generierte Tests können den falschen Contract absichern."
+  },
+  {
+    "id": "core-50-17",
+    "name": "Ellipsis",
+    "url": "https://www.ellipsis.dev",
+    "verdict": "Macht klar umrissene Repo-Hygiene reproduzierbar",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Wiederkehrende PR-Checks oder kleine Wartungsänderungen automatisieren",
+      "Teams requiring verified workflows in Dev",
+      "Replacing ad-hoc generic tools with dedicated Ellipsis instrumentation"
+    ],
+    "caveat": "Nur für eng begrenzte Aufgaben freigeben, nicht blind mergen lassen."
+  },
+  {
+    "id": "core-50-18",
+    "name": "Semgrep",
+    "url": "https://semgrep.dev",
+    "verdict": "A strong counterweight to generic AI code review because rules and findings remain inspectable at the code level.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Code security scanning",
+      "Custom rule enforcement",
+      "Inspectable findings"
+    ],
+    "caveat": "Rules and severity need project-specific tuning; scanner output is not the same thing as resolved risk."
+  },
+  {
+    "id": "core-50-19",
+    "name": "Aikido Security",
+    "url": "https://www.aikido.dev",
+    "verdict": "Hilft, aus einer Scanner-Flut tatsächlich abarbeitbare Risikofälle zu machen",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Security Findings bündeln und Entwickler-freundlich priorisieren",
+      "Teams requiring verified workflows in Dev",
+      "Replacing ad-hoc generic tools with dedicated Aikido Security instrumentation"
+    ],
+    "caveat": "Abdeckung, Compliance und Remediation nicht ungeprüft dem Tool delegieren."
+  },
+  {
+    "id": "core-50-20",
+    "name": "Momentic",
+    "url": "https://momentic.ai",
+    "verdict": "Interesting because it targets real browser paths and maintenance overhead rather than treating testing as prompt-generated boilerplate.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Browser E2E workflows",
+      "Regression coverage",
+      "Reducing brittle test maintenance"
+    ],
+    "caveat": "Payment, auth and other critical flows still benefit from deterministic assertions and explicit isolation."
+  },
+  {
+    "id": "core-50-21",
+    "name": "Meticulous",
+    "url": "https://www.meticulous.ai",
+    "verdict": "Guter Shift von „wir hoffen, dass QA alles klickt“ zu breiterem Verhaltenstest",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "High"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Regressionen durch aufgezeichnete Nutzerpfade früh entdecken",
+      "Teams requiring verified workflows in Dev",
+      "Replacing ad-hoc generic tools with dedicated Meticulous instrumentation"
+    ],
+    "caveat": "Sensible Daten, Testisolierung und Flaky-Analyse sind Pflicht."
+  },
+  {
+    "id": "core-50-22",
+    "name": "Context7",
+    "url": "https://context7.com",
+    "verdict": "A focused way to pull current library documentation into coding-agent context instead of relying on stale model memory.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Current library documentation in agent workflows",
+      "Reducing stale API assumptions",
+      "Source-aware coding context"
+    ],
+    "caveat": "Documentation can still be versioned, incomplete or ambiguous. Source and version remain worth checking on critical changes."
+  },
+  {
+    "id": "core-50-23",
+    "name": "Unblocked",
+    "url": "https://getunblocked.com",
+    "verdict": "Stark für Onboarding und „warum ist das so?“, nicht nur für Codegenerierung",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Interne Engineering-Fragen über Code und Wissensquellen beantworten",
+      "Teams requiring verified workflows in Dev",
+      "Replacing ad-hoc generic tools with dedicated Unblocked instrumentation"
+    ],
+    "caveat": "Berechtigungen und Indexqualität entscheiden komplett über den Nutzen."
+  },
+  {
+    "id": "core-50-24",
+    "name": "Julius AI",
+    "url": "https://julius.ai",
+    "verdict": "Praktisch, wenn nicht nur eine Antwort, sondern Analyse-/Code-Output kontrolliert wird",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Eine CSV/Excel-Datei explorieren und die Analyse nachvollziehbar ausführen",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Julius AI instrumentation"
+    ],
+    "caveat": "Datenbereinigung, Ausreißer und Kausalinterpretation bleiben dein Job."
+  },
+  {
+    "id": "core-50-25",
+    "name": "Rows AI",
+    "url": "https://rows.com/ai",
+    "verdict": "Die Tabelle bleibt der prüfbare Arbeitsgegenstand, nicht ein Chat-Blackbox-Resultat",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "AI-Schritte direkt in einem kollaborativen Tabellenworkflow einsetzen",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Rows AI instrumentation"
+    ],
+    "caveat": "Bei Geschäftslogik Formeln/Quellen immer nachvollziehen."
+  },
+  {
+    "id": "core-50-26",
+    "name": "Akkio",
+    "url": "https://www.akkio.com",
+    "verdict": "Senkt die Einstiegshürde für konkrete Datenfragen, ohne gleich ein Data-Team zu spielen",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Geschäftsdaten ohne eigenes ML-Notebook untersuchen und Prognose-Hypothesen bilden",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Akkio instrumentation"
+    ],
+    "caveat": "Prognosequalität hängt brutal an Label, Datenmenge und Leakage-Check."
+  },
+  {
+    "id": "core-50-27",
+    "name": "Gigasheet",
+    "url": "https://gigasheet.com",
+    "verdict": "Nische mit echtem Schmerzpunkt: Datenmenge, die Excel nicht mehr angenehm trägt",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Große Dateien in einer tabellenähnlichen Oberfläche explorieren",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Gigasheet instrumentation"
+    ],
+    "caveat": "Keine Statistik-Sicherheit aus einer gut formulierten Zusammenfassung ableiten."
+  },
+  {
+    "id": "core-50-28",
+    "name": "Mito",
+    "url": "https://www.trymito.io",
+    "verdict": "Besonders gut für den Übergang von Analyse-Experiment zu wartbarer Datenpipeline",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Tabellenartige Datenmanipulation in reproduzierbaren Python-Code überführen",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Mito instrumentation"
+    ],
+    "caveat": "Generierten Code testen und in den eigenen Datenstandard überführen."
+  },
+  {
+    "id": "core-50-29",
+    "name": "Elicit",
+    "url": "https://elicit.com",
+    "verdict": "Besser als bloße Websuche, wenn Evidenzfelder und Studienvergleich zählen",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Literatur für eine konkrete Forschungsfrage strukturiert finden und vergleichen",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Elicit instrumentation"
+    ],
+    "caveat": "Paper lesen und Quellencheck bleiben Pflicht; Coverage ist nie vollständig."
+  },
+  {
+    "id": "core-50-30",
+    "name": "ResearchRabbit",
+    "url": "https://www.researchrabbit.ai",
+    "verdict": "Sehr guter Discovery-Modus für „was hängt fachlich wirklich zusammen?“",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Autoren, Paper und Zitationsbeziehungen um ein Startpaper herum explorieren",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated ResearchRabbit instrumentation"
+    ],
+    "caveat": "Zitationsnetz = Entdeckung, nicht Qualitätsurteil."
+  },
+  {
+    "id": "core-50-31",
+    "name": "Explainpaper",
+    "url": "https://www.explainpaper.com",
+    "verdict": "Besserer erster Schritt als abstrakte Paper-Summary ohne Textstelle",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Schwierige Passage eines Papers im Dokumentkontext verstehen",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Explainpaper instrumentation"
+    ],
+    "caveat": "Mathematische/kausale Erklärung gegen Original und ggf. Lehrbuch prüfen."
+  },
+  {
+    "id": "core-50-32",
+    "name": "Unriddle",
+    "url": "https://unriddle.ai",
+    "verdict": "Nützlich für Dossiers, Verträge oder Forschungspakete mit vielen Quellseiten",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Lange Dokumente als durchsuchbaren, verlinkten Arbeitsraum aufbereiten",
+      "Teams requiring verified workflows in Daten & Quellenarbeit",
+      "Replacing ad-hoc generic tools with dedicated Unriddle instrumentation"
+    ],
+    "caveat": "Immer auf Fundstellen zurückspringen; Summary ist kein Beleg."
+  },
+  {
+    "id": "core-50-33",
+    "name": "Dust",
+    "url": "https://dust.tt",
+    "verdict": "Interessant, weil menschliche Zusammenarbeit, Quellen und Berechtigungen Teil des Workflows sind",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Interne Assistenten auf freigegebenen Team-Quellen bauen",
+      "Teams requiring verified workflows in Wissen & Operations",
+      "Replacing ad-hoc generic tools with dedicated Dust instrumentation"
+    ],
+    "caveat": "Connectors und Rollenmodell vor dem Roll-out prüfen."
+  },
+  {
+    "id": "core-50-34",
+    "name": "Tana",
+    "url": "https://tana.inc",
+    "verdict": "Nicht nur Chat-Zusammenfassung: das Denkmodell bleibt als Struktur erhalten",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Notizen als strukturierte Objekte erfassen und daraus wiederverwendbare Ansichten bauen",
+      "Teams requiring verified workflows in Wissen & Operations",
+      "Replacing ad-hoc generic tools with dedicated Tana instrumentation"
+    ],
+    "caveat": "Hat Einarbeitungskosten; ohne klare Capture-Gewohnheit wird es Overhead."
+  },
+  {
+    "id": "core-50-35",
+    "name": "Readwise Reader + Ghostreader",
+    "url": "https://readwise.io/read",
+    "verdict": "Für Menschen mit viel Input deutlich wertvoller als eine weitere To-do-App",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Artikel/PDFs markieren, verbinden und im Originalkontext befragen",
+      "Teams requiring verified workflows in Wissen & Operations",
+      "Replacing ad-hoc generic tools with dedicated Readwise Reader + Ghostreader instrumentation"
+    ],
+    "caveat": "Kein Ersatz für eine eigene Lesepraxis oder verlässliche Quellenkritik."
+  },
+  {
+    "id": "core-50-36",
+    "name": "Gumloop",
+    "url": "https://www.gumloop.com",
+    "verdict": "Gut für Automatisierung, wenn man den Ablauf sichtbar statt magisch hält",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Mehrstufige AI-Workflows mit SaaS-Daten und klaren Zwischenschritten bauen",
+      "Teams requiring verified workflows in Wissen & Operations",
+      "Replacing ad-hoc generic tools with dedicated Gumloop instrumentation"
+    ],
+    "caveat": "Kosten, Datenfluss und Failure-Handling explizit designen."
+  },
+  {
+    "id": "core-50-37",
+    "name": "Relay.app",
+    "url": "https://www.relay.app",
+    "verdict": "Das Human-in-the-loop-Prinzip schützt vor den schlimmsten Agentenfehlern",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Automationen mit menschlicher Freigabe zwischen AI-Schritten aufsetzen",
+      "Teams requiring verified workflows in Wissen & Operations",
+      "Replacing ad-hoc generic tools with dedicated Relay.app instrumentation"
+    ],
+    "caveat": "Freigabeschritte müssen bei Risiko wirklich verbindlich sein."
+  },
+  {
+    "id": "core-50-38",
+    "name": "Retell AI",
+    "url": "https://www.retellai.com",
+    "verdict": "Nicht nur TTS: sinnvoll, wenn Dialoglogik, Übergabe und Messung sauber modelliert sind",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Einen Voice-Agenten als konkreten Gesprächsprozess bauen und testen",
+      "Teams requiring verified workflows in Wissen & Operations",
+      "Replacing ad-hoc generic tools with dedicated Retell AI instrumentation"
+    ],
+    "caveat": "Consent, Fehlerfälle, Halluzinationen und Eskalation vor Livebetrieb testen."
+  },
+  {
+    "id": "core-50-39",
+    "name": "Flora",
+    "url": "https://www.florafauna.ai",
+    "verdict": "Gut, weil Auswahl, Referenzen und Iteration sichtbar bleiben",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Mehrere Kreativmodelle in einem bewusst geführten Workspace kombinieren",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Flora instrumentation"
+    ],
+    "caveat": "Multi-Model-Output wird nicht automatisch zur kohärenten Art Direction."
+  },
+  {
+    "id": "core-50-40",
+    "name": "Kive",
+    "url": "https://www.kive.ai",
+    "verdict": "Kreative Qualität beginnt oft bei Referenzbibliothek und Auswahl, nicht beim letzten Prompt",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Referenzen und Assets kuratieren und aus diesem Kontext weiterarbeiten",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Kive instrumentation"
+    ],
+    "caveat": "Rechte an Referenzen/Assets und saubere Benennung bleiben nötig."
+  },
+  {
+    "id": "core-50-41",
+    "name": "Vizcom",
+    "url": "https://www.vizcom.ai",
+    "verdict": "Sehr viel sinnvoller als Stock-3D: eine eigene Skizze steuert die Richtung",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Produkt-/Industrieskizzen in steuerbare Konzepte überführen",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Vizcom instrumentation"
+    ],
+    "caveat": "Kein CAD- oder Engineering-Nachweis; Konstruktion separat validieren."
+  },
+  {
+    "id": "core-50-42",
+    "name": "Katalist",
+    "url": "https://www.katalist.ai",
+    "verdict": "Spart Budget, weil Narrativ und Shots vor Generation/Editing geklärt werden",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Ein visuelles Storyboard vor der aufwendigen Videoproduktion bauen",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Katalist instrumentation"
+    ],
+    "caveat": "Storyboardqualität hängt weiterhin an Dramaturgie und Bildsprache."
+  },
+  {
+    "id": "core-50-43",
+    "name": "LTX Studio",
+    "url": "https://ltx.studio",
+    "verdict": "Der Mehrwert ist Planbarkeit der Produktion, nicht der einzelne Glamour-Clip",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Skript, Shots, Figuren und Edit-Entscheidungen als Preproduction bündeln",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated LTX Studio instrumentation"
+    ],
+    "caveat": "Marken-/Figurenkonsistenz und finale Schnittqualität aktiv führen."
+  },
+  {
+    "id": "core-50-44",
+    "name": "Wondercraft",
+    "url": "https://www.wondercraft.ai",
+    "verdict": "Stark, wenn Script, Stimme und Szenen gezielt bearbeitet werden können",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Aus einem klaren Script einen narrativen Audio-/Video-Explainer produzieren",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Wondercraft instrumentation"
+    ],
+    "caveat": "Stimme, Aussprache, Faktentreue und Lizenzbedingungen immer abnehmen."
+  },
+  {
+    "id": "core-50-45",
+    "name": "Cleanvoice",
+    "url": "https://cleanvoice.ai",
+    "verdict": "Konkreter Produktionshebel mit gut kontrollierbarem Vorher/Nachher",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Füllwörter, Pausen und Störanteile vor dem finalen Schnitt entfernen",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Cleanvoice instrumentation"
+    ],
+    "caveat": "Überbearbeitung kann Rhythmus und Persönlichkeit zerstören."
+  },
+  {
+    "id": "core-50-46",
+    "name": "Auphonic",
+    "url": "https://auphonic.com",
+    "verdict": "Unsexy, aber extrem wirkungsvoll: professionelle Verständlichkeit statt KI-Gimmick",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Lautheit, Pegel und grundlegende Audio-Konsistenz fürs Publishing herstellen",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Auphonic instrumentation"
+    ],
+    "caveat": "Schlechte Aufnahme oder falscher Schnitt wird nicht vollständig gerettet."
+  },
+  {
+    "id": "core-50-47",
+    "name": "RemNote",
+    "url": "https://www.remnote.com",
+    "verdict": "Hilft beim Lernen durch Abruf, nicht nur beim konsumierbaren Zusammenfassen",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Aus Stoff verknüpfte Notizen, aktive Wiederholung und Karten machen",
+      "Teams requiring verified workflows in Lernen, Sprache & persönlicher Kontext",
+      "Replacing ad-hoc generic tools with dedicated RemNote instrumentation"
+    ],
+    "caveat": "Schlechte Karten bleiben schlechte Karten; aktives Verständnis zählt."
+  },
+  {
+    "id": "core-50-48",
+    "name": "Speak",
+    "url": "https://www.speak.com",
+    "verdict": "Praktisch, weil es Output/Übung statt passives Vokabellernen erzwingt",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Gesprochene Sprache durch Gespräch und Feedback trainieren",
+      "Teams requiring verified workflows in Lernen, Sprache & persönlicher Kontext",
+      "Replacing ad-hoc generic tools with dedicated Speak instrumentation"
+    ],
+    "caveat": "Akzent, Pragmatik und echte soziale Gesprächssituationen bleiben begrenzt."
+  },
+  {
+    "id": "core-50-49",
+    "name": "DeepL Write",
+    "url": "https://www.deepl.com/write",
+    "verdict": "Nützlicher als generisches Umschreiben, wenn du die eigene Aussage behalten willst",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Einen Text auf Klarheit, Ton und Formulierung überarbeiten",
+      "Teams requiring verified workflows in Lernen, Sprache & persönlicher Kontext",
+      "Replacing ad-hoc generic tools with dedicated DeepL Write instrumentation"
+    ],
+    "caveat": "Änderungen nicht blind übernehmen; Fachtermini und persönliche Stimme schützen."
+  },
+  {
+    "id": "core-50-50",
+    "name": "Voicenotes",
+    "url": "https://voicenotes.com",
+    "verdict": "Beseitigt Capture-Reibung; stark für Ideen, Gespräche und persönliche Worklogs",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Gedanken schnell sprechen, später gezielt wiederfinden und weiterverarbeiten",
+      "Teams requiring verified workflows in Lernen, Sprache & persönlicher Kontext",
+      "Replacing ad-hoc generic tools with dedicated Voicenotes instrumentation"
+    ],
+    "caveat": "Private Inhalte, Retention und Datenfreigaben vor Nutzung prüfen."
+  },
+  {
+    "id": "next-wave-1",
+    "name": "Storybook MCP",
+    "url": "https://storybook.js.org/",
+    "verdict": "Der Agent bekommt die realen Komponenten und kann sich an laufenden Stories/Tests orientieren – nicht frei erfundene UI erzeugen.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Coding-Agenten bestehende Komponenten, Stories, APIs sowie Tests nutzen lassen.",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Storybook MCP instrumentation"
+    ],
+    "caveat": "Laut Ankündigung noch Preview und auf React/TypeScript zugeschnitten."
+  },
+  {
+    "id": "next-wave-2",
+    "name": "Evinced",
+    "url": "https://www.evinced.com/",
+    "verdict": "Kombiniert Analyse, konkrete Guidance und Accessibility-Unit-Tests im Dev-Kontext.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Accessibility-Probleme in Komponenten finden, Fixes vorbereiten und Tests ergänzen.",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Evinced instrumentation"
+    ],
+    "caveat": "Automatisierung deckt nicht alle WCAG-/Usability-Fragen ab; manuelle Tests bleiben Pflicht."
+  },
+  {
+    "id": "next-wave-3",
+    "name": "Deque axe DevTools",
+    "url": "https://www.deque.com/axe/devtools/",
+    "verdict": "Es lenkt auf konkrete manuelle Prüfschritte statt auf eine irreführende „WCAG passed“-Meldung.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Geführte Accessibility-Tests zusätzlich zum Scanner ausführen.",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Deque axe DevTools instrumentation"
+    ],
+    "caveat": "Die Beschleunigung ist eine Herstellerangabe; Assistive-Tech- und manuelle Prüfung bleiben nötig."
+  },
+  {
+    "id": "next-wave-4",
+    "name": "Applitools Eyes",
+    "url": "https://applitools.com/",
+    "verdict": "Prüft visuelle Parität – etwa Typografie, Abstände, Farbe und Drift – vor einem Release.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Figma-Designs als Baseline gegen den produktiven Build testen.",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated Applitools Eyes instrumentation"
+    ],
+    "caveat": "Visual parity ist weder UX-Test noch vollständiger A11y-Test."
+  },
+  {
+    "id": "next-wave-5",
+    "name": "mabl",
+    "url": "https://www.mabl.com/",
+    "verdict": "Ziel ist weniger Pixelvergleich-Rauschen und mehr nachvollziehbare Regressionen in echten Tests.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Visuelle Regressionen mit UI-/Zustands-Kontext priorisieren.",
+      "Teams requiring verified workflows in UI / UX",
+      "Replacing ad-hoc generic tools with dedicated mabl instrumentation"
+    ],
+    "caveat": "Fachliches Release-Sign-off und gute Testfälle bleiben erforderlich."
+  },
+  {
+    "id": "next-wave-6",
+    "name": "Diffblue Cover",
+    "url": "https://www.diffblue.com/",
+    "verdict": "Output sind gewöhnliche Testdateien und CI-Schritte, nicht eine nicht überprüfbare Chat-Antwort.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "High"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Java-/Kotlin-Unit-Tests in IDE, CLI oder CI erzeugen und ausführen.",
+      "Teams requiring verified workflows in Dev Quality",
+      "Replacing ad-hoc generic tools with dedicated Diffblue Cover instrumentation"
+    ],
+    "caveat": "Fokus liegt auf Java/Kotlin; komplexe Runtimes brauchen oft Setup und Review."
+  },
+  {
+    "id": "next-wave-7",
+    "name": "SonarQube AI CodeFix",
+    "url": "https://www.sonarsource.com/products/sonarqube/",
+    "verdict": "KI ist an ein konkretes, regelbasiert erkanntes Issue gekoppelt – kein unspezifischer „fix my code“-Prompt.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "High"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Einen von Sonar statisch gefundenen Codefehler mit Edit-Vorschlag beheben.",
+      "Teams requiring verified workflows in Dev Quality",
+      "Replacing ad-hoc generic tools with dedicated SonarQube AI CodeFix instrumentation"
+    ],
+    "caveat": "Laut Doku im Server nur Enterprise/Data Center; jeden Patch testen."
+  },
+  {
+    "id": "next-wave-8",
+    "name": "DeepSource",
+    "url": "https://deepsource.com/",
+    "verdict": "Kombiniert statische Analyse mit fixbaren, reviewbaren Remediation-Vorschlägen.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Analyse-Findings und Vulnerabilities als konkrete Code-Änderung bearbeiten.",
+      "Teams requiring verified workflows in Dev Quality",
+      "Replacing ad-hoc generic tools with dedicated DeepSource instrumentation"
+    ],
+    "caveat": "Vorschläge sind keine Garantie für korrektes Verhalten; Tests sind Pflicht."
+  },
+  {
+    "id": "next-wave-9",
+    "name": "Hex",
+    "url": "https://hex.tech/",
+    "verdict": "Der Agent erzeugt/repariert Zellen, aber das Ergebnis bleibt ein nachvollziehbares Notebook-Artefakt.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "SQL, Python und Charts als editierbares Analyse-Notebook entwickeln.",
+      "Teams requiring verified workflows in Data / Research",
+      "Replacing ad-hoc generic tools with dedicated Hex instrumentation"
+    ],
+    "caveat": "Eher Team-/Data-Stack-Produkt; SQL und Kennzahlen weiterhin reviewen."
+  },
+  {
+    "id": "next-wave-10",
+    "name": "Wren AI",
+    "url": "https://getwren.ai/",
+    "verdict": "Ein explizites Business-Modell und Regeln begrenzen Antworten besser als Text-to-SQL ohne Daten-Governance.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Medium"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Fachlich kontrollierte SQL-/BI-Antworten aus Unternehmensdaten erzeugen.",
+      "Teams requiring verified workflows in Data / Research",
+      "Replacing ad-hoc generic tools with dedicated Wren AI instrumentation"
+    ],
+    "caveat": "Hebel entsteht erst mit sauberem semantischem Modell und Berechtigungen."
+  },
+  {
+    "id": "next-wave-11",
+    "name": "kapa.ai",
+    "url": "https://www.kapa.ai/",
+    "verdict": "RAG-Antworten basieren auf einer kontrollierten Knowledge Base statt auf freiem Modellwissen.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Produktdokumentation als quellengebundenen Support- oder In-Product-Agent bereitstellen.",
+      "Teams requiring verified workflows in Knowledge / Ops",
+      "Replacing ad-hoc generic tools with dedicated kapa.ai instrumentation"
+    ],
+    "caveat": "Der Agent ist nur so zuverlässig wie Quellenabdeckung, Aktualität und Zugriffsmodell."
+  },
+  {
+    "id": "next-wave-12",
+    "name": "Glean",
+    "url": "https://www.glean.com/",
+    "verdict": "Antworten sollen Referenzen enthalten und die Rechte der Quellsysteme respektieren.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Berechtigungsbewusste Recherche über interne Dokumente, Chats und Daten ermöglichen.",
+      "Teams requiring verified workflows in Knowledge / Ops",
+      "Replacing ad-hoc generic tools with dedicated Glean instrumentation"
+    ],
+    "caveat": "Enterprise-Einführung: Connector-, Index- und Rechtequalität entscheiden über alles."
+  },
+  {
+    "id": "next-wave-13",
+    "name": "StackAI",
+    "url": "https://www.stack-ai.com/",
+    "verdict": "Die Knowledge Base ist ein sichtbarer Workflow-Knoten mit nachfolgenden Automationsschritten.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Eine Dokumenten-Wissensbasis in einen getriggerten Unternehmensworkflow einbauen.",
+      "Teams requiring verified workflows in Knowledge / Ops",
+      "Replacing ad-hoc generic tools with dedicated StackAI instrumentation"
+    ],
+    "caveat": "RAG braucht Evaluation; Indexierung, Berechtigungen und Prompting sind Implementierungsarbeit."
+  },
+  {
+    "id": "next-wave-14",
+    "name": "Rokoko Vision",
+    "url": "https://www.rokoko.com/products/vision",
+    "verdict": "Liefert bearbeitbare Motion-Capture-Daten und Retargeting statt generischer Effektclips.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Ein Video in 3D-Character-Animation für Blender, Unreal oder Maya überführen.",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Rokoko Vision instrumentation"
+    ],
+    "caveat": "Bodenkontakt, Okklusionen und komplexe Bewegungen brauchen Nacharbeit."
+  },
+  {
+    "id": "next-wave-15",
+    "name": "Topaz Video",
+    "url": "https://www.topazlabs.com/topaz-video",
+    "verdict": "Bearbeitet vorhandenes Material als Produktionsasset; kein Text-to-Video-Gimmick.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Archiv-, Low-Light- oder niedrig aufgelöstes Footage restaurieren/hochskalieren.",
+      "Teams requiring verified workflows in Creative Production",
+      "Replacing ad-hoc generic tools with dedicated Topaz Video instrumentation"
+    ],
+    "caveat": "Rechenintensiv; Details können halluziniert oder Artefakte erzeugt werden."
+  },
+  {
+    "id": "next-wave-16",
+    "name": "Granola",
+    "url": "https://www.granola.ai/",
+    "verdict": "Die eigenen Notizen bleiben Anker; KI ergänzt Kontext statt ein unkontrollierter Meeting-Bot zu sein.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Eigene Meeting-Stichpunkte mit Transkript-Kontext zu Entscheidungen und Follow-ups ausarbeiten.",
+      "Teams requiring verified workflows in Productivity",
+      "Replacing ad-hoc generic tools with dedicated Granola instrumentation"
+    ],
+    "caveat": "Teilnehmer informieren; bei sensiblen Meetings Datenschutz, Speicherung und Ergebnisse prüfen."
+  },
+  {
+    "id": "next-wave-17",
+    "name": "Reclaim",
+    "url": "https://reclaim.ai/",
+    "verdict": "Bearbeitet ein reales Ressourcenproblem – Kalenderkapazität – statt nur eine weitere To-do-Liste anzulegen.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Fokuszeit, Aufgaben und flexible Termine in Kalendern gegen Konflikte verteidigen.",
+      "Teams requiring verified workflows in Productivity",
+      "Replacing ad-hoc generic tools with dedicated Reclaim instrumentation"
+    ],
+    "caveat": "Funktioniert nur mit gepflegten Prioritäten und Team-Verfügbarkeiten."
+  },
+  {
+    "id": "next-wave-18",
+    "name": "Browse AI",
+    "url": "https://www.browse.ai/",
+    "verdict": "Ein trainierter „Robot“ liefert Änderungsdaten in Tabelle/API statt einmaliger Chat-Ergebnisse.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Preis-, Lager-, Stellen- oder Wettbewerbsänderungen von Websites strukturiert überwachen.",
+      "Teams requiring verified workflows in Knowledge / Ops",
+      "Replacing ad-hoc generic tools with dedicated Browse AI instrumentation"
+    ],
+    "caveat": "AGB, robots.txt, Datenschutz und Layoutänderungen der Zielseiten beachten."
+  },
+  {
+    "id": "next-wave-19",
+    "name": "V7 Go",
+    "url": "https://www.v7labs.com/go",
+    "verdict": "Ausnahmen, Tabellenoutput und Integrationen sind für dokumentenlastige Vorgänge gebaut, nicht nur für PDF-Summaries.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Dokumente wie Rechnungen, Versicherungsakten oder Due-Diligence-Unterlagen in strukturierte Prüfworkflows überführen.",
+      "Teams requiring verified workflows in Knowledge / Ops",
+      "Replacing ad-hoc generic tools with dedicated V7 Go instrumentation"
+    ],
+    "caveat": "Braucht Testkorpus, Qualitätsmetriken und Human Review; meist Enterprise-Vertrieb."
+  },
+  {
+    "id": "next-wave-20",
+    "name": "Luminance",
+    "url": "https://www.luminance.com/",
+    "verdict": "Spezialisiert auf Klauseln, Richtlinien und Vertragskontext statt eines allgemeinen Legal-Prompts.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "High"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Verträge erstellen, verhandeln, prüfen und institutionelles Vertragswissen nutzen.",
+      "Teams requiring verified workflows in Knowledge / Ops",
+      "Replacing ad-hoc generic tools with dedicated Luminance instrumentation"
+    ],
+    "caveat": "Enterprise-Tool; keine Rechtsberatung und kein Ersatz für juristische Freigabe."
+  },
+  {
+    "id": "claude",
+    "name": "Claude",
+    "url": "https://claude.ai",
+    "verdict": "Anthropic's flagship model family, unmatched in extended context reasoning, coding rigor and system-prompt fidelity.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Deep multi-file codebase refactoring",
+      "Complex analytical synthesis across 200k tokens",
+      "Autonomous developer CLI workflows (Claude Code)"
+    ],
+    "caveat": "Pro usage rate limits can be reached rapidly during continuous coding; web interface occasionally hits concurrency slowdowns."
+  },
+  {
+    "id": "chatgpt",
+    "name": "ChatGPT",
+    "url": "https://chatgpt.com",
+    "verdict": "The benchmark multimodal ecosystem offering broad consumer tooling, advanced voice mode, and the extensive GPT Store.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Low"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "General multimodal queries and ideation",
+      "Real-time voice conversations and translations",
+      "Ad-hoc data analysis and spreadsheet charting"
+    ],
+    "caveat": "Proprietary closed platform with strict filtering; enterprise data isolation requires verified business agreements."
+  },
+  {
+    "id": "perplexity",
+    "name": "Perplexity",
+    "url": "https://www.perplexity.ai",
+    "verdict": "The definitive real-time search synthesis engine, linking each assertion to verifiable web citations.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Technical search with live citations",
+      "Market and competitive analysis",
+      "Multi-source literature aggregation"
+    ],
+    "caveat": "May inadvertently cite content-farm summaries or SEO landing pages if source filters are not manually constrained."
+  },
+  {
+    "id": "midjourney",
+    "name": "Midjourney",
+    "url": "https://www.midjourney.com",
+    "verdict": "The industry benchmark for visual style, cinematic lighting, and aesthetic coherence in AI image generation.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Low"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Cinematic concept art and visual development",
+      "Editorial illustrations and marketing assets",
+      "Photorealistic visual exploration"
+    ],
+    "caveat": "Discord and web interface lack programmable API endpoints for automated production pipelines."
+  },
+  {
+    "id": "runway",
+    "name": "Runway",
+    "url": "https://runway.com",
+    "verdict": "Premier professional generative video studio (Gen-3 Alpha) offering fine-grained camera motion and director control.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Cinematic video scene generation",
+      "Motion Brush and director-level camera paths",
+      "Visual effects and conceptual previz"
+    ],
+    "caveat": "Credit consumption for 4K video renders is high; rapid camera trajectories can still exhibit temporal morphing."
+  },
+  {
+    "id": "gamma",
+    "name": "Gamma",
+    "url": "https://gamma.app",
+    "verdict": "Reinvents slide decks into fluid, responsive documents with instant typography and layout generation.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Fast pitch decks and client presentations",
+      "Converting raw markdown outlines into polished slides",
+      "Interactive executive summaries"
+    ],
+    "caveat": "Visual design can feel generic without custom brand colors and deliberate layout overrides."
+  },
+  {
+    "id": "viggle-ai",
+    "name": "Viggle AI",
+    "url": "https://viggle.ai",
+    "verdict": "Controllable physics-based character animation, transferring human dance and movement videos onto any character model.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Emerging"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "Medium"
+      },
+      {
+        "label": "PRICE",
+        "value": "$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Medium"
+      }
+    ],
+    "bestFor": [
+      "Character rigging and video motion transfer",
+      "Viral social video prototyping",
+      "Fast 3D game character walk cycles"
+    ],
+    "caveat": "Occluded limbs or extreme angles can cause tearing and texture detachment."
+  },
+  {
+    "id": "magnific",
+    "name": "Magnific",
+    "url": "https://www.magnific.com",
+    "verdict": "AI upscaling and detail hallucination engine that breathes ultra-crisp photographic texture into low-res assets.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "High"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "$$$"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Print-quality image upscaling up to 8K",
+      "CGI and 3D render texture enhancement",
+      "Ecommerce hero image sharpening"
+    ],
+    "caveat": "High creativity settings invent unintended visual elements; per-upscale credit costs are steep."
+  },
+  {
+    "id": "duckduckgo",
+    "name": "Duck.ai",
+    "url": "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat",
+    "verdict": "Private, zero-tracking AI chat portal providing free access to leading foundation models without account signups.",
+    "axes": [
+      {
+        "label": "LEVERAGE",
+        "value": "Medium"
+      },
+      {
+        "label": "MATURITY",
+        "value": "Proven"
+      },
+      {
+        "label": "SETUP",
+        "value": "Low"
+      },
+      {
+        "label": "CONTROL",
+        "value": "High"
+      },
+      {
+        "label": "PRICE",
+        "value": "Free"
+      },
+      {
+        "label": "EVIDENCE",
+        "value": "Strong"
+      }
+    ],
+    "bestFor": [
+      "Confidential ad-hoc technical inquiries",
+      "Model comparison across Claude, GPT, and Llama without account silos",
+      "Privacy-first search queries"
+    ],
+    "caveat": "No persistent chat history across browser sessions; model versions are pinned to smaller/efficient tiers."
   }
 ]

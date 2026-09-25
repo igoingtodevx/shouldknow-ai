@@ -5,18 +5,30 @@ import {
   Check,
   Clock3,
   ExternalLink,
-  GitBranch,
-  Radio,
   Search,
-  ShieldCheck,
   Shuffle,
-  Sparkles,
   X,
   Zap,
 } from 'lucide-react'
 import rawTools from './data/tools.json'
+import rawDossiers from './data/dossiers.json'
 import prototypeSignalsRaw from './data/signals.json'
 import DiscoveryRadar from './DiscoveryRadar'
+
+export type Axis = {
+  label: 'LEVERAGE' | 'MATURITY' | 'SETUP' | 'CONTROL' | 'PRICE' | 'EVIDENCE'
+  value: string
+}
+
+export type Dossier = {
+  id: string
+  name: string
+  url: string
+  verdict: string
+  axes: Axis[]
+  bestFor: string[]
+  caveat: string
+}
 
 export type Tool = {
   id: string
@@ -28,7 +40,7 @@ export type Tool = {
   job: string
   why: string
   caveat: string
-  score: number
+  score?: number
   evidenceUrl?: string
 }
 
@@ -56,30 +68,24 @@ export type Signal = {
   publishedAt?: string | null
 }
 
-type View = 'catalog' | 'signals' | 'radar' | 'saved'
-type SortMode = 'score' | 'name' | 'signals' | 'number'
+type View = 'signals' | 'registry' | 'radar' | 'stack'
+type SignalTimeframe = 'all' | 'today' | 'week'
+type SignalImpact = 'all' | 'p0' | 'p1'
+type ToolSort = 'number' | 'signals' | 'name'
 
 const tools = rawTools as Tool[]
+const dossiers = rawDossiers as Dossier[]
 const prototypeSignals = prototypeSignalsRaw as Signal[]
 const API_BASE = ((import.meta.env.VITE_INTELLIGENCE_API as string | undefined) || '').replace(/\/$/, '')
 
-const impactLabel: Record<string, string> = {
-  high: 'P0 — HIGH IMPACT',
-  medium: 'P1 — WORTH A LOOK',
-  low: 'P2 — LOW SIGNAL',
-}
-
-const kindLabel: Record<string, string> = {
-  capability: 'CAPABILITY',
-  pricing: 'PRICING',
-  model: 'MODEL',
-  api: 'API',
-  policy: 'POLICY',
-  launch: 'LAUNCH',
+const dossiersMap = new Map<string, Dossier>()
+for (const d of dossiers) {
+  dossiersMap.set(d.id.toLowerCase(), d)
+  dossiersMap.set(d.name.toLowerCase(), d)
 }
 
 function clean(text: string) {
-  return (text || '').replace(/\*\*/g, '').replace(/`/g, '')
+  return (text || '').replace(/\*\*/g, '').replace(/`/g, '').trim()
 }
 
 function relativeHours(hours: number) {
@@ -90,10 +96,15 @@ function relativeHours(hours: number) {
 }
 
 export default function App() {
-  const [view, setView] = useState<View>('catalog')
+  const [view, setView] = useState<View>('signals')
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
-  const [sort, setSort] = useState<SortMode>('score')
+  const [toolSort, setToolSort] = useState<ToolSort>('number')
+  const [timeframe, setTimeframe] = useState<SignalTimeframe>('all')
+  const [impactFilter, setImpactFilter] = useState<SignalImpact>('all')
+  const [kindFilter, setKindFilter] = useState<string>('all')
+  const [stackOnlySignals, setStackOnlySignals] = useState(false)
+
   const [saved, setSaved] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem('shouldknow-saved') || '[]')
@@ -101,20 +112,21 @@ export default function App() {
       return []
     }
   })
+
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null)
   const [lastVisit, setLastVisit] = useState<number | null>(null)
   const [liveSignals, setLiveSignals] = useState<Signal[]>(prototypeSignals)
   const [isLiveApi, setIsLiveApi] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // Track visit timestamp
+  // Track visit timestamp in localStorage
   useEffect(() => {
-    const previous = Number(localStorage.getItem('shouldknow-last-visit') || 0)
-    if (previous) setLastVisit(previous)
+    const prev = Number(localStorage.getItem('shouldknow-last-visit') || 0)
+    if (prev) setLastVisit(prev)
     localStorage.setItem('shouldknow-last-visit', String(Date.now()))
   }, [])
 
-  // Sync saved list
+  // Sync saved tools to localStorage
   useEffect(() => {
     localStorage.setItem('shouldknow-saved', JSON.stringify(saved))
   }, [saved])
@@ -137,7 +149,6 @@ export default function App() {
         }
       })
       .catch(() => {
-        // Fallback to local signals
         setLiveSignals(prototypeSignals)
       })
       .finally(() => window.clearTimeout(timeout))
@@ -148,12 +159,11 @@ export default function App() {
     }
   }, [])
 
-  // Keyboard shortcuts (⌘K for search, Esc to close modal)
+  // Keyboard navigation (⌘K for search, Esc to close modal)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
-        setView('catalog')
         searchInputRef.current?.focus()
       } else if (e.key === 'Escape') {
         setSelectedTool(null)
@@ -177,21 +187,39 @@ export default function App() {
     return map
   }, [liveSignals])
 
-  // Categories list
+  // Unique categories list
   const categories = useMemo(() => {
     const set = new Set<string>()
     for (const t of tools) {
       if (t.category) set.add(t.category)
     }
-    return Array.from(set)
+    return Array.from(set).sort()
   }, [])
+
+  // Filtered & sorted signals
+  const filteredSignals = useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    return liveSignals.filter((signal) => {
+      if (stackOnlySignals && !saved.includes(signal.toolId)) return false
+      if (timeframe === 'today' && signal.ageHours > 24) return false
+      if (timeframe === 'week' && signal.ageHours > 168) return false
+      if (impactFilter === 'p0' && signal.impact !== 'high') return false
+      if (impactFilter === 'p1' && signal.impact !== 'medium') return false
+      if (kindFilter !== 'all' && signal.kind !== kindFilter) return false
+      if (needle) {
+        const text = [signal.tool, signal.title, signal.summary, signal.whyItMatters, signal.kind].join(' ').toLowerCase()
+        if (!text.includes(needle)) return false
+      }
+      return true
+    })
+  }, [impactFilter, kindFilter, liveSignals, query, saved, stackOnlySignals, timeframe])
 
   // Filtered & sorted tools
   const filteredTools = useMemo(() => {
     const needle = query.trim().toLowerCase()
     return tools
       .filter((t) => {
-        if (view === 'saved' && !saved.includes(t.id)) return false
+        if (view === 'stack' && !saved.includes(t.id)) return false
         if (category !== 'All' && t.category !== category) return false
         if (needle) {
           const haystack = [t.name, t.job, t.why, t.category, t.caveat].join(' ').toLowerCase()
@@ -200,29 +228,15 @@ export default function App() {
         return true
       })
       .sort((a, b) => {
-        if (sort === 'score') return b.score - a.score
-        if (sort === 'name') return a.name.localeCompare(b.name)
-        if (sort === 'signals') {
+        if (toolSort === 'name') return a.name.localeCompare(b.name)
+        if (toolSort === 'signals') {
           const sigsA = toolSignalsMap.get(a.id.toLowerCase())?.length || 0
           const sigsB = toolSignalsMap.get(b.id.toLowerCase())?.length || 0
-          return sigsB - sigsA || b.score - a.score
+          return sigsB - sigsA || a.number - b.number
         }
-        return (b.number || 0) - (a.number || 0)
+        return (a.number || 0) - (b.number || 0)
       })
-  }, [category, query, saved, sort, toolSignalsMap, view])
-
-  // Signals for the signal feed
-  const feedSignals = useMemo(() => {
-    const needle = query.trim().toLowerCase()
-    return liveSignals.filter((signal) => {
-      if (view === 'saved' && !saved.includes(signal.toolId)) return false
-      if (needle) {
-        const text = [signal.tool, signal.title, signal.summary, signal.whyItMatters, signal.kind].join(' ').toLowerCase()
-        if (!text.includes(needle)) return false
-      }
-      return true
-    })
-  }, [liveSignals, query, saved, view])
+  }, [category, query, saved, toolSignalsMap, toolSort, view])
 
   // Count signals landed since last visit
   const sinceCount = useMemo(() => {
@@ -253,91 +267,122 @@ export default function App() {
     <div className="site-shell">
       {/* Topbar Navigation */}
       <header className="topbar">
-        <a className="brand" href="#top" onClick={() => setView('catalog')} aria-label="Should Know home">
-          <span className="brand-mark">S</span>
-          <span>
-            should <i>know</i>
-          </span>
-        </a>
+        <div className="topbar-left">
+          <button className="brand-logo" onClick={() => setView('signals')} aria-label="Should Know home">
+            <span className="brand-mark">S</span>
+            <span className="brand-name">
+              SHOULD <i>KNOW</i>
+            </span>
+          </button>
+          <span className="brand-badge">PRODUCT INTELLIGENCE</span>
+        </div>
 
-        <div className="topbar-right">
-          <nav>
-            <button
-              className={`nav-btn ${view === 'catalog' ? 'active' : ''}`}
-              onClick={() => setView('catalog')}
-            >
-              Collection <b>{tools.length}</b>
-            </button>
-            <button
-              className={`nav-btn ${view === 'signals' ? 'active' : ''}`}
-              onClick={() => setView('signals')}
-            >
-              Signals <b>{liveSignals.length}</b>
-            </button>
-            <button
-              className={`nav-btn ${view === 'radar' ? 'active' : ''}`}
-              onClick={() => setView('radar')}
-            >
-              Radar
-            </button>
-            <button
-              className={`nav-btn ${view === 'saved' ? 'active' : ''}`}
-              onClick={() => setView('saved')}
-            >
-              My Stack <b>{saved.length}</b>
-            </button>
-          </nav>
+        <nav className="topbar-nav" aria-label="Main navigation">
+          <button
+            className={`nav-link ${view === 'signals' ? 'active' : ''}`}
+            onClick={() => setView('signals')}
+          >
+            <span className="pulse-dot" aria-hidden="true" />
+            Signals <b>{liveSignals.length}</b>
+          </button>
+          <button
+            className={`nav-link ${view === 'registry' ? 'active' : ''}`}
+            onClick={() => setView('registry')}
+          >
+            Registry <b>{tools.length}</b>
+          </button>
+          <button
+            className={`nav-link ${view === 'radar' ? 'active' : ''}`}
+            onClick={() => setView('radar')}
+          >
+            Radar <b>55</b>
+          </button>
+          <button
+            className={`nav-link ${view === 'stack' ? 'active' : ''}`}
+            onClick={() => setView('stack')}
+          >
+            My Stack <b>{saved.length}</b>
+          </button>
+        </nav>
 
-          <button className="shuffle-btn" onClick={surpriseMe} title="Pick a random high-signal tool">
-            <Shuffle size={14} /> Surprise
+        <div className="topbar-actions">
+          <button className="btn-surprise" onClick={surpriseMe} title="Inspect a random curated tool">
+            <Shuffle size={13} /> Surprise
           </button>
         </div>
       </header>
 
-      <main id="top">
-        {/* Hero Section */}
-        <section className="hero">
-          <div className="hero-copy">
-            <div className="eyebrow">
-              <Sparkles size={14} />
-              <span>Curated AI Intelligence — Zero Slop</span>
+      <main id="content">
+        {/* Monolithic Editorial Hero */}
+        <section className="hero-editorial">
+          <div className="hero-main-col">
+            <div className="telemetry-pill">
+              <span className="telemetry-live-tag">{isLiveApi ? 'ENGINE LIVE' : 'REVIEWED FEED'}</span>
+              <span>CONTINUOUS HEADLESS CRAWL // ZERO SPONSORED LISTINGS</span>
             </div>
-            <h1>
-              AI tools<br />
-              <em>worth your time.</em>
+
+            <h1 className="hero-title">
+              Know what changed.
+              <br />
+              <em>Know what matters.</em>
             </h1>
-            <p>
-              {tools.length} hand-curated tools that improve a real workflow — with concrete jobs, honest caveats and verified change intelligence.
+
+            <p className="hero-desc">
+              Evidence-first AI intelligence across 79 curated frontier products. We monitor official changelogs, pricing tables, and GitHub releases with headless browser crawls, filter out marketing noise, and enforce mandatory caveats on every tool.
             </p>
 
-            <div className="hero-actions">
-              <button className="btn-primary" onClick={() => { setView('catalog'); document.querySelector('#collection')?.scrollIntoView({ behavior: 'smooth' }) }}>
-                Explore collection <ArrowRight size={16} />
+            <div className="hero-segmented-tabs">
+              <button
+                className={`tab-btn ${view === 'signals' ? 'active' : ''}`}
+                onClick={() => setView('signals')}
+              >
+                Verified Signals ({liveSignals.length})
               </button>
-              <button className="btn-secondary" onClick={() => setView('signals')}>
-                <Zap size={15} /> Verified signals ({liveSignals.length})
+              <button
+                className={`tab-btn ${view === 'registry' ? 'active' : ''}`}
+                onClick={() => setView('registry')}
+              >
+                Curated Registry ({tools.length})
+              </button>
+              <button
+                className={`tab-btn ${view === 'radar' ? 'active' : ''}`}
+                onClick={() => setView('radar')}
+              >
+                Discovery Radar (55)
               </button>
             </div>
           </div>
 
-          <aside className="proof-card">
-            <div className="proof-top">
-              <span>EDITORIAL STANDARD</span>
-              <ShieldCheck size={18} />
-            </div>
-            <p>Every tool gets one concrete job, an honest caveat, and a verified evidence trail.</p>
-            <div className="proof-grid">
-              <div>
-                <strong>{tools.length}</strong>
-                <small>Curated tools</small>
+          <aside className="hero-telemetry-sidebar">
+            <div className="telemetry-box">
+              <span className="telemetry-heading">THE EDITORIAL LEDGER</span>
+              <div className="telemetry-stat-row">
+                <span className="telemetry-num">{tools.length}</span>
+                <span className="telemetry-meta">
+                  <strong>Curated Tools</strong>
+                  <small>Explicit jobs &amp; honest caveats</small>
+                </span>
               </div>
-              <div>
-                <strong>100%</strong>
-                <small>Official links</small>
+              <div className="telemetry-stat-row">
+                <span className="telemetry-num">72</span>
+                <span className="telemetry-meta">
+                  <strong>Monitored Targets</strong>
+                  <small>Crawl4AI headless Chromium</small>
+                </span>
               </div>
-              <div>
-                <strong>{liveSignals.length}</strong>
-                <small>{isLiveApi ? 'Live verified diffs' : 'Curated signals'}</small>
+              <div className="telemetry-stat-row">
+                <span className="telemetry-num">{liveSignals.length}</span>
+                <span className="telemetry-meta">
+                  <strong>Verified Signals</strong>
+                  <small>P0/P1 reviewed publications</small>
+                </span>
+              </div>
+              <div className="telemetry-stat-row">
+                <span className="telemetry-num">55</span>
+                <span className="telemetry-meta">
+                  <strong>Radar Candidates</strong>
+                  <small>Cross-source directory tracking</small>
+                </span>
               </div>
             </div>
           </aside>
@@ -345,286 +390,532 @@ export default function App() {
 
         {/* Return Strip */}
         {lastVisit && sinceCount > 0 && (
-          <section className="return-strip">
-            <div>
-              <Clock3 size={16} />
-              <span>Since your last visit</span>
+          <div className="return-notification-strip">
+            <div className="return-strip-left">
+              <Clock3 size={15} />
+              <span>SINCE YOUR LAST VISIT</span>
+              <strong>{sinceCount} new signal{sinceCount === 1 ? '' : 's'} landed across monitored tools</strong>
             </div>
-            <strong>{sinceCount} new signal{sinceCount === 1 ? '' : 's'} verified across watched tools</strong>
-            <button onClick={() => setView('signals')}>
-              Review updates <ArrowRight size={14} />
+            <button className="return-strip-cta" onClick={() => { setView('signals'); setTimeframe('today') }}>
+              Review updates <ArrowRight size={13} />
             </button>
-          </section>
+          </div>
         )}
 
-        {/* Editorial Principles */}
-        <section className="principles">
-          <div>
-            <span className="mini-label">THE THREE RULES</span>
-            <h2>
-              Not another <em>AI tool list.</em>
-            </h2>
-          </div>
-          <div className="principle-list">
-            <div>
-              <span>01</span>
-              <b>Concrete jobs only.</b>
-              <p>Every entry answers what you can get done in 5 minutes. No vague marketing fluff.</p>
-            </div>
-            <div>
-              <span>02</span>
-              <b>A caveat is mandatory.</b>
-              <p>Real reviews state where a tool fails, its setup costs, and where human review remains essential.</p>
-            </div>
-            <div>
-              <span>03</span>
-              <b>Living change telemetry.</b>
-              <p>Continuous diff-crawlers track breaking API changes, pricing tier updates, and new capabilities.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* MAIN VIEW SWITCHER */}
-        {view === 'catalog' || view === 'saved' ? (
-          <section id="collection" className="catalog-section">
-            <div className="section-head">
-              <div>
-                <span className="mini-label">
-                  {view === 'saved' ? 'MY STACK' : 'CURATED COLLECTION'}
-                </span>
-                <h2>
-                  {view === 'saved'
-                    ? 'Your bookmarked AI stack.'
-                    : 'Researched tools for real leverage.'}
+        {/* ===================== VIEW 1: SIGNALS ===================== */}
+        {view === 'signals' && (
+          <section className="feed-section" aria-labelledby="feed-heading">
+            <div className="section-toolbar">
+              <div className="toolbar-header">
+                <span className="section-eyebrow">INTELLIGENCE PULSE</span>
+                <h2 id="feed-heading" className="section-title">
+                  {stackOnlySignals ? 'Changes touching your stack' : 'Changes worth your attention'}
                 </h2>
               </div>
-              <div className="result-count">
-                {filteredTools.length} <span>tools</span>
-              </div>
-            </div>
 
-            {/* Controls */}
-            <div className="controls">
-              <label className="search-bar">
-                <Search size={17} />
-                <input
-                  ref={searchInputRef}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search a job, workflow, or tool name..."
-                />
-                <kbd>⌘ K</kbd>
-              </label>
-
-              <label className="sort-select">
-                <span>Sort by:</span>
-                <select value={sort} onChange={(e) => setSort(e.target.value as SortMode)}>
-                  <option value="score">Highest editorial score</option>
-                  <option value="signals">Recent verified changes</option>
-                  <option value="name">Alphabetical (A–Z)</option>
-                  <option value="number">Curated order</option>
-                </select>
-              </label>
-            </div>
-
-            {/* Category Filter Chips */}
-            {view !== 'saved' && (
-              <div className="chips">
-                <button
-                  className={`chip-btn ${category === 'All' ? 'active' : ''}`}
-                  onClick={() => setCategory('All')}
-                >
-                  All <span>{tools.length}</span>
-                </button>
-                {categories.map((c) => {
-                  const count = tools.filter((t) => t.category === c).length
-                  return (
-                    <button
-                      key={c}
-                      className={`chip-btn ${category === c ? 'active' : ''}`}
-                      onClick={() => setCategory(c)}
-                    >
-                      {c} <span>{count}</span>
+              <div className="toolbar-controls">
+                <div className="search-box">
+                  <Search size={14} className="search-icon" />
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    placeholder="Filter signals, tools, APIs... (⌘K)"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                  {query && (
+                    <button className="search-clear" onClick={() => setQuery('')} aria-label="Clear query">
+                      <X size={13} />
                     </button>
-                  )
-                })}
+                  )}
+                </div>
+
+                <div className="filter-button-group">
+                  <button
+                    className={`filter-btn ${timeframe === 'all' ? 'active' : ''}`}
+                    onClick={() => setTimeframe('all')}
+                  >
+                    All Time
+                  </button>
+                  <button
+                    className={`filter-btn ${timeframe === 'today' ? 'active' : ''}`}
+                    onClick={() => setTimeframe('today')}
+                  >
+                    Today (24h)
+                  </button>
+                  <button
+                    className={`filter-btn ${timeframe === 'week' ? 'active' : ''}`}
+                    onClick={() => setTimeframe('week')}
+                  >
+                    7 Days
+                  </button>
+                </div>
+
+                <div className="filter-button-group">
+                  <button
+                    className={`filter-btn ${impactFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setImpactFilter('all')}
+                  >
+                    All Tiers
+                  </button>
+                  <button
+                    className={`filter-btn ${impactFilter === 'p0' ? 'active' : ''}`}
+                    onClick={() => setImpactFilter('p0')}
+                  >
+                    P0 Should Know
+                  </button>
+                  <button
+                    className={`filter-btn ${impactFilter === 'p1' ? 'active' : ''}`}
+                    onClick={() => setImpactFilter('p1')}
+                  >
+                    P1 Worth a Look
+                  </button>
+                </div>
+
+                <button
+                  className={`filter-btn ${stackOnlySignals ? 'active' : ''}`}
+                  onClick={() => setStackOnlySignals(!stackOnlySignals)}
+                >
+                  <Bookmark size={13} /> My Stack ({saved.length})
+                </button>
               </div>
-            )}
+            </div>
 
-            {/* Tool Cards Grid */}
-            <div className="tool-grid">
-              {filteredTools.map((tool) => {
-                const signals = toolSignalsMap.get(tool.id.toLowerCase()) || []
-                const latestSignal = signals[0]
-                const isSaved = saved.includes(tool.id)
-
+            {/* Signal Stream */}
+            <div className="signal-ledger">
+              {filteredSignals.map((signal, idx) => {
+                const isSaved = saved.includes(signal.toolId)
                 return (
-                  <article className="tool-card" key={tool.id}>
-                    <div className="card-header">
-                      <span className="card-tag">{tool.category}</span>
-                      <button
-                        className={`save-btn ${isSaved ? 'active' : ''}`}
-                        onClick={() => toggleSave(tool.id)}
-                        aria-label={`Save ${tool.name} to My Stack`}
-                      >
-                        <Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} />
-                      </button>
+                  <article className="signal-entry" key={signal.id}>
+                    <div className="signal-index-col">
+                      <span className="entry-index">{String(idx + 1).padStart(2, '0')}</span>
                     </div>
 
-                    <div className="card-title-row">
-                      <h3>{tool.name}</h3>
-                      <span className="score-badge">{tool.score.toFixed(1)}</span>
-                    </div>
+                    <div className="signal-content-col">
+                      <div className="signal-meta-bar">
+                        <span className={`materiality-tag ${signal.impact}`}>
+                          {signal.impact === 'high' ? 'P0 — SHOULD KNOW' : 'P1 — WORTH A LOOK'}
+                        </span>
+                        <span className="kind-tag">{signal.kind.toUpperCase()}</span>
+                        <span className="timestamp-tag">{relativeHours(signal.ageHours)}</span>
+                        {signal.prototype && <span className="prototype-tag">DEMO DIFF</span>}
+                      </div>
 
-                    <p className="card-job">{clean(tool.job)}</p>
-                    <p className="card-why">{clean(tool.why)}</p>
+                      <div className="signal-heading-group">
+                        <button
+                          className="tool-trigger-btn"
+                          onClick={() => openToolModal(signal.toolId || signal.tool)}
+                          title="Open tool dossier"
+                        >
+                          {signal.tool} <ArrowRight size={12} />
+                        </button>
+                        <h3 className="signal-headline">{clean(signal.title)}</h3>
+                      </div>
 
-                    {/* Active Signal Banner */}
-                    {latestSignal && (
-                      <div className="card-signal-banner">
-                        <Zap size={13} />
-                        <div>
-                          <strong>{latestSignal.materiality || 'UPDATE'}:</strong> {latestSignal.title.replace(`${tool.name}: `, '')}
+                      <p className="signal-body">{clean(signal.summary)}</p>
+
+                      <div className="signal-consequence-box">
+                        <span className="consequence-label">WHY IT MATTERS</span>
+                        <p>{clean(signal.whyItMatters)}</p>
+                      </div>
+
+                      <div className="signal-footer-row">
+                        <div className="signal-sources-list">
+                          {signal.sources.map((src) => (
+                            <a
+                              key={src.url}
+                              href={src.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="source-evidence-link"
+                            >
+                              <span>{src.label}</span>
+                              <ExternalLink size={11} />
+                            </a>
+                          ))}
+                        </div>
+
+                        <div className="signal-actions">
+                          <button
+                            className="btn-text-link"
+                            onClick={() => openToolModal(signal.toolId || signal.tool)}
+                          >
+                            Open Dossier &rarr;
+                          </button>
+                          <button
+                            className={`btn-icon-watch ${isSaved ? 'active' : ''}`}
+                            onClick={() => toggleSave(signal.toolId)}
+                            title={isSaved ? 'In your stack' : 'Add tool to My Stack'}
+                            aria-label={`Save ${signal.tool}`}
+                          >
+                            <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
+                          </button>
                         </div>
                       </div>
-                    )}
-
-                    <div className="card-footer">
-                      <button onClick={() => setSelectedTool(tool)}>
-                        Why it matters <ArrowRight size={13} />
-                      </button>
-                      <a href={tool.url} target="_blank" rel="noreferrer">
-                        Visit <ExternalLink size={13} />
-                      </a>
                     </div>
                   </article>
                 )
               })}
-            </div>
 
-            {!filteredTools.length && (
-              <div className="empty-state">
-                <Search size={24} />
-                <h3>No tools matching your filters</h3>
-                <p>
-                  {view === 'saved'
-                    ? 'You have not saved any tools to My Stack yet.'
-                    : 'Try clearing your search query or switching category.'}
-                </p>
-                <button
-                  onClick={() => {
-                    setQuery('')
-                    setCategory('All')
-                    if (view === 'saved') setView('catalog')
-                  }}
-                >
-                  Show all tools
-                </button>
-              </div>
-            )}
-          </section>
-        ) : null}
-
-        {/* SIGNAL FEED VIEW */}
-        {view === 'signals' && (
-          <section className="signal-feed-section">
-            <div className="section-head">
-              <div>
-                <span className="mini-label">VERIFIED CHANGE INTELLIGENCE</span>
-                <h2>What changed in tools that matter.</h2>
-              </div>
-              <div className="result-count">
-                {feedSignals.length} <span>signals</span>
-              </div>
-            </div>
-
-            <div className="signal-feed-list">
-              {feedSignals.map((signal, index) => (
-                <article className="signal-row" key={signal.id}>
-                  <div className="signal-index">{String(index + 1).padStart(2, '0')}</div>
-
-                  <div className="signal-main">
-                    <div className="signal-meta">
-                      <span className={signal.impact === 'high' ? 'badge-p0' : 'badge-p1'}>
-                        {impactLabel[signal.impact] || signal.impact.toUpperCase()}
-                      </span>
-                      <span className="badge-kind">
-                        {kindLabel[signal.kind] || signal.kind.toUpperCase()}
-                      </span>
-                      <span className="signal-age">{relativeHours(signal.ageHours)}</span>
-                    </div>
-
-                    <button
-                      className="signal-tool-btn"
-                      onClick={() => openToolModal(signal.toolId || signal.tool)}
-                    >
-                      {signal.tool} <ArrowRight size={13} />
-                    </button>
-
-                    <h3>{signal.title}</h3>
-                    <p>{signal.summary}</p>
-
-                    {signal.whyItMatters && (
-                      <div className="signal-why">
-                        <b>Why it matters:</b>
-                        <span>{signal.whyItMatters}</span>
-                      </div>
-                    )}
-
-                    <div className="signal-sources">
-                      {signal.sources.map((source) => (
-                        <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
-                          {source.label || 'Official evidence'} <ExternalLink size={12} />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-
+              {filteredSignals.length === 0 && (
+                <div className="empty-ledger-state">
+                  <p>No verified signals matched your current filter criteria.</p>
                   <button
-                    className={`save-btn ${saved.includes(signal.toolId) ? 'active' : ''}`}
-                    onClick={() => toggleSave(signal.toolId)}
-                    aria-label={`Save ${signal.tool}`}
+                    className="btn-reset"
+                    onClick={() => {
+                      setTimeframe('all')
+                      setImpactFilter('all')
+                      setKindFilter('all')
+                      setStackOnlySignals(false)
+                      setQuery('')
+                    }}
                   >
-                    <Bookmark size={18} fill={saved.includes(signal.toolId) ? 'currentColor' : 'none'} />
+                    Reset all filters
                   </button>
-                </article>
-              ))}
-
-              {!feedSignals.length && (
-                <div className="empty-state">
-                  <Radio size={24} />
-                  <h3>No signals found</h3>
-                  <p>All active signals have been reviewed or filtered.</p>
                 </div>
               )}
             </div>
           </section>
         )}
 
-        {/* DISCOVERY RADAR VIEW OR FOOTER COMPONENT */}
-        {(view === 'radar' || view === 'catalog') && <DiscoveryRadar />}
+        {/* ===================== VIEW 2: REGISTRY ===================== */}
+        {view === 'registry' && (
+          <section className="registry-section" aria-labelledby="registry-heading">
+            <div className="section-toolbar">
+              <div className="toolbar-header">
+                <span className="section-eyebrow">THE LIVING REGISTRY</span>
+                <h2 id="registry-heading" className="section-title">
+                  79 hand-curated tools. Zero directory slop.
+                </h2>
+                <p className="section-subtitle">
+                  Every tool in this catalog has passed editorial review: a mandatory single-line job, explicit assessment axes, and an unvarnished caveat.
+                </p>
+              </div>
+
+              {/* Category Chips */}
+              <div className="category-scroll-bar">
+                <button
+                  className={`category-chip ${category === 'All' ? 'active' : ''}`}
+                  onClick={() => setCategory('All')}
+                >
+                  All ({tools.length})
+                </button>
+                {categories.map((cat) => {
+                  const count = tools.filter((t) => t.category === cat).length
+                  return (
+                    <button
+                      key={cat}
+                      className={`category-chip ${category === cat ? 'active' : ''}`}
+                      onClick={() => setCategory(cat)}
+                    >
+                      {cat} ({count})
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Search & Sort */}
+              <div className="toolbar-controls">
+                <div className="search-box">
+                  <Search size={14} className="search-icon" />
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    placeholder="Search 79 curated tools... (⌘K)"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                  {query && (
+                    <button className="search-clear" onClick={() => setQuery('')} aria-label="Clear query">
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="sort-group">
+                  <span className="sort-label">SORT:</span>
+                  <button
+                    className={`filter-btn ${toolSort === 'number' ? 'active' : ''}`}
+                    onClick={() => setToolSort('number')}
+                  >
+                    Index
+                  </button>
+                  <button
+                    className={`filter-btn ${toolSort === 'signals' ? 'active' : ''}`}
+                    onClick={() => setToolSort('signals')}
+                  >
+                    Recent Changes
+                  </button>
+                  <button
+                    className={`filter-btn ${toolSort === 'name' ? 'active' : ''}`}
+                    onClick={() => setToolSort('name')}
+                  >
+                    A &ndash; Z
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Architectural Tool Ledger */}
+            <div className="registry-grid">
+              {filteredTools.map((tool) => {
+                const dossier = dossiersMap.get(tool.id.toLowerCase()) || dossiersMap.get(tool.name.toLowerCase())
+                const signals = toolSignalsMap.get(tool.id.toLowerCase()) || toolSignalsMap.get(tool.name.toLowerCase()) || []
+                const isSaved = saved.includes(tool.id)
+
+                const leverageVal = dossier?.axes?.find((a) => a.label === 'LEVERAGE')?.value || 'High'
+                const maturityVal = dossier?.axes?.find((a) => a.label === 'MATURITY')?.value || 'Proven'
+                const priceVal = dossier?.axes?.find((a) => a.label === 'PRICE')?.value || '$$'
+
+                return (
+                  <article
+                    className={`registry-card ${signals.length > 0 ? 'has-signals' : ''}`}
+                    key={tool.id}
+                    onClick={() => setSelectedTool(tool)}
+                  >
+                    <div className="card-top-bar">
+                      <span className="card-index">#{String(tool.number || 0).padStart(2, '0')}</span>
+                      <span className="card-category-tag">{tool.category}</span>
+                      <button
+                        className={`card-bookmark-btn ${isSaved ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleSave(tool.id)
+                        }}
+                        title={isSaved ? 'In your stack' : 'Add to My Stack'}
+                        aria-label={`Bookmark ${tool.name}`}
+                      >
+                        <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
+                      </button>
+                    </div>
+
+                    <div className="card-identity">
+                      <h3 className="card-tool-name">
+                        {tool.name}
+                        <span className="card-open-arrow">&rarr;</span>
+                      </h3>
+                      <p className="card-job-line">{clean(tool.job)}</p>
+                    </div>
+
+                    {/* Swiss Telemetry Badges */}
+                    <div className="card-axes-row">
+                      <span className="axis-mini-badge">LEVERAGE: {leverageVal}</span>
+                      <span className="axis-mini-badge">{maturityVal}</span>
+                      <span className="axis-mini-badge">{priceVal}</span>
+                    </div>
+
+                    {/* Signals Indicator */}
+                    <div className="card-bottom-bar">
+                      {signals.length > 0 ? (
+                        <span className="pulse-signal-tag">
+                          <Zap size={11} /> {signals.length} verified change{signals.length === 1 ? '' : 's'}
+                        </span>
+                      ) : (
+                        <span className="quiescent-tag">NO RECENT BREAKING DIFFS</span>
+                      )}
+                      <span className="card-dossier-cta">Open Dossier</span>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+
+            {filteredTools.length === 0 && (
+              <div className="empty-ledger-state">
+                <p>No tools matched your search or category filter.</p>
+                <button
+                  className="btn-reset"
+                  onClick={() => {
+                    setCategory('All')
+                    setQuery('')
+                  }}
+                >
+                  Show all 79 tools
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ===================== VIEW 3: RADAR ===================== */}
+        {view === 'radar' && <DiscoveryRadar />}
+
+        {/* ===================== VIEW 4: MY STACK ===================== */}
+        {view === 'stack' && (
+          <section className="stack-section" aria-labelledby="stack-heading">
+            <div className="section-toolbar">
+              <div className="toolbar-header">
+                <span className="section-eyebrow">PERSONAL WATCHLIST</span>
+                <h2 id="stack-heading" className="section-title">
+                  My Stack ({saved.length} tools watched)
+                </h2>
+                <p className="section-subtitle">
+                  Tools saved here are highlighted across the signal feed. You receive immediate diff alerts whenever our headless crawler detects a breaking capability or pricing change.
+                </p>
+              </div>
+            </div>
+
+            {saved.length === 0 ? (
+              <div className="empty-stack-guide">
+                <h3>Your stack is currently empty.</h3>
+                <p>
+                  Browse the curated registry or verified signals and click the bookmark icon on any tool you use in your workflow.
+                </p>
+                <button className="btn-primary" onClick={() => setView('registry')}>
+                  Explore 79 Curated Tools &rarr;
+                </button>
+              </div>
+            ) : (
+              <div className="registry-grid">
+                {filteredTools.map((tool) => {
+                  const dossier = dossiersMap.get(tool.id.toLowerCase()) || dossiersMap.get(tool.name.toLowerCase())
+                  const signals = toolSignalsMap.get(tool.id.toLowerCase()) || toolSignalsMap.get(tool.name.toLowerCase()) || []
+
+                  return (
+                    <article
+                      className="registry-card"
+                      key={tool.id}
+                      onClick={() => setSelectedTool(tool)}
+                    >
+                      <div className="card-top-bar">
+                        <span className="card-index">#{String(tool.number || 0).padStart(2, '0')}</span>
+                        <span className="card-category-tag">{tool.category}</span>
+                        <button
+                          className="card-bookmark-btn active"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleSave(tool.id)
+                          }}
+                          title="Remove from stack"
+                        >
+                          <Bookmark size={15} fill="currentColor" />
+                        </button>
+                      </div>
+
+                      <div className="card-identity">
+                        <h3 className="card-tool-name">{tool.name}</h3>
+                        <p className="card-job-line">{clean(tool.job)}</p>
+                      </div>
+
+                      <div className="card-axes-row">
+                        <span className="axis-mini-badge">
+                          LEVERAGE: {dossier?.axes?.find((a) => a.label === 'LEVERAGE')?.value || 'High'}
+                        </span>
+                        <span className="axis-mini-badge">
+                          {dossier?.axes?.find((a) => a.label === 'MATURITY')?.value || 'Proven'}
+                        </span>
+                      </div>
+
+                      <div className="card-bottom-bar">
+                        {signals.length > 0 ? (
+                          <span className="pulse-signal-tag">
+                            <Zap size={11} /> {signals.length} verified change{signals.length === 1 ? '' : 's'}
+                          </span>
+                        ) : (
+                          <span className="quiescent-tag">NO RECENT BREAKING DIFFS</span>
+                        )}
+                        <span className="card-dossier-cta">Open Dossier</span>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Editorial Standards Accordion */}
+        <section className="editorial-contract-section">
+          <div className="contract-header">
+            <span className="section-eyebrow">THE EDITORIAL CONTRACT</span>
+            <h2>How signals are filtered &amp; verified.</h2>
+          </div>
+
+          <div className="contract-grid">
+            <div className="contract-col">
+              <span className="contract-tier p0">P0 — SHOULD KNOW</span>
+              <h4>Pricing shifts, breaking APIs, major capabilities</h4>
+              <p>
+                Published when a tool alters its unit economics, changes data/privacy terms, deprecates a key API, or introduces an fundamentally new workflow capability.
+              </p>
+            </div>
+
+            <div className="contract-col">
+              <span className="contract-tier p1">P1 — WORTH A LOOK</span>
+              <h4>Meaningful features &amp; ecosystem expansions</h4>
+              <p>
+                Published when a new integration, model tier, or workflow improvement reduces friction in a measurable, repeatable way.
+              </p>
+            </div>
+
+            <div className="contract-col">
+              <span className="contract-tier p2">P2 — DROPPED NOISE</span>
+              <h4>Cosmetic UI tweaks &amp; marketing buzzwords</h4>
+              <p>
+                Button renames, minor CSS polish, vague promotional claims, and repetitive release-note churn are automatically filtered out.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {/* FOOTER */}
-      <footer>
-        <div className="brand">
+      {/* Footer */}
+      <footer className="site-footer">
+        <div className="footer-left">
           <span className="brand-mark">S</span>
-          <span>
-            should <i>know</i>
-          </span>
+          <div>
+            <strong>SHOULD KNOW</strong>
+            <p>Evidence-first AI product intelligence &amp; curated registry.</p>
+          </div>
         </div>
-        <p>Curated from official product sources, research and verified change intelligence.</p>
-        <a href="https://github.com/igoingtodevx/shouldknow-ai" target="_blank" rel="noreferrer">
-          <GitBranch size={15} /> Source
-        </a>
+
+        <div className="footer-center">
+          <p>
+            Zero affiliate bias. Zero sponsored placements. Every tool must have a concrete job and an honest caveat.
+          </p>
+        </div>
+
+        <div className="footer-right">
+          <a
+            href="https://github.com/igoingtodevx/shouldknow-ai"
+            target="_blank"
+            rel="noreferrer"
+            className="footer-link"
+          >
+            GitHub Repository &rarr;
+          </a>
+        </div>
       </footer>
 
-      {/* TOOL DOSSIER MODAL */}
+      {/* Deep Dossier Modal / Drawer */}
       {selectedTool && (
-        <ToolModal
+        <DossierModal
           tool={selectedTool}
+          dossier={
+            dossiersMap.get(selectedTool.id.toLowerCase()) ||
+            dossiersMap.get(selectedTool.name.toLowerCase()) || {
+              id: selectedTool.id,
+              name: selectedTool.name,
+              url: selectedTool.url,
+              verdict: clean(selectedTool.why),
+              axes: [
+                { label: 'LEVERAGE', value: 'High' },
+                { label: 'MATURITY', value: 'Proven' },
+                { label: 'SETUP', value: 'Low' },
+                { label: 'CONTROL', value: 'Medium' },
+                { label: 'PRICE', value: '$$' },
+                { label: 'EVIDENCE', value: 'Strong' },
+              ],
+              bestFor: [clean(selectedTool.job)],
+              caveat: clean(selectedTool.caveat),
+            }
+          }
+          signals={
+            toolSignalsMap.get(selectedTool.id.toLowerCase()) ||
+            toolSignalsMap.get(selectedTool.name.toLowerCase()) ||
+            []
+          }
           isSaved={saved.includes(selectedTool.id)}
-          signals={toolSignalsMap.get(selectedTool.id.toLowerCase()) || []}
           onToggleSave={() => toggleSave(selectedTool.id)}
           onClose={() => setSelectedTool(null)}
         />
@@ -633,106 +924,163 @@ export default function App() {
   )
 }
 
-function ToolModal({
+function DossierModal({
   tool,
-  isSaved,
+  dossier,
   signals,
+  isSaved,
   onToggleSave,
   onClose,
 }: {
   tool: Tool
-  isSaved: boolean
+  dossier: Dossier
   signals: Signal[]
+  isSaved: boolean
   onToggleSave: () => void
   onClose: () => void
 }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <article
-        className="modal"
+        className="dossier-modal-window"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby="dossier-title"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <button className="modal-close" onClick={onClose} aria-label="Close modal">
+        <button className="modal-close-btn" onClick={onClose} aria-label="Close dossier">
           <X size={18} />
         </button>
 
-        <span className="card-tag">{tool.category}</span>
+        <div className="dossier-header-strip">
+          <div className="dossier-eyebrow-row">
+            <span className="dossier-edition-badge">{tool.edition || 'Core 50'}</span>
+            <span className="dossier-category-badge">{tool.category}</span>
+          </div>
 
-        <div className="modal-header">
-          <h2 id="modal-title">{tool.name}</h2>
-          <strong>
-            {tool.score.toFixed(1)} <small style={{ fontSize: 13, color: '#7c8694' }}>/ 10</small>
-          </strong>
+          <div className="dossier-title-row">
+            <h2 id="dossier-title" className="dossier-tool-title">
+              {tool.name}
+            </h2>
+            <button
+              className={`btn-dossier-stack ${isSaved ? 'active' : ''}`}
+              onClick={onToggleSave}
+            >
+              {isSaved ? <Check size={14} /> : <Bookmark size={14} />}
+              {isSaved ? 'In My Stack' : 'Watch in Stack'}
+            </button>
+          </div>
         </div>
 
-        <section>
-          <span className="section-tag">THE CONCRETE JOB</span>
-          <p>{clean(tool.job)}</p>
+        {/* The Concrete Job */}
+        <section className="dossier-section">
+          <span className="dossier-section-tag">THE CONCRETE JOB</span>
+          <p className="dossier-job-text">{clean(tool.job)}</p>
         </section>
 
-        <section>
-          <span className="section-tag">WHY IT MADE THE CUT</span>
-          <p>{clean(tool.why)}</p>
+        {/* Why it made the cut / Verdict */}
+        <section className="dossier-section">
+          <span className="dossier-section-tag">WHY IT MADE THE CUT (EDITORIAL VERDICT)</span>
+          <p className="dossier-verdict-text">{clean(dossier.verdict || tool.why)}</p>
         </section>
 
-        <section className="modal-caveat">
-          <span className="section-tag" style={{ color: 'var(--accent-lime)' }}>
-            KEEP IN MIND (HONEST CAVEAT)
-          </span>
-          <p>{clean(tool.caveat)}</p>
+        {/* The 6 Assessment Axes (Swiss Grid) */}
+        <section className="dossier-section">
+          <span className="dossier-section-tag">ASSESSMENT AXES</span>
+          <div className="axes-telemetry-grid">
+            {dossier.axes.map((axis) => (
+              <div className="axis-telemetry-cell" key={axis.label}>
+                <span className="axis-label">{axis.label}</span>
+                <strong className="axis-value">{axis.value}</strong>
+              </div>
+            ))}
+          </div>
         </section>
 
-        {signals.length > 0 && (
-          <section style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 18 }}>
-            <span className="section-tag">VERIFIED CHANGES & SIGNALS</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {signals.map((sig) => (
-                <div
-                  key={sig.id}
-                  style={{
-                    background: 'var(--bg-panel)',
-                    padding: 12,
-                    borderRadius: 6,
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: 11,
-                      fontFamily: 'var(--font-mono)',
-                      color: 'var(--accent-lime)',
-                      marginBottom: 4,
-                    }}
-                  >
-                    <span>{sig.materiality || 'CHANGE'}</span>
-                    <span>{relativeHours(sig.ageHours)}</span>
-                  </div>
-                  <strong style={{ display: 'block', fontSize: 14, marginBottom: 4 }}>{sig.title}</strong>
-                  <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{sig.summary}</p>
-                </div>
+        {/* Honest Caveat */}
+        <section className="dossier-caveat-section">
+          <span className="dossier-caveat-tag">KEEP IN MIND (THE HONEST CAVEAT)</span>
+          <p className="dossier-caveat-text">{clean(dossier.caveat || tool.caveat)}</p>
+        </section>
+
+        {/* Best For */}
+        {dossier.bestFor && dossier.bestFor.length > 0 && (
+          <section className="dossier-section">
+            <span className="dossier-section-tag">BEST FOR</span>
+            <ul className="dossier-bullets">
+              {dossier.bestFor.map((item) => (
+                <li key={item}>{clean(item)}</li>
               ))}
-            </div>
+            </ul>
           </section>
         )}
 
-        <div className="modal-actions">
-          <a className="btn-primary" href={tool.url} target="_blank" rel="noreferrer">
-            Visit official site <ExternalLink size={15} />
+        {/* Verified Crawler Changelog */}
+        <section className="dossier-section dossier-signals-block">
+          <span className="dossier-section-tag">VERIFIED CRAWLER DIFFS &amp; SIGNALS</span>
+          {signals.length > 0 ? (
+            <div className="dossier-signals-list">
+              {signals.map((sig) => (
+                <div className="dossier-signal-card" key={sig.id}>
+                  <div className="dossier-sig-meta">
+                    <span className={`materiality-tag ${sig.impact}`}>
+                      {sig.impact === 'high' ? 'P0 — SHOULD KNOW' : 'P1 — WORTH A LOOK'}
+                    </span>
+                    <span className="kind-tag">{sig.kind.toUpperCase()}</span>
+                    <span className="timestamp-tag">{relativeHours(sig.ageHours)}</span>
+                  </div>
+                  <strong className="dossier-sig-title">{clean(sig.title)}</strong>
+                  <p className="dossier-sig-summary">{clean(sig.summary)}</p>
+                  <div className="signal-consequence-box">
+                    <span className="consequence-label">WHY IT MATTERS</span>
+                    <p>{clean(sig.whyItMatters)}</p>
+                  </div>
+                  {sig.sources.length > 0 && (
+                    <div className="signal-sources-list">
+                      {sig.sources.map((s) => (
+                        <a
+                          key={s.url}
+                          href={s.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="source-evidence-link"
+                        >
+                          <span>{s.label}</span>
+                          <ExternalLink size={11} />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="dossier-empty-signals">
+              <p>Monitored on 6h crawler cycle. No breaking changes detected in the last 30 days.</p>
+            </div>
+          )}
+        </section>
+
+        {/* Modal Action Bar */}
+        <div className="dossier-actions-bar">
+          <a
+            className="btn-action-primary"
+            href={tool.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Visit official site <ExternalLink size={14} />
           </a>
           {tool.evidenceUrl && (
-            <a className="btn-secondary" href={tool.evidenceUrl} target="_blank" rel="noreferrer">
-              Source trail <ArrowRight size={14} />
+            <a
+              className="btn-action-secondary"
+              href={tool.evidenceUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Source evidence trail &rarr;
             </a>
           )}
-          <button className="btn-secondary" onClick={onToggleSave}>
-            {isSaved ? <Check size={15} /> : <Bookmark size={15} />}{' '}
-            {isSaved ? 'In My Stack' : 'Save to Stack'}
-          </button>
         </div>
       </article>
     </div>
