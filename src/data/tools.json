@@ -126,7 +126,7 @@
     "job": "Produktionskomponenten und Design-System-Wissen zusammenführen",
     "why": "Stark, weil AI/Design-Kontext an echte Komponenten gekoppelt bleibt",
     "caveat": "Eher Team-/Enterprise-Workflow als Solo-Tool.",
-    "score": 9.0,
+    "score": 9,
     "evidenceUrl": "https://www.knapsack.cloud"
   },
   {
@@ -373,7 +373,7 @@
     "job": "Literatur für eine konkrete Forschungsfrage strukturiert finden und vergleichen",
     "why": "Besser als bloße Websuche, wenn Evidenzfelder und Studienvergleich zählen",
     "caveat": "Paper lesen und Quellencheck bleiben Pflicht; Coverage ist nie vollständig.",
-    "score": 9.0,
+    "score": 9,
     "evidenceUrl": "https://elicit.com"
   },
   {
@@ -425,7 +425,7 @@
     "job": "Interne Assistenten auf freigegebenen Team-Quellen bauen",
     "why": "Interessant, weil menschliche Zusammenarbeit, Quellen und Berechtigungen Teil des Workflows sind",
     "caveat": "Connectors und Rollenmodell vor dem Roll-out prüfen.",
-    "score": 9.0,
+    "score": 9,
     "evidenceUrl": "https://dust.tt"
   },
   {
@@ -529,7 +529,7 @@
     "job": "Produkt-/Industrieskizzen in steuerbare Konzepte überführen",
     "why": "Sehr viel sinnvoller als Stock-3D: eine eigene Skizze steuert die Richtung",
     "caveat": "Kein CAD- oder Engineering-Nachweis; Konstruktion separat validieren.",
-    "score": 9.0,
+    "score": 9,
     "evidenceUrl": "https://www.vizcom.ai"
   },
   {
@@ -698,7 +698,7 @@
     "job": "Figma-Designs als Baseline gegen den produktiven Build testen.",
     "why": "Prüft visuelle Parität – etwa Typografie, Abstände, Farbe und Drift – vor einem Release.",
     "caveat": "Visual parity ist weder UX-Test noch vollständiger A11y-Test.",
-    "score": 9.0,
+    "score": 9,
     "evidenceUrl": "https://applitools.com/blog/figma-design-testing-applitools-plugin"
   },
   {
@@ -908,5 +908,122 @@
     "caveat": "Enterprise-Tool; keine Rechtsberatung und kein Ersatz für juristische Freigabe.",
     "score": 8.3,
     "evidenceUrl": "https://www.luminance.com/press/luminance-launches-new-legal-ai-with-institutional-memory-addressing-enterprise-amnesia-and-giving-legal-teams-30-of-their-time-back"
+  },
+  {
+    "id": "claude",
+    "number": 71,
+    "name": "Claude",
+    "url": "https://claude.ai",
+    "category": "Dev",
+    "edition": "Frontier",
+    "job": "Code-Refactoring, komplexe Codebase-Analysen und interaktive UI-Artefakte",
+    "why": "Branchenweit führendes Verständnis für große Kontextfenster, Nuancen in Code und direkt iterierbare Artefakte",
+    "caveat": "Token-Kosten und Kontext-Limits bei riesigen Monorepos; erfordert klare Prompting-Konventionen.",
+    "score": 9.6,
+    "evidenceUrl": "https://www.anthropic.com"
+  },
+  {
+    "id": "chatgpt",
+    "number": 72,
+    "name": "ChatGPT",
+    "url": "https://chatgpt.com",
+    "category": "Productivity",
+    "edition": "Frontier",
+    "job": "Multimodale Bild-, Dokumenten- und Datenanalyse im täglichen Workflow",
+    "why": "Größtes Ökosystem, verlässliche Alltags-Performance und native Voice-/Vision-Integration direkt im Browser",
+    "caveat": "Halluzinationen bei obskuren APIs; Unternehmensdaten nur mit Opt-out oder Enterprise-Privacy verarbeiten.",
+    "score": 9.3,
+    "evidenceUrl": "https://openai.com"
+  },
+  {
+    "id": "perplexity",
+    "number": 73,
+    "name": "Perplexity",
+    "url": "https://www.perplexity.ai",
+    "category": "Data / Research",
+    "edition": "Frontier",
+    "job": "Quellenbasierte Echtzeit-Recherche mit direkten Zitaten und Primärquellen-Links",
+    "why": "Ersetzt mühsame Google-Recherche durch synthetisierte Antworten mit anklickbaren, überprüfbaren Quellenbelegen",
+    "caveat": "Zitiert gelegentlich SEO-Spam oder flache Zusammenfassungen; Primärquellen müssen gegengelesen werden.",
+    "score": 9.5,
+    "evidenceUrl": "https://www.perplexity.ai"
+  },
+  {
+    "id": "midjourney",
+    "number": 74,
+    "name": "Midjourney",
+    "url": "https://www.midjourney.com",
+    "category": "Creative Production",
+    "edition": "Frontier",
+    "job": "High-End Bild- und Konzeptvisualisierung mit höchster Textur- und Lichtqualität",
+    "why": "Referenzklasse für visuelle Ästhetik, Lichtführung und Stimmungs-Exploration in Creative- und Brand-Workflows",
+    "caveat": "Schwierig für exakte typografische Details oder Pixel-Grid-Grafik; kein traditionelles Layer-Editing.",
+    "score": 9.4,
+    "evidenceUrl": "https://www.midjourney.com"
+  },
+  {
+    "id": "runway",
+    "number": 75,
+    "name": "Runway",
+    "url": "https://runway.com",
+    "category": "Creative Production",
+    "edition": "Frontier",
+    "job": "Generative Video- und Motionszenen (Gen-3) für Film, Social und Visual Production",
+    "why": "Führende zeitliche Kohärenz, realistische Kamerabewegungen und Motion-Brushing bei KI-generierten Videoclips",
+    "caveat": "Hoher Credit-Verbrauch; physikalische Konsistenz bei schnellen Objekt-Interaktionen variiert noch.",
+    "score": 9.2,
+    "evidenceUrl": "https://runway.com"
+  },
+  {
+    "id": "gamma",
+    "number": 76,
+    "name": "Gamma",
+    "url": "https://gamma.app",
+    "category": "Productivity",
+    "edition": "Frontier",
+    "job": "Präsentationen, Dokumente und Webseiten aus Rohtexten und Notizen strukturieren",
+    "why": "Erzeugt ansprechende, anpassbare Kartenlayouts in Sekunden statt starrer PowerPoint-Folien",
+    "caveat": "Design-Freiheit ist an Gammas Kartensystem gebunden; komplexe individuelle Vektorlayouts sind eingeschränkt.",
+    "score": 9.1,
+    "evidenceUrl": "https://gamma.app"
+  },
+  {
+    "id": "viggle-ai",
+    "number": 77,
+    "name": "Viggle AI",
+    "url": "https://viggle.ai",
+    "category": "Creative Production",
+    "edition": "Frontier",
+    "job": "Kontrollierbare Charakter-Animation und Bewegungsübertragung in Videos",
+    "why": "Ermöglicht controllables Motion-Retargeting auf beliebige Charaktere ohne aufwendiges 3D-Rigging",
+    "caveat": "Auflösung und Artefakte an Händen/Füßen erfordern in professionellen Produktionen oft Maskierung.",
+    "score": 8.9,
+    "evidenceUrl": "https://viggle.ai"
+  },
+  {
+    "id": "magnific",
+    "number": 78,
+    "name": "Magnific",
+    "url": "https://www.magnific.com",
+    "category": "Creative Production",
+    "edition": "Frontier",
+    "job": "Halluzinatorisches Detail-Upscaling und 360-Grad-Panoramaszenen für Rendering",
+    "why": "Fügt fotorealistische Mikrotexturen und Details hinzu, die in der Originalauflösung nicht vorhanden waren",
+    "caveat": "Kann Gesichter, Logos und feine Typografie verfälschen, wenn die Halluzinationsstärke zu hoch eingestellt ist.",
+    "score": 9.2,
+    "evidenceUrl": "https://www.magnific.com"
+  },
+  {
+    "id": "duckduckgo",
+    "number": 79,
+    "name": "Duck.ai",
+    "url": "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat",
+    "category": "Data / Research",
+    "edition": "Frontier",
+    "job": "Privater KI-Chat mit mehreren Modellen ohne Tracking oder Trainingsspeicherung",
+    "why": "Kostenlos, werbefrei und garantiert speicherfrei; ideal für vertrauliche Recherchen und schnelle Prompts",
+    "caveat": "Kein Session-Speicher; Konversationsverlauf geht beim Schließen des Tabs unwiederbringlich verloren.",
+    "score": 9,
+    "evidenceUrl": "https://duckduckgo.com"
   }
 ]
