@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
+  ArrowUpRight,
   Bookmark,
   Check,
+  ChevronRight,
   Clock3,
   ExternalLink,
-  Layers,
   Search,
-  Shuffle,
-  Table,
   X,
 } from 'lucide-react'
 import rawTools from './data/tools.json'
@@ -84,7 +83,6 @@ export type Signal = {
 }
 
 type View = 'signals' | 'registry' | 'radar' | 'stack'
-type RegistryMode = 'ledger' | 'specimen'
 type SignalTimeframe = 'all' | 'today' | 'week'
 type SignalImpact = 'all' | 'p0' | 'p1'
 type ToolSort = 'number' | 'signals' | 'name'
@@ -95,9 +93,19 @@ const prototypeSignals = prototypeSignalsRaw as Signal[]
 const API_BASE = ((import.meta.env.VITE_INTELLIGENCE_API as string | undefined) || '').replace(/\/$/, '')
 
 const dossiersMap = new Map<string, Dossier>()
-for (const d of dossiers) {
-  dossiersMap.set(d.id.toLowerCase(), d)
-  dossiersMap.set(d.name.toLowerCase(), d)
+for (const dossier of dossiers) {
+  dossiersMap.set(dossier.id.toLowerCase(), dossier)
+  dossiersMap.set(dossier.name.toLowerCase(), dossier)
+}
+
+const CATEGORY_NAMES: Record<string, { de: string; en: string }> = {
+  'UI & Design Systems': { de: 'UI & Designsysteme', en: 'UI & Design Systems' },
+  'Code & Engineering': { de: 'Code & Engineering', en: 'Code & Engineering' },
+  'Research & Data': { de: 'Recherche & Daten', en: 'Research & Data' },
+  'Knowledge & Workflows': { de: 'Wissenssysteme & Workflows', en: 'Knowledge & Workflows' },
+  'Creative & Media': { de: 'Kreation & Medien', en: 'Creative & Media' },
+  'Language & Learning': { de: 'Sprache & Verständnis', en: 'Language & Learning' },
+  'Productivity & Flow': { de: 'Fokus & Produktivität', en: 'Productivity & Flow' },
 }
 
 function clean(text: string) {
@@ -111,86 +119,104 @@ function formatRelativeTime(hours: number, lang: Language) {
   return lang === 'de' ? `vor ${days} T.` : `${days}d ago`
 }
 
-const CATEGORY_NAMES: Record<string, { de: string; en: string }> = {
-  'UI & Design Systems': { de: 'UI & Designsysteme', en: 'UI & Design Systems' },
-  'Code & Engineering': { de: 'Code & Engineering', en: 'Code & Engineering' },
-  'Research & Data': { de: 'Recherche & Daten', en: 'Research & Data' },
-  'Knowledge & Workflows': { de: 'Wissenssysteme & Workflows', en: 'Knowledge & Workflows' },
-  'Creative & Media': { de: 'Kreation & Medien', en: 'Creative & Media' },
-  'Language & Learning': { de: 'Sprache & Verständnis', en: 'Language & Learning' },
-  'Productivity & Flow': { de: 'Fokus & Produktivität', en: 'Productivity & Flow' },
+function formatSignalDate(signal: Signal, lang: Language) {
+  const value = signal.publishedAt || signal.detectedAt
+  if (!value) return formatRelativeTime(signal.ageHours, lang)
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return formatRelativeTime(signal.ageHours, lang)
+  return new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
+
+function signalTitle(signal: Signal, lang: Language) {
+  return lang === 'de' && signal.title_de ? signal.title_de : signal.title
+}
+
+function signalSummary(signal: Signal, lang: Language) {
+  return lang === 'de' && signal.summary_de ? signal.summary_de : signal.summary
+}
+
+function signalConsequence(signal: Signal, lang: Language) {
+  return lang === 'de' && signal.whyItMatters_de ? signal.whyItMatters_de : signal.whyItMatters
+}
+
+function categoryLabel(category: string, lang: Language) {
+  return CATEGORY_NAMES[category] ? CATEGORY_NAMES[category][lang] : category
 }
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
     try {
       const stored = localStorage.getItem('shouldknow-lang')
-      if (stored === 'de' || stored === 'en') return stored
-      return 'de'
+      return stored === 'en' ? 'en' : 'de'
     } catch {
       return 'de'
     }
   })
-
   const [view, setView] = useState<View>('signals')
-  const [registryMode, setRegistryMode] = useState<RegistryMode>('ledger')
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
   const [toolSort, setToolSort] = useState<ToolSort>('number')
   const [timeframe, setTimeframe] = useState<SignalTimeframe>('all')
   const [impactFilter, setImpactFilter] = useState<SignalImpact>('all')
-  const [kindFilter, setKindFilter] = useState<string>('all')
+  const [kindFilter, setKindFilter] = useState('all')
   const [stackOnlySignals, setStackOnlySignals] = useState(false)
-
   const [saved, setSaved] = useState<string[]>(() => {
     try {
-      return JSON.parse(localStorage.getItem('shouldknow-saved') || '[]')
+      const parsed = JSON.parse(localStorage.getItem('shouldknow-saved') || '[]')
+      return Array.isArray(parsed) ? parsed : []
     } catch {
       return []
     }
   })
-
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null)
   const [lastVisit, setLastVisit] = useState<number | null>(null)
   const [liveSignals, setLiveSignals] = useState<Signal[]>(prototypeSignals)
   const [isLiveApi, setIsLiveApi] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // Persist language
   useEffect(() => {
     try {
       localStorage.setItem('shouldknow-lang', lang)
     } catch {
-      // ignore
+      // Local preferences are optional.
     }
   }, [lang])
 
-  // Track visit timestamp in localStorage
   useEffect(() => {
-    const prev = Number(localStorage.getItem('shouldknow-last-visit') || 0)
-    if (prev) setLastVisit(prev)
-    localStorage.setItem('shouldknow-last-visit', String(Date.now()))
+    try {
+      const previous = Number(localStorage.getItem('shouldknow-last-visit') || 0)
+      if (previous) setLastVisit(previous)
+      localStorage.setItem('shouldknow-last-visit', String(Date.now()))
+    } catch {
+      // Local visit memory is optional.
+    }
   }, [])
 
-  // Sync saved tools to localStorage
   useEffect(() => {
-    localStorage.setItem('shouldknow-saved', JSON.stringify(saved))
+    try {
+      localStorage.setItem('shouldknow-saved', JSON.stringify(saved))
+    } catch {
+      // Local bookmarks are optional.
+    }
   }, [saved])
 
-  // Fetch live signals from Intelligence API
   useEffect(() => {
     if (!API_BASE) return
     const controller = new AbortController()
     const timeout = window.setTimeout(() => controller.abort(), 6000)
 
     fetch(`${API_BASE}/v1/signals?hours=${24 * 90}`, { signal: controller.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error(`API error ${res.status}`)
-        return res.json()
+      .then((response) => {
+        if (!response.ok) throw new Error(`API error ${response.status}`)
+        return response.json()
       })
-      .then((data: unknown) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setLiveSignals(data as Signal[])
+      .then((payload: unknown) => {
+        if (Array.isArray(payload) && payload.length > 0) {
+          setLiveSignals(payload as Signal[])
           setIsLiveApi(true)
         }
       })
@@ -205,44 +231,37 @@ export default function App() {
     }
   }, [])
 
-  // Keyboard navigation (⌘K for search, Esc to close drawer)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
         searchInputRef.current?.focus()
-      } else if (e.key === 'Escape') {
-        setSelectedTool(null)
       }
+      if (event.key === 'Escape') setSelectedTool(null)
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Map signals to tools
   const toolSignalsMap = useMemo(() => {
     const map = new Map<string, Signal[]>()
     for (const signal of liveSignals) {
-      const toolIdKey = signal.toolId.toLowerCase()
-      const toolNameKey = signal.tool.toLowerCase()
-      const existing = map.get(toolIdKey) || map.get(toolNameKey) || []
-      existing.push(signal)
-      map.set(toolIdKey, existing)
-      map.set(toolNameKey, existing)
+      const keys = [signal.toolId, signal.tool].filter(Boolean).map((key) => key.toLowerCase())
+      const current = map.get(keys[0]) || []
+      current.push(signal)
+      for (const key of keys) map.set(key, current)
     }
     return map
   }, [liveSignals])
 
-  // Unique categories list
   const categories = useMemo(() => {
-    const set = new Set<string>()
-    for (const t of tools) {
-      if (t.category) set.add(t.category)
-    }
-    return Array.from(set).sort()
+    return Array.from(new Set(tools.map((tool) => tool.category).filter(Boolean))).sort()
   }, [])
 
-  // Filtered & sorted signals
+  const kinds = useMemo(() => {
+    return Array.from(new Set(liveSignals.map((signal) => signal.kind).filter(Boolean))).sort()
+  }, [liveSignals])
+
   const filteredSignals = useMemo(() => {
     const needle = query.trim().toLowerCase()
     return liveSignals.filter((signal) => {
@@ -252,992 +271,399 @@ export default function App() {
       if (impactFilter === 'p0' && signal.impact !== 'high') return false
       if (impactFilter === 'p1' && signal.impact !== 'medium') return false
       if (kindFilter !== 'all' && signal.kind !== kindFilter) return false
-      if (needle) {
-        const text = [
-          signal.tool,
-          signal.title,
-          signal.title_de || '',
-          signal.summary,
-          signal.summary_de || '',
-          signal.whyItMatters,
-          signal.whyItMatters_de || '',
-          signal.kind,
-        ]
-          .join(' ')
-          .toLowerCase()
-        if (!text.includes(needle)) return false
-      }
-      return true
+      if (!needle) return true
+      return [
+        signal.tool,
+        signal.title,
+        signal.title_de || '',
+        signal.summary,
+        signal.summary_de || '',
+        signal.whyItMatters,
+        signal.whyItMatters_de || '',
+        signal.kind,
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(needle)
     })
   }, [impactFilter, kindFilter, liveSignals, query, saved, stackOnlySignals, timeframe])
 
-  // Filtered & sorted tools
   const filteredTools = useMemo(() => {
     const needle = query.trim().toLowerCase()
     return tools
-      .filter((t) => {
-        if (view === 'stack' && !saved.includes(t.id)) return false
-        if (category !== 'All' && t.category !== category) return false
-        if (needle) {
-          const haystack = [
-            t.name,
-            t.job,
-            t.job_en || '',
-            t.why,
-            t.why_en || '',
-            t.category,
-            t.caveat,
-            t.caveat_en || '',
-          ]
-            .join(' ')
-            .toLowerCase()
-          if (!haystack.includes(needle)) return false
-        }
-        return true
+      .filter((tool) => {
+        if (view === 'stack' && !saved.includes(tool.id)) return false
+        if (category !== 'All' && tool.category !== category) return false
+        if (!needle) return true
+        return [
+          tool.name,
+          tool.job,
+          tool.job_en || '',
+          tool.why,
+          tool.why_en || '',
+          tool.category,
+          tool.caveat,
+          tool.caveat_en || '',
+        ]
+          .join(' ')
+          .toLowerCase()
+          .includes(needle)
       })
       .sort((a, b) => {
         if (toolSort === 'name') return a.name.localeCompare(b.name)
         if (toolSort === 'signals') {
-          const sigsA = toolSignalsMap.get(a.id.toLowerCase())?.length || 0
-          const sigsB = toolSignalsMap.get(b.id.toLowerCase())?.length || 0
-          return sigsB - sigsA || a.number - b.number
+          const signalCountA = toolSignalsMap.get(a.id.toLowerCase())?.length || 0
+          const signalCountB = toolSignalsMap.get(b.id.toLowerCase())?.length || 0
+          return signalCountB - signalCountA || a.number - b.number
         }
         return (a.number || 0) - (b.number || 0)
       })
   }, [category, query, saved, toolSignalsMap, toolSort, view])
 
-  // Count signals landed since last visit
+  const featuredSignal = filteredSignals[0] || liveSignals[0] || null
+  const selectedDossier = useMemo(() => {
+    if (!selectedTool) return null
+    return dossiersMap.get(selectedTool.id.toLowerCase()) || dossiersMap.get(selectedTool.name.toLowerCase()) || null
+  }, [selectedTool])
+  const selectedToolSignals = useMemo(() => {
+    if (!selectedTool) return []
+    return toolSignalsMap.get(selectedTool.id.toLowerCase()) || toolSignalsMap.get(selectedTool.name.toLowerCase()) || []
+  }, [selectedTool, toolSignalsMap])
+
   const sinceCount = useMemo(() => {
     if (!lastVisit) return 0
     const elapsedHours = (Date.now() - lastVisit) / 3_600_000
-    return liveSignals.filter((s) => s.ageHours <= elapsedHours).length
+    return liveSignals.filter((signal) => signal.ageHours <= elapsedHours).length
   }, [lastVisit, liveSignals])
 
   const toggleSave = (id: string) => {
-    setSaved((curr) => (curr.includes(id) ? curr.filter((x) => x !== id) : [...curr, id]))
+    setSaved((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]))
   }
 
   const openToolModal = (toolIdOrName: string) => {
     const target =
-      tools.find((t) => t.id.toLowerCase() === toolIdOrName.toLowerCase()) ||
-      tools.find((t) => t.name.toLowerCase() === toolIdOrName.toLowerCase())
-    if (target) {
-      setSelectedTool(target)
-    }
+      tools.find((tool) => tool.id.toLowerCase() === toolIdOrName.toLowerCase()) ||
+      tools.find((tool) => tool.name.toLowerCase() === toolIdOrName.toLowerCase())
+    if (target) setSelectedTool(target)
   }
 
-  const surpriseMe = () => {
-    const random = tools[Math.floor(Math.random() * tools.length)]
-    setSelectedTool(random)
+  const goToView = (nextView: View, shouldScroll = true) => {
+    setView(nextView)
+    if (shouldScroll) window.setTimeout(() => document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30)
   }
 
-  // Selected tool dossier lookup
-  const selectedDossier = useMemo(() => {
-    if (!selectedTool) return null
-    return (
-      dossiersMap.get(selectedTool.id.toLowerCase()) ||
-      dossiersMap.get(selectedTool.name.toLowerCase()) ||
-      null
-    )
-  }, [selectedTool])
+  const resetFilters = () => {
+    setQuery('')
+    setCategory('All')
+    setTimeframe('all')
+    setImpactFilter('all')
+    setKindFilter('all')
+    setStackOnlySignals(false)
+  }
 
-  const selectedToolSignals = useMemo(() => {
-    if (!selectedTool) return []
-    return (
-      toolSignalsMap.get(selectedTool.id.toLowerCase()) ||
-      toolSignalsMap.get(selectedTool.name.toLowerCase()) ||
-      []
-    )
-  }, [selectedTool, toolSignalsMap])
+  const workspaceTitle =
+    view === 'signals'
+      ? lang === 'de'
+        ? 'Was sich verändert hat'
+        : 'What changed'
+      : view === 'registry'
+        ? lang === 'de'
+          ? 'Werkzeuge nach ihrem echten Job'
+          : 'Tools by the job they do'
+        : view === 'stack'
+          ? lang === 'de'
+            ? 'Dein beobachteter Stack'
+            : 'Your watched stack'
+          : lang === 'de'
+            ? 'Was gerade auftaucht'
+            : 'What is surfacing'
+
+  const workspaceIntro =
+    view === 'signals'
+      ? lang === 'de'
+        ? 'Nicht alles, was neu ist, ist wichtig. Hier landen nur Änderungen mit einem nachvollziehbaren Beleg und einer klaren Konsequenz.'
+        : 'Not everything new is important. This is the short list of changes with a traceable source and a clear consequence.'
+      : view === 'registry'
+        ? lang === 'de'
+          ? 'Eine Arbeitsliste statt einer Bestenliste: konkreter Einsatz, redaktionelle Einordnung, ehrliche Grenze.'
+          : 'A working list, not a leaderboard: concrete job, editorial judgment, honest limitation.'
+        : view === 'stack'
+          ? lang === 'de'
+            ? 'Speichere Werkzeuge, die du wirklich benutzt. So wird aus dem Feed ein persönlicher Frühwarnkanal.'
+            : 'Save the tools you actually use. Your feed becomes a personal early-warning channel.'
+          : lang === 'de'
+            ? 'Radar ist ein Hinweis, kein Urteil. Kandidaten bleiben hier, bis ein First-Party-Beleg da ist.'
+            : 'Radar is a lead, not a verdict. Candidates stay here until a first-party source exists.'
 
   return (
-    <div className="site-shell">
-      {/* Topbar Architecture */}
-      <header className="topbar">
-        <div className="topbar-main-bar">
-          <div className="topbar-left">
-            <button className="brand-logo" onClick={() => setView('signals')} aria-label="Should Know home">
-              <span className="brand-mark">S</span>
-              <span className="brand-name">
-                SHOULD <i>KNOW</i>
-              </span>
-            </button>
-            <span className="brand-badge">
-              {lang === 'de' ? 'PRODUKT-INTELLIGENCE' : 'PRODUCT INTELLIGENCE'}
-            </span>
-          </div>
+    <div className="app-shell">
+      <header className="site-header">
+        <div className="header-inner">
+          <button className="wordmark" onClick={() => goToView('signals', false)} aria-label="Should Know home">
+            <span className="wordmark-mark">S</span>
+            <span className="wordmark-text">should <em>know</em></span>
+          </button>
 
-          <div className="topbar-actions">
-            {/* Architectural Language Switch */}
-            <div className="lang-switcher" role="group" aria-label="Language selector">
-              <button
-                className={`lang-btn ${lang === 'de' ? 'active' : ''}`}
-                onClick={() => setLang('de')}
-                title="Deutsch"
-              >
-                DE
-              </button>
-              <span className="lang-divider">/</span>
-              <button
-                className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
-                onClick={() => setLang('en')}
-                title="English"
-              >
-                EN
-              </button>
+          <nav className="main-nav" aria-label="Primary navigation">
+            <button className={view === 'signals' ? 'active' : ''} onClick={() => goToView('signals')}>
+              {lang === 'de' ? 'Heute' : 'Today'} <span>{liveSignals.length}</span>
+            </button>
+            <button className={view === 'registry' ? 'active' : ''} onClick={() => goToView('registry')}>
+              {lang === 'de' ? 'Werkzeuge' : 'Tools'} <span>{tools.length}</span>
+            </button>
+            <button className={view === 'radar' ? 'active' : ''} onClick={() => goToView('radar')}>
+              Radar <span>55</span>
+            </button>
+            <button className={view === 'stack' ? 'active' : ''} onClick={() => goToView('stack')}>
+              {lang === 'de' ? 'Merkliste' : 'Saved'} <span>{saved.length}</span>
+            </button>
+          </nav>
+
+          <div className="header-tools">
+            <button className="header-search-trigger" onClick={() => searchInputRef.current?.focus()}>
+              <Search size={15} /> <span>{lang === 'de' ? 'Suchen' : 'Search'}</span> <kbd>⌘K</kbd>
+            </button>
+            <div className="language-toggle" role="group" aria-label="Language selector">
+              <button className={lang === 'de' ? 'active' : ''} onClick={() => setLang('de')}>DE</button>
+              <button className={lang === 'en' ? 'active' : ''} onClick={() => setLang('en')}>EN</button>
             </div>
-
-            <button className="btn-surprise" onClick={surpriseMe} title={lang === 'de' ? 'Zufälliges Werkzeug öffnen' : 'Inspect a random curated tool'}>
-              <Shuffle size={12} /> {lang === 'de' ? 'Zufall' : 'Surprise'}
-            </button>
           </div>
         </div>
-
-        <nav className="topbar-nav" aria-label="Main navigation">
-          <button
-            className={`nav-link ${view === 'signals' ? 'active' : ''}`}
-            onClick={() => setView('signals')}
-          >
-            <span className="nav-index">01</span>
-            {lang === 'de' ? 'Signale' : 'Signals'} <b>{liveSignals.length}</b>
-          </button>
-          <button
-            className={`nav-link ${view === 'registry' ? 'active' : ''}`}
-            onClick={() => setView('registry')}
-          >
-            <span className="nav-index">02</span>
-            {lang === 'de' ? 'Register' : 'Registry'} <b>{tools.length}</b>
-          </button>
-          <button
-            className={`nav-link ${view === 'radar' ? 'active' : ''}`}
-            onClick={() => setView('radar')}
-          >
-            <span className="nav-index">03</span>
-            Radar <b>55</b>
-          </button>
-          <button
-            className={`nav-link ${view === 'stack' ? 'active' : ''}`}
-            onClick={() => setView('stack')}
-          >
-            <span className="nav-index">04</span>
-            {lang === 'de' ? 'Mein Stack' : 'My Stack'} <b>{saved.length}</b>
-          </button>
-        </nav>
       </header>
 
-      <main id="content">
-        {/* Monolithic Classical Hero (Awwwards Standard) */}
-        <section className="hero-editorial">
-          <div className="hero-grid-container">
-            <div className="hero-editorial-col">
-              <div className="telemetry-stamp">
-                <span className="telemetry-status-dot" aria-hidden="true" />
-                <span className="telemetry-lead">{isLiveApi ? 'ENGINE LIVE' : 'VERIFIED AUDIT'}</span>
-                <span className="telemetry-sep">·</span>
-                <span>
-                  {lang === 'de'
-                    ? 'AUSGABE 04 · 79 FRONTIER-WERKZEUGE · EVIDENZ-PROTOKOLL'
-                    : 'ISSUE 04 · 79 FRONTIER TOOLS · EVIDENCE PROTOCOL'}
-                </span>
-              </div>
-
-              <h1 className="hero-title">
-                {lang === 'de' ? (
-                  <>
-                    EVIDENZ STATT MARKETING.
-                    <br />
-                    <em>Was sich wirklich verändert.</em>
-                  </>
-                ) : (
-                  <>
-                    EVIDENCE OVER NOISE.
-                    <br />
-                    <em>Know what changed. Know what matters.</em>
-                  </>
-                )}
-              </h1>
-
-              <p className="hero-desc">
-                {lang === 'de'
-                  ? 'Evidenzbasierte Produkt-Intelligence über 79 handkuratierte Frontier-Werkzeuge. Wir überwachen Changelogs, Pricing-Tabellen und GitHub-Releases per Headless-Browser. Keine gesponserten Einträge, ausnahmslos mit ungeschminkten Grenzen (Honest Caveats).'
-                  : 'Evidence-first product intelligence across 79 curated frontier tools. Continuous headless monitoring of official changelogs, pricing tables, and GitHub releases. Zero pay-to-play listings, mandatory honest caveats.'}
-              </p>
-
-              <div className="hero-segmented-tabs">
-                <button
-                  className={`tab-btn ${view === 'signals' ? 'active' : ''}`}
-                  onClick={() => setView('signals')}
-                >
-                  {lang === 'de' ? 'Verifizierte Signale' : 'Verified Signals'} ({liveSignals.length})
-                </button>
-                <button
-                  className={`tab-btn ${view === 'registry' ? 'active' : ''}`}
-                  onClick={() => setView('registry')}
-                >
-                  {lang === 'de' ? 'Kuratierte Werkzeuge' : 'Curated Registry'} ({tools.length})
-                </button>
-                <button
-                  className={`tab-btn ${view === 'radar' ? 'active' : ''}`}
-                  onClick={() => setView('radar')}
-                >
-                  {lang === 'de' ? 'Ökosystem-Radar' : 'Ecosystem Radar'} (55)
-                </button>
-              </div>
+      <main>
+        <section className="home-hero">
+          <div className="hero-copy">
+            <p className="eyebrow"><span className="eyebrow-rule" /> Should Know / {lang === 'de' ? 'Verifizierte Änderungen' : 'Verified changes'}</p>
+            <h1>
+              {lang === 'de' ? (
+                <>{liveSignals.length} geprüfte Änderungen.<br /><em>Was davon ändert deinen Job?</em></>
+              ) : (
+                <>{liveSignals.length} checked changes.<br /><em>Which one changes your work?</em></>
+              )}
+            </h1>
+            <p className="hero-lede">
+              {lang === 'de'
+                ? 'Jede Änderung kommt mit einer zugänglichen Quelle, einer konkreten Konsequenz und einer ehrlichen Grenze.'
+                : 'Every change comes with an accessible source, a concrete consequence, and an honest limit.'}
+            </p>
+            <div className="hero-actions">
+              <button className="button button-primary" onClick={() => goToView('signals')}>
+                {lang === 'de' ? 'Die heutigen Änderungen lesen' : "Read today's changes"} <ArrowRight size={16} />
+              </button>
+              <button className="text-button" onClick={() => goToView('registry')}>
+                {lang === 'de' ? 'Werkzeuge durchsuchen' : 'Browse the tools'} <ChevronRight size={15} />
+              </button>
             </div>
+            <p className="hero-proof"><Check size={15} /> {lang === 'de' ? 'Jeder Eintrag: konkreter Job, ehrliche Grenze, Quelle.' : 'Every entry: a concrete job, an honest limit, a source.'}</p>
+          </div>
 
-            {/* Asymmetrical Telemetry Ledger */}
-            <div className="hero-telemetry-col">
-              <div className="telemetry-ledger-card">
-                <span className="telemetry-card-label">
-                  {lang === 'de' ? 'SYSTEM-TELEMETRIE & AUDIT' : 'SYSTEM TELEMETRY & AUDIT'}
-                </span>
-                
-                <div className="telemetry-metric-item">
-                  <div className="metric-number">79</div>
-                  <div className="metric-info">
-                    <strong>{lang === 'de' ? 'Kuratierte Werkzeuge' : 'Curated Products'}</strong>
-                    <small>{lang === 'de' ? 'Ausnahmslos mit Honest Caveat' : 'With mandatory caveats'}</small>
-                  </div>
-                </div>
-
-                <div className="telemetry-metric-item">
-                  <div className="metric-number">{liveSignals.length}</div>
-                  <div className="metric-info">
-                    <strong>{lang === 'de' ? 'Verifizierte Signale' : 'Verified Signals'}</strong>
-                    <small>{lang === 'de' ? 'First-Party Diffs & Releases' : 'First-party diffs & releases'}</small>
-                  </div>
-                </div>
-
-                <div className="telemetry-metric-item">
-                  <div className="metric-number">55</div>
-                  <div className="metric-info">
-                    <strong>{lang === 'de' ? 'Radar-Kandidaten' : 'Radar Candidates'}</strong>
-                    <small>{lang === 'de' ? 'In redaktioneller Quarantäne' : 'In editorial quarantine'}</small>
-                  </div>
-                </div>
-
-                <div className="telemetry-metric-item">
-                  <div className="metric-number zero-bias">0</div>
-                  <div className="metric-info">
-                    <strong>{lang === 'de' ? 'Gekaufte Platzierungen' : 'Sponsored Bias'}</strong>
-                    <small>{lang === 'de' ? '100% Unabhängig kuratiert' : '100% Independent audit'}</small>
-                  </div>
-                </div>
-              </div>
+          <div className="latest-brief" aria-label={lang === 'de' ? 'Letztes verifiziertes Signal' : 'Latest verified signal'}>
+            <div className="brief-topline">
+              <span>{lang === 'de' ? 'Letzte Änderung' : 'Latest change'}</span>
+              <span className="brief-status"><span className="status-dot" /> {isLiveApi ? 'LIVE' : lang === 'de' ? 'SNAPSHOT' : 'SNAPSHOT'}</span>
             </div>
+            {featuredSignal ? (
+              <>
+                <div className="brief-meta">
+                  {featuredSignal.sources[0] ? <a className="brief-source" href={featuredSignal.sources[0].url} target="_blank" rel="noreferrer">{featuredSignal.sources[0].label}</a> : <span>{featuredSignal.tool}</span>}
+                  <span><Clock3 size={13} /> {featuredSignal.publishedAt ? (lang === 'de' ? 'veröffentlicht ' : 'published ') : (lang === 'de' ? 'erfasst ' : 'captured ')}{formatSignalDate(featuredSignal, lang)}</span>
+                </div>
+                <h2>{signalTitle(featuredSignal, lang)}</h2>
+                <p>{clean(signalSummary(featuredSignal, lang))}</p>
+                <div className="brief-consequence">
+                  <span>{lang === 'de' ? 'Warum es zählt' : 'Why it matters'}</span>
+                  <strong>{clean(signalConsequence(featuredSignal, lang))}</strong>
+                </div>
+                <button className="brief-link" onClick={() => openToolModal(featuredSignal.toolId || featuredSignal.tool)}>
+                  {lang === 'de' ? 'Beleg und Dossier öffnen' : 'Open evidence and dossier'} <ArrowUpRight size={16} />
+                </button>
+              </>
+            ) : (
+              <p>{lang === 'de' ? 'Noch keine Signale verfügbar.' : 'No signals available yet.'}</p>
+            )}
           </div>
         </section>
 
-        {/* Return Visitor Strip */}
         {sinceCount > 0 && (
-          <aside className="return-notification-strip">
-            <div className="return-strip-left">
-              <span className="pulse-dot-clean" />
-              <span>
-                <strong>{sinceCount}</strong> {lang === 'de' ? 'neue verifizierte Signale seit Ihrem letzten Besuch erfasst.' : 'new verified signals landed across monitored tools.'}
-              </span>
-            </div>
-            <button
-              className="return-strip-cta"
-              onClick={() => {
-                setView('signals')
-                setTimeframe('today')
-              }}
-            >
-              {lang === 'de' ? 'Zu den Neuerungen ansehen' : 'Inspect recent updates'} <ArrowRight size={12} />
-            </button>
+          <aside className="return-note">
+            <span className="return-note-mark" />
+            <span><strong>{sinceCount}</strong> {lang === 'de' ? 'neue Signale seit deinem letzten Besuch.' : 'new signals since your last visit.'}</span>
+            <button onClick={() => { setTimeframe('today'); goToView('signals') }}>{lang === 'de' ? 'Ansehen' : 'See them'} <ArrowRight size={14} /></button>
           </aside>
         )}
 
-        {/* Section Toolbar & Controls */}
-        {view !== 'radar' && (
-          <section className="section-toolbar">
-          <div className="toolbar-header">
-            <div>
-              <span className="section-eyebrow">
-                {view === 'signals' && (lang === 'de' ? 'INTELLIGENCE-FEED' : 'INTELLIGENCE FEED')}
-                {view === 'registry' && (lang === 'de' ? 'WERKZEUG-REGISTER' : 'PRODUCT REGISTRY')}
-                {view === 'stack' && (lang === 'de' ? 'MEIN STACK' : 'MY STACK')}
-              </span>
-              <h2 className="section-title">
-                {view === 'signals' && (lang === 'de' ? 'Was sich verändert hat.' : 'What changed.')}
-                {view === 'registry' && (lang === 'de' ? '79 Werkzeuge, die ihre Zeit wert sind.' : '79 tools worth your time.')}
-                {view === 'stack' && (lang === 'de' ? 'Ihre beobachteten Werkzeuge.' : 'Your monitored toolstack.')}
-              </h2>
-              <p className="section-subtitle">
-                {view === 'signals' &&
-                  (lang === 'de'
-                    ? 'Verifizierte Changelogs, Pricing-Anpassungen und API-Releases. Nach redaktioneller Relevanz gewichtet.'
-                    : 'Verified changelogs, pricing tier shifts, and API releases filtered for architectural consequence.')}
-                {view === 'registry' &&
-                  (lang === 'de'
-                    ? 'Jedes Werkzeug mit genau einem konkreten Einsatzzweck, redaktioneller Begründung und ungeschminkter Schwachstelle.'
-                    : 'Every tool evaluated with one concrete job, editorial rationale, and mandatory honest caveat.')}
-                {view === 'stack' &&
-                  (lang === 'de'
-                    ? 'Ihre gemerkten Werkzeuge. Filtern Sie Signale direkt auf Ihren persönlichen Arbeits-Stack.'
-                    : 'Your saved tools. Filter verified signals down to the products your team relies on.')}
-              </p>
+        <section className="workspace" id="workspace">
+          <aside className="workspace-rail">
+            <div className="rail-intro">
+              <span className="rail-label">{lang === 'de' ? 'Hier anfangen' : 'Start here'}</span>
+              <p>{lang === 'de' ? 'Starte mit einer Änderung. Öffne dann den Beleg, nicht nur die Behauptung.' : 'Start with a change. Open the evidence, not just the claim.'}</p>
             </div>
-          </div>
+            <nav className="workspace-nav" aria-label="Workspace views">
+              <button className={view === 'signals' ? 'active' : ''} onClick={() => setView('signals')}>{lang === 'de' ? 'Änderungen' : 'Changes'}<b>{liveSignals.length}</b></button>
+              <button className={view === 'registry' ? 'active' : ''} onClick={() => setView('registry')}>{lang === 'de' ? 'Werkzeugliste' : 'Tool list'}<b>{tools.length}</b></button>
+              <button className={view === 'radar' ? 'active' : ''} onClick={() => setView('radar')}>Radar<b>55</b></button>
+              <button className={view === 'stack' ? 'active' : ''} onClick={() => setView('stack')}>{lang === 'de' ? 'Merkliste' : 'Saved'}<b>{saved.length}</b></button>
+            </nav>
+            <div className="rail-rule" />
+            <button className="rail-protocol" onClick={() => document.getElementById('protocol')?.scrollIntoView({ behavior: 'smooth' })}>
+              <span>{lang === 'de' ? 'Wie wir prüfen' : 'How we check'}</span><ArrowUpRight size={14} />
+            </button>
+          </aside>
 
-          <div className="toolbar-controls">
-            {/* Search Input */}
-            <div className="search-box">
-              <Search size={13} className="search-icon" />
-              <input
-                ref={searchInputRef}
-                type="search"
-                placeholder={
-                  lang === 'de'
-                    ? 'Werkzeuge, Jobs oder Signale suchen... (⌘K)'
-                    : 'Search tools, jobs, or signals... (⌘K)'
-                }
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {query && (
-                <button className="search-clear" onClick={() => setQuery('')} aria-label="Clear query">
-                  <X size={12} />
-                </button>
-              )}
-            </div>
-
-            {/* Registry Specific View Modes */}
-            {(view === 'registry' || view === 'stack') && (
-              <div className="view-mode-toggle" role="group" aria-label="Registry layout switch">
-                <button
-                  className={`mode-btn ${registryMode === 'ledger' ? 'active' : ''}`}
-                  onClick={() => setRegistryMode('ledger')}
-                  title={lang === 'de' ? 'Archiv-Ledger (Breite Tabelle)' : 'Archive Ledger (Broadsheet Table)'}
-                >
-                  <Table size={12} /> {lang === 'de' ? 'Ledger' : 'Ledger'}
-                </button>
-                <button
-                  className={`mode-btn ${registryMode === 'specimen' ? 'active' : ''}`}
-                  onClick={() => setRegistryMode('specimen')}
-                  title={lang === 'de' ? 'Exemplar-Zellen (Raster)' : 'Specimen Cells (Grid)'}
-                >
-                  <Layers size={12} /> {lang === 'de' ? 'Zellen' : 'Cells'}
-                </button>
+          <div className="workspace-main">
+            <div className="workspace-heading">
+              <div>
+                <p className="eyebrow">{view === 'radar' ? 'Radar' : lang === 'de' ? 'Aktuelle Änderungen' : 'Current changes'}</p>
+                <h2>{workspaceTitle}</h2>
+                <p>{workspaceIntro}</p>
               </div>
-            )}
+              {view !== 'radar' && <span className="result-count">{view === 'signals' ? filteredSignals.length : filteredTools.length} {lang === 'de' ? 'Treffer' : 'results'}</span>}
+            </div>
 
-            {/* Signals Specific Filters */}
-            {view === 'signals' && (
-              <>
-                <div className="filter-button-group">
-                  <button
-                    className={`filter-btn ${timeframe === 'all' ? 'active' : ''}`}
-                    onClick={() => setTimeframe('all')}
-                  >
-                    {lang === 'de' ? 'Alle Zeiten' : 'All Time'}
-                  </button>
-                  <button
-                    className={`filter-btn ${timeframe === 'today' ? 'active' : ''}`}
-                    onClick={() => setTimeframe('today')}
-                  >
-                    {lang === 'de' ? '24 Stunden' : 'Today'}
-                  </button>
-                  <button
-                    className={`filter-btn ${timeframe === 'week' ? 'active' : ''}`}
-                    onClick={() => setTimeframe('week')}
-                  >
-                    {lang === 'de' ? '7 Tage' : 'This Week'}
-                  </button>
-                </div>
+            {view !== 'radar' && (
+              <div className="workspace-controls">
+                <label className="search-field">
+                  <Search size={16} />
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder={view === 'signals' ? (lang === 'de' ? 'Signal, Werkzeug oder Konsequenz suchen' : 'Search a signal, tool, or consequence') : (lang === 'de' ? 'Werkzeug, Job oder Grenze suchen' : 'Search tool, job, or limitation')}
+                    aria-label={lang === 'de' ? 'Arbeitsfläche durchsuchen' : 'Search workspace'}
+                  />
+                  {query && <button onClick={() => setQuery('')} aria-label={lang === 'de' ? 'Suche löschen' : 'Clear search'}><X size={15} /></button>}
+                  <kbd>⌘K</kbd>
+                </label>
 
-                <div className="filter-button-group">
-                  <button
-                    className={`filter-btn ${impactFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => setImpactFilter('all')}
-                  >
-                    {lang === 'de' ? 'Alle Relevanzen' : 'All Impact'}
-                  </button>
-                  <button
-                    className={`filter-btn ${impactFilter === 'p0' ? 'active' : ''}`}
-                    onClick={() => setImpactFilter('p0')}
-                  >
-                    P0 · Critical
-                  </button>
-                  <button
-                    className={`filter-btn ${impactFilter === 'p1' ? 'active' : ''}`}
-                    onClick={() => setImpactFilter('p1')}
-                  >
-                    P1 · Capability
-                  </button>
-                </div>
-
-                {saved.length > 0 && (
-                  <button
-                    className={`filter-btn ${stackOnlySignals ? 'active' : ''}`}
-                    onClick={() => setStackOnlySignals(!stackOnlySignals)}
-                  >
-                    <Bookmark size={11} /> {lang === 'de' ? 'Nur mein Stack' : 'My Stack Only'}
-                  </button>
+                {view === 'signals' && (
+                  <div className="control-row">
+                    <div className="segmented-control" aria-label={lang === 'de' ? 'Zeitraum' : 'Timeframe'}>
+                      <button className={timeframe === 'all' ? 'active' : ''} onClick={() => setTimeframe('all')}>{lang === 'de' ? 'Alle' : 'All'}</button>
+                      <button className={timeframe === 'today' ? 'active' : ''} onClick={() => setTimeframe('today')}>{lang === 'de' ? '24 Std.' : '24h'}</button>
+                      <button className={timeframe === 'week' ? 'active' : ''} onClick={() => setTimeframe('week')}>{lang === 'de' ? '7 Tage' : '7d'}</button>
+                    </div>
+                    <select value={impactFilter} onChange={(event) => setImpactFilter(event.target.value as SignalImpact)} aria-label={lang === 'de' ? 'Relevanz' : 'Impact'}>
+                      <option value="all">{lang === 'de' ? 'Alle Relevanzen' : 'All impact'}</option>
+                      <option value="p0">{lang === 'de' ? 'Hohe Auswirkung' : 'High impact'}</option>
+                      <option value="p1">{lang === 'de' ? 'Fähigkeit' : 'Capability'}</option>
+                    </select>
+                    <select value={kindFilter} onChange={(event) => setKindFilter(event.target.value)} aria-label={lang === 'de' ? 'Signaltyp' : 'Signal type'}>
+                      <option value="all">{lang === 'de' ? 'Alle Typen' : 'All types'}</option>
+                      {kinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
+                    </select>
+                    {saved.length > 0 && <button className={`control-toggle ${stackOnlySignals ? 'active' : ''}`} onClick={() => setStackOnlySignals((current) => !current)}><Bookmark size={14} /> {lang === 'de' ? 'Mein Stack' : 'My stack'}</button>}
+                  </div>
                 )}
-              </>
-            )}
 
-            {/* Sorters */}
-            {(view === 'registry' || view === 'stack') && (
-              <div className="sort-group">
-                <span className="sort-label">{lang === 'de' ? 'SORTIERUNG:' : 'SORT:'}</span>
-                <button
-                  className={`filter-btn ${toolSort === 'number' ? 'active' : ''}`}
-                  onClick={() => setToolSort('number')}
-                >
-                  № Index
-                </button>
-                <button
-                  className={`filter-btn ${toolSort === 'signals' ? 'active' : ''}`}
-                  onClick={() => setToolSort('signals')}
-                >
-                  {lang === 'de' ? 'Diffs' : 'Signals'}
-                </button>
-                <button
-                  className={`filter-btn ${toolSort === 'name' ? 'active' : ''}`}
-                  onClick={() => setToolSort('name')}
-                >
-                  A–Z
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Category Bar for Registry */}
-          {(view === 'registry' || view === 'stack') && (
-            <div className="category-scroll-bar">
-              <button
-                className={`category-chip ${category === 'All' ? 'active' : ''}`}
-                onClick={() => setCategory('All')}
-              >
-                {lang === 'de' ? 'Alle Werkzeuge' : 'All Categories'} ({tools.length})
-              </button>
-              {categories.map((cat) => {
-                const count = tools.filter((t) => t.category === cat).length
-                const label = CATEGORY_NAMES[cat] ? (lang === 'de' ? CATEGORY_NAMES[cat].de : CATEGORY_NAMES[cat].en) : cat
-                return (
-                  <button
-                    key={cat}
-                    className={`category-chip ${category === cat ? 'active' : ''}`}
-                    onClick={() => setCategory(cat)}
-                  >
-                    {label} ({count})
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </section>
-      )}
-
-        {/* VIEW 1: SIGNALS WIRE (THE GAZETTE) */}
-        {view === 'signals' && (
-          <section className="signal-ledger" aria-label="Live Signals Wire">
-            {filteredSignals.map((signal, idx) => {
-              const sigTitle = lang === 'de' && signal.title_de ? signal.title_de : signal.title
-              const sigSummary = lang === 'de' && signal.summary_de ? signal.summary_de : signal.summary
-              const sigWhy = lang === 'de' && signal.whyItMatters_de ? signal.whyItMatters_de : signal.whyItMatters
-              const isP0 = signal.impact === 'high'
-
-              return (
-                <article key={signal.id} className="signal-entry">
-                  {/* Column 1: Swiss Telemetry Stamp */}
-                  <div className="entry-telemetry-col">
-                    <span className="entry-index">{String(idx + 1).padStart(2, '0')}</span>
-                    <span className={`materiality-badge ${isP0 ? 'p0' : 'p1'}`}>
-                      {isP0 ? 'P0 · CRITICAL' : 'P1 · UPDATE'}
-                    </span>
-                    <span className="time-badge">{formatRelativeTime(signal.ageHours, lang)}</span>
-                    <span className="kind-badge">{signal.kind}</span>
-                  </div>
-
-                  {/* Column 2: Journalistic Synthesis */}
-                  <div className="entry-content-col">
-                    <div className="signal-heading-group">
-                      <button
-                        className="tool-trigger-btn"
-                        onClick={() => openToolModal(signal.toolId || signal.tool)}
-                        title={lang === 'de' ? 'Dossier dieses Werkzeugs öffnen' : 'Open tool dossier'}
-                      >
-                        {signal.tool} <ArrowRight size={11} />
-                      </button>
-                      <h3 className="signal-headline">{sigTitle}</h3>
-                    </div>
-
-                    <p className="signal-body">{clean(sigSummary)}</p>
-
-                    <div className="signal-consequence-box">
-                      <span className="consequence-label">
-                        {lang === 'de' ? 'REDAKTIONELLE EINORDNUNG & RELEVANZ' : 'STRATEGIC CONSEQUENCE & VERDICT'}
-                      </span>
-                      <p>{clean(sigWhy)}</p>
-                    </div>
-
-                    <div className="signal-footer-row">
-                      <div className="signal-sources-list">
-                        {signal.sources.map((s) => (
-                          <a
-                            key={s.url}
-                            href={s.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="source-evidence-link"
-                          >
-                            <span>{s.label || (lang === 'de' ? 'Primärquelle' : 'Primary Source')}</span>
-                            <ExternalLink size={10} />
-                          </a>
-                        ))}
-                      </div>
-
-                      <div className="signal-actions">
-                        <button
-                          className="btn-text-link"
-                          onClick={() => openToolModal(signal.toolId || signal.tool)}
-                        >
-                          {lang === 'de' ? 'Dossier einsehen →' : 'Inspect Dossier →'}
-                        </button>
-                        <button
-                          className={`btn-icon-watch ${saved.includes(signal.toolId) ? 'active' : ''}`}
-                          onClick={() => toggleSave(signal.toolId)}
-                          title={lang === 'de' ? 'Zu Mein Stack hinzufügen' : 'Toggle tool in My Stack'}
-                        >
-                          <Bookmark size={14} />
-                        </button>
-                      </div>
+                {(view === 'registry' || view === 'stack') && (
+                  <div className="control-row">
+                    <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label={lang === 'de' ? 'Kategorie' : 'Category'}>
+                      <option value="All">{lang === 'de' ? 'Alle Kategorien' : 'All categories'}</option>
+                      {categories.map((item) => <option key={item} value={item}>{categoryLabel(item, lang)}</option>)}
+                    </select>
+                    <div className="segmented-control" aria-label={lang === 'de' ? 'Sortierung' : 'Sort'}>
+                      <button className={toolSort === 'number' ? 'active' : ''} onClick={() => setToolSort('number')}>{lang === 'de' ? 'Index' : 'Index'}</button>
+                      <button className={toolSort === 'signals' ? 'active' : ''} onClick={() => setToolSort('signals')}>{lang === 'de' ? 'Diffs' : 'Changes'}</button>
+                      <button className={toolSort === 'name' ? 'active' : ''} onClick={() => setToolSort('name')}>A–Z</button>
                     </div>
                   </div>
-                </article>
-              )
-            })}
-
-            {filteredSignals.length === 0 && (
-              <div className="empty-ledger-state">
-                <p>
-                  {lang === 'de'
-                    ? 'Keine Signale für diese Filtereinstellungen gefunden.'
-                    : 'No verified signals match the current filter selection.'}
-                </p>
-                <button
-                  className="btn-reset"
-                  onClick={() => {
-                    setQuery('')
-                    setTimeframe('all')
-                    setImpactFilter('all')
-                    setKindFilter('all')
-                    setStackOnlySignals(false)
-                  }}
-                >
-                  {lang === 'de' ? 'Filter zurücksetzen' : 'Reset Filters'}
-                </button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* VIEW 2 & 4: MASTER REGISTRY & MY STACK */}
-        {(view === 'registry' || view === 'stack') && (
-          <>
-            {/* View Mode 1: Architectural Archive Ledger (Default) */}
-            {registryMode === 'ledger' && (
-              <div className="archive-ledger-container">
-                <div className="ledger-header-row">
-                  <div className="col-idx">{lang === 'de' ? '№' : '№'}</div>
-                  <div className="col-entity">{lang === 'de' ? 'WERKZEUG & EDITION' : 'TOOL & EDITION'}</div>
-                  <div className="col-job">{lang === 'de' ? 'DER KONKRETE EINSATZZWECK' : 'THE CONCRETE JOB'}</div>
-                  <div className="col-caveat">{lang === 'de' ? 'EHRLICHE GRENZE (CAVEAT)' : 'MANDATORY CAVEAT'}</div>
-                  <div className="col-telemetry">{lang === 'de' ? 'TELEMETRIE' : 'TELEMETRY'}</div>
-                  <div className="col-action">{lang === 'de' ? 'AKTION' : 'ACTION'}</div>
-                </div>
-
-                <div className="ledger-body">
-                  {filteredTools.map((t) => {
-                    const sigs = toolSignalsMap.get(t.id.toLowerCase()) || []
-                    const tJob = lang === 'en' && t.job_en ? t.job_en : t.job
-                    const tCaveat = lang === 'en' && t.caveat_en ? t.caveat_en : t.caveat
-                    const catLabel = CATEGORY_NAMES[t.category]
-                      ? (lang === 'de' ? CATEGORY_NAMES[t.category].de : CATEGORY_NAMES[t.category].en)
-                      : t.category
-
-                    return (
-                      <div
-                        key={t.id}
-                        className={`ledger-row ${sigs.length > 0 ? 'has-signals' : ''}`}
-                        onClick={() => setSelectedTool(t)}
-                      >
-                        <div className="col-idx">
-                          <span className="row-number">{String(t.number).padStart(2, '0')}</span>
-                        </div>
-
-                        <div className="col-entity">
-                          <div className="entity-name-row">
-                            <strong className="entity-title">{t.name}</strong>
-                            {sigs.length > 0 && (
-                              <span className="diff-count-indicator" title={`${sigs.length} verified diffs`}>
-                                {sigs.length} {lang === 'de' ? 'Diffs' : 'Diffs'}
-                              </span>
-                            )}
-                          </div>
-                          <span className="entity-category">{catLabel}</span>
-                        </div>
-
-                        <div className="col-job">
-                          <p className="job-text">{clean(tJob)}</p>
-                        </div>
-
-                        <div className="col-caveat">
-                          <p className="caveat-text">{clean(tCaveat)}</p>
-                        </div>
-
-                        <div className="col-telemetry">
-                          <span className="telemetry-chip">
-                            {t.edition || 'Core 50'}
-                          </span>
-                        </div>
-
-                        <div className="col-action" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            className={`btn-row-bookmark ${saved.includes(t.id) ? 'active' : ''}`}
-                            onClick={() => toggleSave(t.id)}
-                            title={lang === 'de' ? 'Zu Mein Stack' : 'Save to My Stack'}
-                          >
-                            <Bookmark size={13} />
-                          </button>
-                          <button
-                            className="btn-inspect-dossier"
-                            onClick={() => setSelectedTool(t)}
-                          >
-                            {lang === 'de' ? 'Dossier →' : 'Dossier →'}
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                )}
               </div>
             )}
 
-            {/* View Mode 2: Specimen Cells (Architectural Grid) */}
-            {registryMode === 'specimen' && (
-              <div className="specimen-grid">
-                {filteredTools.map((t) => {
-                  const sigs = toolSignalsMap.get(t.id.toLowerCase()) || []
-                  const tJob = lang === 'en' && t.job_en ? t.job_en : t.job
-                  const tCaveat = lang === 'en' && t.caveat_en ? t.caveat_en : t.caveat
-                  const catLabel = CATEGORY_NAMES[t.category]
-                    ? (lang === 'de' ? CATEGORY_NAMES[t.category].de : CATEGORY_NAMES[t.category].en)
-                    : t.category
-
+            {view === 'signals' && (
+              <div className="signal-list">
+                {filteredSignals.map((signal, index) => {
+                  const isCritical = signal.impact === 'high'
                   return (
-                    <article
-                      key={t.id}
-                      className={`specimen-cell ${sigs.length > 0 ? 'has-signals' : ''}`}
-                      onClick={() => setSelectedTool(t)}
-                    >
-                      <div className="cell-top-bar">
-                        <span className="cell-index">{String(t.number).padStart(2, '0')}</span>
-                        <span className="cell-category">{catLabel}</span>
-                        <button
-                          className={`cell-bookmark-btn ${saved.includes(t.id) ? 'active' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleSave(t.id)
-                          }}
-                          aria-label="Bookmark tool"
-                        >
-                          <Bookmark size={13} />
-                        </button>
+                    <article className={`signal-card ${index === 0 ? 'featured' : ''}`} key={signal.id}>
+                      <div className="signal-card-meta">
+                        <span className={`signal-level ${isCritical ? 'critical' : 'capability'}`}>{isCritical ? (lang === 'de' ? 'Hohe Auswirkung' : 'High impact') : (lang === 'de' ? 'Fähigkeit' : 'Capability')}</span>
+                        <button className="signal-tool" onClick={() => openToolModal(signal.toolId || signal.tool)}>{signal.tool} <ChevronRight size={14} /></button>
+                        <span className="signal-kind">{signal.kind}</span>
+                        <span className="signal-age"><Clock3 size={13} /> {formatRelativeTime(signal.ageHours, lang)}</span>
                       </div>
-
-                      <div className="cell-header">
-                        <h3 className="cell-tool-name">
-                          {t.name}
-                          <span className="cell-arrow">→</span>
-                        </h3>
-                        <p className="cell-job-line">{clean(tJob)}</p>
+                      <div className="signal-card-body">
+                        <div>
+                          <h3>{signalTitle(signal, lang)}</h3>
+                          <p className="signal-summary">{clean(signalSummary(signal, lang))}</p>
+                        </div>
+                        <div className="signal-why">
+                          <span>{lang === 'de' ? 'Was du wissen musst' : 'What you need to know'}</span>
+                          <p>{clean(signalConsequence(signal, lang))}</p>
+                        </div>
                       </div>
-
-                      <div className="cell-caveat-callout">
-                        <span className="cell-caveat-label">
-                          {lang === 'de' ? 'EHRLICHE GRENZE' : 'HONEST CAVEAT'}
-                        </span>
-                        <p>{clean(tCaveat)}</p>
-                      </div>
-
-                      <div className="cell-bottom-bar">
-                        <span className="cell-edition">{t.edition || 'Core 50'}</span>
-                        {sigs.length > 0 ? (
-                          <span className="cell-signals-tag">
-                            {sigs.length} {lang === 'de' ? 'Signale erfasst' : 'Signals active'}
-                          </span>
-                        ) : (
-                          <span className="cell-quiescent">
-                            {lang === 'de' ? 'Stabil' : 'Quiescent'}
-                          </span>
-                        )}
+                      <div className="signal-card-footer">
+                        <div className="source-links">
+                          {(signal.sources || []).map((source) => (
+                            <a href={source.url} target="_blank" rel="noreferrer" key={`${signal.id}-${source.url}`}>
+                              {source.label || (lang === 'de' ? 'Quelle' : 'Source')} <ExternalLink size={12} />
+                            </a>
+                          ))}
+                        </div>
+                        <div className="signal-card-actions">
+                          <button className="text-action" onClick={() => openToolModal(signal.toolId || signal.tool)}>{lang === 'de' ? 'Dossier öffnen' : 'Open dossier'} <ArrowUpRight size={14} /></button>
+                          <button className={`bookmark-action ${saved.includes(signal.toolId) ? 'active' : ''}`} onClick={() => toggleSave(signal.toolId)} aria-label={lang === 'de' ? 'Werkzeug merken' : 'Save tool'}><Bookmark size={17} /></button>
+                        </div>
                       </div>
                     </article>
                   )
                 })}
+                {filteredSignals.length === 0 && (
+                  <div className="empty-state"><h3>{lang === 'de' ? 'Kein Signal passt.' : 'No signal matches.'}</h3><p>{lang === 'de' ? 'Ändere die Filter oder starte wieder mit dem vollständigen Feed.' : 'Change the filters or return to the full feed.'}</p><button className="button button-secondary" onClick={resetFilters}>{lang === 'de' ? 'Filter zurücksetzen' : 'Reset filters'}</button></div>
+                )}
               </div>
             )}
 
-            {filteredTools.length === 0 && view === 'stack' && (
-              <div className="empty-stack-guide">
-                <h3>{lang === 'de' ? 'Ihr Stack ist noch leer' : 'Your stack is currently empty'}</h3>
-                <p>
-                  {lang === 'de'
-                    ? 'Klicken Sie im Register auf das Lesezeichen-Symbol, um Werkzeuge zu beobachten und deren Signale gesammelt zu filtern.'
-                    : 'Click the bookmark icon on any tool to monitor its diffs and filter signals specifically for your stack.'}
-                </p>
-                <button className="btn-primary" onClick={() => setView('registry')}>
-                  {lang === 'de' ? 'Zum Register (79 Werkzeuge)' : 'Explore Registry (79 Tools)'}
-                </button>
+            {(view === 'registry' || view === 'stack') && (
+              <div className="tool-grid">
+                {filteredTools.map((tool) => {
+                  const signalCount = toolSignalsMap.get(tool.id.toLowerCase())?.length || 0
+                  const job = lang === 'en' && tool.job_en ? tool.job_en : tool.job
+                  const caveat = lang === 'en' && tool.caveat_en ? tool.caveat_en : tool.caveat
+                  return (
+                    <article className="tool-card" key={tool.id} onClick={() => setSelectedTool(tool)}>
+                      <div className="tool-card-top"><span>{categoryLabel(tool.category, lang)}</span><button className={`bookmark-action ${saved.includes(tool.id) ? 'active' : ''}`} onClick={(event) => { event.stopPropagation(); toggleSave(tool.id) }} aria-label={lang === 'de' ? 'Werkzeug merken' : 'Save tool'}><Bookmark size={16} /></button></div>
+                      <h3>{tool.name}</h3>
+                      <p className="tool-job">{clean(job)}</p>
+                      <div className="tool-caveat"><span>{lang === 'de' ? 'Ehrliche Grenze' : 'Honest limit'}</span><p>{clean(caveat)}</p></div>
+                      <div className="tool-card-bottom"><span>{tool.edition || 'Core 50'}</span><span>{signalCount > 0 ? `${signalCount} ${lang === 'de' ? 'aktuelle Diffs' : 'current changes'}` : (lang === 'de' ? 'stabil' : 'stable')}</span></div>
+                    </article>
+                  )
+                })}
+                {filteredTools.length === 0 && view === 'stack' && <div className="empty-state"><h3>{lang === 'de' ? 'Deine Merkliste ist leer.' : 'Your saved list is empty.'}</h3><p>{lang === 'de' ? 'Speichere ein Werkzeug, um seine Änderungen später gesammelt zu sehen.' : 'Save a tool to collect its changes in one place.'}</p><button className="button button-primary" onClick={() => goToView('registry')}>{lang === 'de' ? 'Werkzeuge ansehen' : 'Browse tools'} <ArrowRight size={15} /></button></div>}
+                {filteredTools.length === 0 && view === 'registry' && <div className="empty-state"><h3>{lang === 'de' ? 'Keine Treffer.' : 'No matches.'}</h3><p>{lang === 'de' ? 'Versuche eine andere Suche oder Kategorie.' : 'Try another search or category.'}</p><button className="button button-secondary" onClick={resetFilters}>{lang === 'de' ? 'Filter zurücksetzen' : 'Reset filters'}</button></div>}
               </div>
             )}
 
-            {filteredTools.length === 0 && view === 'registry' && (
-              <div className="empty-ledger-state">
-                <p>
-                  {lang === 'de'
-                    ? 'Keine Werkzeuge für diese Suchkombination gefunden.'
-                    : 'No tools match your active search criteria.'}
-                </p>
-                <button
-                  className="btn-reset"
-                  onClick={() => {
-                    setQuery('')
-                    setCategory('All')
-                  }}
-                >
-                  {lang === 'de' ? 'Filter zurücksetzen' : 'Reset Search'}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* VIEW 3: DISCOVERY RADAR */}
-        {view === 'radar' && <DiscoveryRadar lang={lang} />}
-
-        {/* Editorial Protocol Contract Accordion */}
-        <section className="editorial-contract-section">
-          <div className="contract-header">
-            <span className="section-eyebrow">
-              {lang === 'de' ? 'DAS EVIDENZ-PROTOKOLL' : 'THE EVIDENCE PROTOCOL'}
-            </span>
-            <h2>{lang === 'de' ? 'Wie wir Signale von Hype trennen.' : 'How we separate signal from marketing noise.'}</h2>
+            {view === 'radar' && <DiscoveryRadar lang={lang} />}
           </div>
+        </section>
 
-          <div className="contract-grid">
-            <div className="contract-col">
-              <span className="contract-tier p0">P0 · CRITICAL ARCHITECTURE</span>
-              <h4>{lang === 'de' ? 'Kritische System-Verschiebungen' : 'Critical Architectural Shifts'}</h4>
-              <p>
-                {lang === 'de'
-                  ? 'Session-Revocations, API-Deprecations, fundamentale Pricing-Anpassungen und Modell-Wechsel. Verifikation nur über offizielle Commits, GitHub Releases oder First-Party-Dokumentation.'
-                  : 'Session revocations, API deprecations, radical pricing reallocations, and core model shifts. Verified exclusively via official commits, GitHub releases, or primary documentation.'}
-              </p>
-            </div>
-
-            <div className="contract-col">
-              <span className="contract-tier p1">P1 · CAPABILITY RELEASE</span>
-              <h4>{lang === 'de' ? 'Wesentliche Produkterweiterungen' : 'Substantive Capability Releases'}</h4>
-              <p>
-                {lang === 'de'
-                  ? 'Konkrete funktionale Erweiterungen wie Drag-and-Drop, neue Exportformate oder Team-Workspaces. Reines PR-Vokabular wird konsequent herausgefiltert.'
-                  : 'Actionable functional enhancements like native drag-and-drop, export pipelines, or team workspaces. Filtered rigorously to eliminate marketing jargon.'}
-              </p>
-            </div>
-
-            <div className="contract-col">
-              <span className="contract-tier p2">P2 · NOISE QUARANTINE</span>
-              <h4>{lang === 'de' ? 'Kosmetik & Marketing-Rauschen' : 'Cosmetic & Marketing Quarantine'}</h4>
-              <p>
-                {lang === 'de'
-                  ? 'Visuelle Facelifts, Prompt-Vorlagen und ungeprüfte Verzeichnis-Listen. Verbleiben im Radar oder werden aus dem verifizierten Signal-Stream komplett ausgeschlossen.'
-                  : 'Cosmetic button redesigns, prompt templates, and unvetted directory links. Quarantined on radar and blocked entirely from the verified signal stream.'}
-              </p>
-            </div>
+        <section className="protocol" id="protocol">
+          <div className="protocol-heading"><p className="eyebrow">{lang === 'de' ? 'So entscheiden wir' : 'How we decide'}</p><h2>{lang === 'de' ? 'Ein Signal ist erst dann nützlich, wenn du weißt, was es für dich ändert.' : 'A signal is useful only when you know what it changes for you.'}</h2></div>
+          <div className="protocol-steps">
+            <div><span className="step-number">01</span><h3>{lang === 'de' ? 'Fund' : 'Find'}</h3><p>{lang === 'de' ? 'Offizielle Changelogs, Pricing-Seiten und Releases werden beobachtet.' : 'Official changelogs, pricing pages, and releases are monitored.'}</p></div>
+            <div><span className="step-number">02</span><h3>{lang === 'de' ? 'Beleg' : 'Prove'}</h3><p>{lang === 'de' ? 'Ein Signal bleibt nur, wenn die Quelle direkt geöffnet werden kann.' : 'A signal stays only when its source can be opened directly.'}</p></div>
+            <div><span className="step-number">03</span><h3>{lang === 'de' ? 'Einordnen' : 'Explain'}</h3><p>{lang === 'de' ? 'Wir schreiben dazu, wem es hilft — und wo das Werkzeug aufhört.' : 'We explain who it helps — and where the tool stops.'}</p></div>
           </div>
         </section>
       </main>
 
-      {/* Slide-over Architectural Dossier Inspector Sheet */}
       {selectedTool && (
-        <aside
-          className="dossier-overlay-container"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setSelectedTool(null)}
-        >
-          <div
-            className="dossier-slide-sheet"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="dossier-sheet-header">
-              <div className="sheet-header-left">
-                <span className="dossier-num">№ {String(selectedTool.number).padStart(2, '0')}</span>
-                <span className="dossier-edition-badge">{selectedTool.edition || 'Core 50'}</span>
-                <span className="dossier-cat-badge">
-                  {CATEGORY_NAMES[selectedTool.category]
-                    ? (lang === 'de' ? CATEGORY_NAMES[selectedTool.category].de : CATEGORY_NAMES[selectedTool.category].en)
-                    : selectedTool.category}
-                </span>
-              </div>
-
-              <button
-                className="btn-sheet-close"
-                onClick={() => setSelectedTool(null)}
-                aria-label="Close dossier"
-              >
-                <span>{lang === 'de' ? 'SCHLIESSEN [ESC]' : 'CLOSE [ESC]'}</span>
-                <X size={14} />
-              </button>
-            </div>
-
-            <div className="dossier-sheet-body">
-              <div className="dossier-sheet-title-row">
-                <h2 className="dossier-tool-title">{selectedTool.name}</h2>
-                <div className="sheet-actions">
-                  <a
-                    href={selectedTool.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-open-site"
-                  >
-                    <span>{lang === 'de' ? 'Werkzeug öffnen' : 'Visit Website'}</span>
-                    <ExternalLink size={12} />
-                  </a>
-                  <button
-                    className={`btn-sheet-bookmark ${saved.includes(selectedTool.id) ? 'active' : ''}`}
-                    onClick={() => toggleSave(selectedTool.id)}
-                  >
-                    <Bookmark size={13} />
-                    <span>
-                      {saved.includes(selectedTool.id)
-                        ? (lang === 'de' ? 'In Mein Stack' : 'In My Stack')
-                        : (lang === 'de' ? 'Zu Mein Stack' : 'Save to Stack')}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Swiss Telemetry Grid */}
-              {selectedDossier && selectedDossier.axes && (
-                <div className="axes-telemetry-block">
-                  <span className="dossier-section-tag">
-                    {lang === 'de' ? 'SYSTEM-TELEMETRIE & AUDIT-ACHSEN' : 'SYSTEM TELEMETRY & AUDIT AXES'}
-                  </span>
-                  <div className="axes-telemetry-grid">
-                    {selectedDossier.axes.map((axis) => (
-                      <div key={axis.label} className="axis-telemetry-cell">
-                        <span className="axis-label">{axis.label}</span>
-                        <strong className="axis-value">{axis.value}</strong>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* The Concrete Job */}
-              <div className="dossier-section">
-                <span className="dossier-section-tag">
-                  {lang === 'de' ? 'DER KONKRETE EINSATZZWECK (5-MINUTEN-JOB)' : 'THE CONCRETE JOB (5-MINUTE LEVERAGE)'}
-                </span>
-                <p className="dossier-job-text">
-                  {clean(lang === 'en' && selectedTool.job_en ? selectedTool.job_en : selectedTool.job)}
-                </p>
-              </div>
-
-              {/* Editorial Verdict */}
-              <div className="dossier-section">
-                <span className="dossier-section-tag">
-                  {lang === 'de' ? 'URTEIL & WARUM IM REGISTER' : 'EDITORIAL VERDICT & RATIONALE'}
-                </span>
-                <p className="dossier-verdict-text">
-                  {clean(lang === 'en' && selectedTool.why_en ? selectedTool.why_en : selectedTool.why)}
-                </p>
-              </div>
-
-              {/* Honest Caveat Callout (Warm Bronze Framed) */}
-              <div className="dossier-caveat-section">
-                <span className="dossier-caveat-tag">
-                  {lang === 'de' ? 'EHRLICHE GRENZE (MANDATORY HONEST CAVEAT)' : 'HONEST CAVEAT & FAILURE MODES'}
-                </span>
-                <p className="dossier-caveat-text">
-                  {clean(lang === 'en' && selectedTool.caveat_en ? selectedTool.caveat_en : selectedTool.caveat)}
-                </p>
-              </div>
-
-              {/* Best For Scenarios */}
-              {selectedDossier && (
-                <div className="dossier-section">
-                  <span className="dossier-section-tag">
-                    {lang === 'de' ? 'GEPRÜFTE EINSATZGEBIETE' : 'VALIDATED WORKFLOW SCENARIOS'}
-                  </span>
-                  <ul className="dossier-bullets">
-                    {(lang === 'en' && selectedDossier.bestFor_en
-                      ? selectedDossier.bestFor_en
-                      : (selectedDossier.bestFor_de || selectedDossier.bestFor || [])
-                    ).map((item, i) => (
-                      <li key={i}>{clean(item)}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Tool Specific Signals Wire */}
-              <div className="dossier-section">
-                <span className="dossier-section-tag">
-                  {lang === 'de' ? 'VERIFIZIERTE CHANGELOG-DIFFS FÜR DIESES WERKZEUG' : 'VERIFIED CHANGELOG DIFFS FOR THIS TOOL'} ({selectedToolSignals.length})
-                </span>
-
-                {selectedToolSignals.length > 0 ? (
-                  <div className="dossier-signals-list">
-                    {selectedToolSignals.map((sig) => {
-                      const sigTitle = lang === 'de' && sig.title_de ? sig.title_de : sig.title
-                      const sigSummary = lang === 'de' && sig.summary_de ? sig.summary_de : sig.summary
-                      const isP0 = sig.impact === 'high'
-
-                      return (
-                        <div key={sig.id} className="dossier-signal-card">
-                          <div className="dossier-sig-meta">
-                            <span className={`materiality-badge ${isP0 ? 'p0' : 'p1'}`}>
-                              {isP0 ? 'P0 · CRITICAL' : 'P1 · UPDATE'}
-                            </span>
-                            <span className="time-badge">{formatRelativeTime(sig.ageHours, lang)}</span>
-                          </div>
-                          <h4 className="dossier-sig-title">{sigTitle}</h4>
-                          <p className="dossier-sig-summary">{clean(sigSummary)}</p>
-                          <div className="dossier-sig-sources">
-                            {sig.sources.map((src) => (
-                              <a
-                                key={src.url}
-                                href={src.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="source-evidence-link"
-                              >
-                                <span>{src.label}</span>
-                                <ExternalLink size={10} />
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  <p className="quiescent-note">
-                    {lang === 'de'
-                      ? 'Keine kritischen P0/P1-Änderungen im aktuellen Überwachungsfenster registriert. Werkzeug läuft stabil.'
-                      : 'No critical architectural shifts recorded in the current crawl window. Product state is quiescent.'}
-                  </p>
-                )}
-              </div>
-            </div>
+        <aside className="drawer-backdrop" role="dialog" aria-modal="true" aria-label={`${selectedTool.name} dossier`} onClick={() => setSelectedTool(null)}>
+          <div className="dossier-drawer" onClick={(event) => event.stopPropagation()}>
+            <div className="drawer-header"><div><p className="eyebrow">{lang === 'de' ? 'Werkzeug-Dossier' : 'Tool dossier'}</p><span className="drawer-number">{categoryLabel(selectedTool.category, lang)}</span></div><button className="drawer-close" onClick={() => setSelectedTool(null)} aria-label={lang === 'de' ? 'Dossier schließen' : 'Close dossier'}><X size={20} /></button></div>
+            <div className="drawer-title-row"><h2>{selectedTool.name}</h2><button className={`bookmark-action ${saved.includes(selectedTool.id) ? 'active' : ''}`} onClick={() => toggleSave(selectedTool.id)} aria-label={lang === 'de' ? 'Werkzeug merken' : 'Save tool'}><Bookmark size={18} /></button></div>
+            <p className="drawer-job">{lang === 'en' && selectedTool.job_en ? clean(selectedTool.job_en) : clean(selectedTool.job)}</p>
+            <div className="drawer-actions"><a className="button button-primary" href={selectedTool.url} target="_blank" rel="noreferrer">{lang === 'de' ? 'Offizielle Seite' : 'Official site'} <ArrowUpRight size={15} /></a>{selectedTool.evidenceUrl && <a className="button button-secondary" href={selectedTool.evidenceUrl} target="_blank" rel="noreferrer">{lang === 'de' ? 'Quelle öffnen' : 'Open source'} <ExternalLink size={14} /></a>}</div>
+            <section className="drawer-section"><span className="drawer-label">{lang === 'de' ? 'Einordnung' : 'Editorial take'}</span><p>{selectedDossier ? clean(lang === 'de' && selectedDossier.verdict_de ? selectedDossier.verdict_de : selectedDossier.verdict_en || selectedDossier.verdict) : clean(lang === 'en' && selectedTool.why_en ? selectedTool.why_en : selectedTool.why)}</p></section>
+            <section className="drawer-caveat"><span>{lang === 'de' ? 'Ehrliche Grenze' : 'Honest limit'}</span><p>{clean(lang === 'en' && selectedTool.caveat_en ? selectedTool.caveat_en : selectedTool.caveat)}</p></section>
+            {selectedDossier && selectedDossier.bestFor.length > 0 && <section className="drawer-section"><span className="drawer-label">{lang === 'de' ? 'Besonders sinnvoll für' : 'Best for'}</span><ul>{(lang === 'de' && selectedDossier.bestFor_de ? selectedDossier.bestFor_de : lang === 'en' && selectedDossier.bestFor_en ? selectedDossier.bestFor_en : selectedDossier.bestFor).map((item) => <li key={item}><Check size={14} /> {clean(item)}</li>)}</ul></section>}
+            {selectedDossier && selectedDossier.axes.length > 0 && <section className="drawer-section"><span className="drawer-label">{lang === 'de' ? 'Arbeitsprofil' : 'Working profile'}</span><div className="axis-grid">{selectedDossier.axes.map((axis) => <div key={axis.label}><span>{axis.label}</span><strong>{axis.value}</strong></div>)}</div></section>}
+            <section className="drawer-section"><span className="drawer-label">{lang === 'de' ? 'Verifizierte Änderungen' : 'Verified changes'}</span>{selectedToolSignals.length > 0 ? <div className="drawer-signals">{selectedToolSignals.map((signal) => <div className="drawer-signal" key={signal.id}><div><span className={`signal-level ${signal.impact === 'high' ? 'critical' : 'capability'}`}>{signal.impact === 'high' ? (lang === 'de' ? 'Hohe Auswirkung' : 'High impact') : (lang === 'de' ? 'Fähigkeit' : 'Capability')}</span><span>{formatRelativeTime(signal.ageHours, lang)}</span></div><h3>{signalTitle(signal, lang)}</h3><p>{clean(signalSummary(signal, lang))}</p><div className="source-links">{(signal.sources || []).map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={`${signal.id}-${source.url}`}>{source.label || 'Source'} <ExternalLink size={11} /></a>)}</div></div>)}</div> : <p className="drawer-muted">{lang === 'de' ? 'Keine aktuelle Änderung in diesem Feed.' : 'No current change in this feed.'}</p>}</section>
           </div>
         </aside>
       )}

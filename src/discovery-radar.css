@@ -1,119 +1,112 @@
-/* ==========================================================================
-   DISCOVERY RADAR — AWWWARDS ARCHITECTURE & ANTI-SLOP STYLING
-   ========================================================================== */
-
+/* Radar is a different evidence tier: useful leads, not recommendations. */
 .discovery-radar-section {
-  padding: 40px 4vw 60px;
-  max-width: 1440px;
-  margin: 0 auto;
   width: 100%;
+  padding-top: 22px;
 }
 
 .radar-header-block {
   display: flex;
-  justify-content: space-between;
   align-items: flex-end;
-  gap: 32px;
+  justify-content: space-between;
+  gap: 28px;
   margin-bottom: 28px;
-  flex-wrap: wrap;
 }
 
 .radar-title-group {
-  max-width: 780px;
+  max-width: 720px;
 }
 
 .radar-main-title {
-  font-family: var(--font-monolithic);
-  font-size: clamp(26px, 3.2vw, 38px);
+  margin: 12px 0 12px;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(34px, 4vw, 55px);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--text-titanium);
-  margin-bottom: 8px;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
 }
 
 .radar-explanation {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-secondary);
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.58;
 }
 
 .radar-status-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  font-family: var(--font-telemetry);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  flex: 0 0 auto;
+  padding: 13px 0 2px 17px;
+  border-left: 2px solid var(--yellow);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.55;
+  text-transform: none;
 }
 
 .status-mode {
-  color: var(--accent-bronze);
-  background: var(--accent-bronze-dim);
-  border: 1px solid var(--border-accent);
-  padding: 3px 8px;
-  border-radius: 1px;
+  display: block;
+  margin-bottom: 4px;
+  color: var(--blue-dark);
   font-weight: 600;
 }
 
 .status-count {
-  color: var(--text-muted);
+  display: block;
+  color: var(--ink-muted);
 }
 
 .radar-controls-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 12px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.radar-controls-bar .search-box {
+  flex: 1 1 280px;
 }
 
 .radar-source-chips {
   display: flex;
-  gap: 6px;
   flex-wrap: wrap;
+  gap: 5px;
 }
 
 .radar-chip {
-  padding: 6px 12px;
-  font-family: var(--font-telemetry);
+  padding: 8px 10px;
+  border: 1px solid var(--line-dark);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-hairline);
-  border-radius: 1px;
-  transition: all 0.15s ease;
 }
 
-.radar-chip:hover {
-  color: var(--text-titanium);
-  border-color: var(--border-subtle);
-}
-
+.radar-chip:hover,
 .radar-chip.active {
-  background: var(--accent-bronze-dim);
-  color: var(--accent-bronze);
-  border-color: var(--border-accent);
-  font-weight: 600;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper-light);
 }
 
-/* Radar Entries Unboxed Table */
 .radar-entries-table {
-  border-top: 1px solid var(--border-hairline);
-  border-bottom: 1px solid var(--border-hairline);
+  margin-top: 22px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .radar-row-entry {
   display: grid;
-  grid-template-columns: 50px 1fr auto;
-  gap: 20px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--border-hairline);
+  grid-template-columns: 38px minmax(0, 1fr) minmax(150px, 0.55fr);
+  gap: 17px;
   align-items: center;
-  transition: background 0.15s ease;
+  padding: 19px 0;
+  border-bottom: 1px solid var(--line);
 }
 
 .radar-row-entry:last-child {
@@ -121,19 +114,18 @@
 }
 
 .radar-row-entry:hover {
-  background: var(--bg-hover);
+  background: var(--paper-deep);
 }
 
 .radar-entry-num {
-  font-family: var(--font-telemetry);
-  font-size: 12px;
-  color: var(--text-muted);
+  color: var(--red);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
 }
 
 .radar-entry-core {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  min-width: 0;
 }
 
 .radar-title-row {
@@ -141,69 +133,83 @@
   align-items: center;
 }
 
-.radar-external-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-titanium);
+.radar-external-title,
+.radar-entry-title {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: color 0.15s ease;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .radar-external-title:hover {
-  color: var(--accent-bronze);
-}
-
-.radar-entry-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-titanium);
+  color: var(--red);
 }
 
 .radar-source-summary {
-  font-size: 12.5px;
-  color: var(--text-secondary);
+  display: block;
+  margin-top: 5px;
+  color: var(--ink-muted);
+  font-size: 12px;
 }
 
 .radar-sources-pills {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .radar-source-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-family: var(--font-telemetry);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  border: 1px solid var(--border-hairline);
-  padding: 3px 8px;
-  border-radius: 1px;
-  transition: all 0.15s ease;
+  color: var(--blue);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: right;
+  text-transform: none;
 }
 
 .radar-source-link:hover {
-  color: var(--text-titanium);
-  border-color: var(--border-subtle);
+  color: var(--red);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .radar-disclaimer {
-  margin-top: 24px;
+  margin: 22px 0 0;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
   font-size: 12px;
-  color: var(--text-muted);
   line-height: 1.6;
-  border-top: 1px solid var(--border-hairline);
-  padding-top: 16px;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 720px) {
+  .radar-header-block {
+    display: block;
+  }
+
+  .radar-status-badge {
+    display: inline-block;
+    margin-top: 22px;
+  }
+
   .radar-row-entry {
-    grid-template-columns: 1fr;
+    grid-template-columns: 28px minmax(0, 1fr);
     gap: 10px;
+  }
+
+  .radar-sources-pills {
+    grid-column: 2;
+    justify-content: flex-start;
+    margin-top: 6px;
+  }
+
+  .radar-source-link {
+    text-align: left;
   }
 }
