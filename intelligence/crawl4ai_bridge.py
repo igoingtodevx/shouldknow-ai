@@ -1,42 +1,44 @@
 #!/usr/bin/env python3
-"""Thin HTTP bridge to the VPS Crawl4AI install (crawl4ai 0.8.9, library + Playwright).
+"""Async HTTP bridge to the VPS Crawl4AI install (crawl4ai 0.8.9, library + Playwright).
 
-Why this exists:
-  The Should Know worker talks to Crawl4AI through a plain HTTP contract
-  (POST {"urls": [...]} -> extracted markdown per URL). The Crawl4AI install on
-  the VPS is the library/MCP distribution (no bundled REST server), so this
-  bridge exposes exactly that contract over the same installed engine. It is a
-  generic adapter, not a mock: every response is produced by a real
-  AsyncWebCrawler run against the requested URL.
+Features:
+- Persistent AsyncWebCrawler instance: browser is launched ONCE on startup and
+  reused across all crawl requests, eliminating heavy launch overhead and
+  preventing zombie process leaks.
+- Concurrency bounded via asyncio.Semaphore (max 2 parallel pages).
+- Full SSRF validation preserved.
+- Native aiohttp async server on a single event loop.
+- Graceful shutdown with browser cleanup.
 
 Contract (legacy /crawl style, compatible with intelligence/service/core.py):
-  GET  /health            -> {"status": "ok", ...}
+  GET  /health            -> {"status": "ok", "engine": "crawl4ai", "version": "bridge-0.2"}
   POST /crawl             -> body: {"urls": ["https://...", ...]}
      200 -> {"success": true, "results": [{"url", "markdown", "status_code", "success"}...]}
-     502 -> {"success": false, "error": "..."}  (every requested URL failed)
-
-Run (host, crawl4ai venv):
-  /home/deploy/.local/share/crawl4ai/venv/bin/python intelligence/crawl4ai_bridge.py \
-      --host 127.0.0.1 --port 11235
+     502 -> {"success": false, "error": "...", "results": [...]}
+     400 -> {"success": false, "error": "..."}
 """
 
 import argparse
 import asyncio
 import ipaddress
 import json
+import logging
 import re
 import socket
 from http.client import HTTPException
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlparse, urlunparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
+from aiohttp import web
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig
+
+logger = logging.getLogger("crawl4ai_bridge")
 
 MAX_URLS_PER_REQUEST = 10
 MAX_REDIRECT_HOPS = 5
 FETCH_TIMEOUT_SECONDS = 5
+CONCURRENT_CRAWL_LIMIT = 2
 
 
 class _NoRedirect(HTTPRedirectHandler):
@@ -113,113 +115,134 @@ def _safe_fetch_url(raw_url: str) -> str | None:
     return None
 
 
-def _crawl_one(url: str, page_timeout_ms: int) -> dict:
+async def _crawl_single_url(crawler: AsyncWebCrawler, url: str, page_timeout_ms: int) -> dict:
     safe_url = _safe_fetch_url(url)
     if not safe_url:
-        return {"url": url, "success": False, "error": "unsafe URL, private DNS target, or redirect", "status_code": None, "markdown": ""}
-    url = safe_url
-    async def _run(wait_until: str, timeout_ms: int) -> dict:
+        return {
+            "url": url,
+            "success": False,
+            "error": "unsafe URL, private DNS target, or redirect",
+            "status_code": None,
+            "markdown": "",
+        }
+
+    async def _try_fetch(wait_until: str, timeout_ms: int):
         run_config = CrawlerRunConfig(
             verbose=False,
             page_timeout=timeout_ms,
-            # Wait for lazy-loaded content so repeated crawls of the same page
-            # render identically (marketing pages otherwise show different
-            # subsets of images/forms on every visit). Playwright spelling:
-            # "networkidle". Pages that never go idle (analytics polling, live
-            # widgets) time out; the caller retries with domcontentloaded.
             wait_until=wait_until,
-            # Drop recognized consent banners (cookiebot/onetrust/...); Ketch and
-            # other banners that crawl4ai misses are filtered textually in core.py.
             remove_consent_popups=True,
         )
-        async with AsyncWebCrawler() as crawler:
-            result = await crawler.arun(url=url, config=run_config)
-            if result is None:
-                return {"url": url, "success": False, "error": "no result object", "status_code": None, "markdown": ""}
+        result = await crawler.arun(url=safe_url, config=run_config)
+        if result is None:
             return {
                 "url": url,
-                "success": bool(getattr(result, "success", False)),
-                "error": getattr(result, "error_message", None) or None,
-                "status_code": getattr(result, "status_code", None),
-                "markdown": getattr(result, "markdown", "") or "",
+                "success": False,
+                "error": "no result object",
+                "status_code": None,
+                "markdown": "",
             }
+        return {
+            "url": url,
+            "success": bool(getattr(result, "success", False)),
+            "error": getattr(result, "error_message", None) or None,
+            "status_code": getattr(result, "status_code", None),
+            "markdown": getattr(result, "markdown", "") or "",
+        }
 
-    result = asyncio.run(_run('networkidle', min(page_timeout_ms, 25000)))
-    if not result["success"]:
-        result = asyncio.run(_run('domcontentloaded', page_timeout_ms))
-    return result
+    try:
+        res = await _try_fetch('networkidle', min(page_timeout_ms, 25000))
+        if not res["success"]:
+            res = await _try_fetch('domcontentloaded', page_timeout_ms)
+        return res
+    except Exception as exc:
+        logger.warning(f"Error crawling {url}: {exc}")
+        return {
+            "url": url,
+            "success": False,
+            "error": str(exc),
+            "status_code": None,
+            "markdown": "",
+        }
 
 
-def _handle_crawl(urls: list[str], page_timeout_ms: int) -> tuple[int, dict]:
+async def handle_health(request: web.Request) -> web.Response:
+    return web.json_response({
+        "status": "ok",
+        "engine": "crawl4ai",
+        "version": "bridge-0.2",
+    })
+
+
+async def handle_crawl(request: web.Request) -> web.Response:
+    try:
+        body = await request.json()
+    except Exception as exc:
+        return web.json_response({"success": False, "error": f"bad request: {exc}"}, status=400)
+
+    urls = body.get("urls")
+    if not isinstance(urls, list):
+        return web.json_response({"success": False, "error": "expected {\"urls\": [...]}"}, status=400)
+
+    urls = [u for u in urls if isinstance(u, str) and u.strip()][:MAX_URLS_PER_REQUEST]
     if not urls:
-        return 400, {"success": False, "error": "empty urls list"}
-    urls = urls[:MAX_URLS_PER_REQUEST]
+        return web.json_response({"success": False, "error": "empty urls list"}, status=400)
+
+    crawler: AsyncWebCrawler = request.app["crawler"]
+    semaphore: asyncio.Semaphore = request.app["semaphore"]
+    page_timeout_ms: int = request.app["page_timeout_ms"]
+
     results = []
-    for url in urls:
-        try:
-            results.append(_crawl_one(url, page_timeout_ms))
-        except Exception as exc:  # noqa: BLE001 - isolate one URL from the batch
-            results.append({"url": url, "success": False, "error": str(exc), "status_code": None, "markdown": ""})
+    for u in urls:
+        async with semaphore:
+            res = await _crawl_single_url(crawler, u, page_timeout_ms)
+            results.append(res)
+
     ok = [r for r in results if r["success"]]
     if not ok:
-        return 502, {"success": False, "error": "all requested URLs failed", "results": results}
-    return 200, {"success": True, "results": results}
+        return web.json_response({"success": False, "error": "all requested URLs failed", "results": results}, status=502)
+
+    return web.json_response({"success": True, "results": results}, status=200)
 
 
-class Handler(BaseHTTPRequestHandler):
-    server_version = "Crawl4AIBridge/0.1"
-
-    def _send(self, code: int, payload: dict) -> None:
-        body = json.dumps(payload).encode("utf-8")
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def do_GET(self) -> None:
-        if self.path.rstrip("/") == "/health":
-            self._send(200, {"status": "ok", "engine": "crawl4ai", "version": "bridge-0.1"})
-        else:
-            self._send(404, {"success": False, "error": "not found"})
-
-    def do_POST(self) -> None:
-        if self.path.rstrip("/") != "/crawl":
-            self._send(404, {"success": False, "error": "not found"})
-            return
+async def crawler_lifespan(app: web.Application):
+    logger.info("Initializing persistent AsyncWebCrawler...")
+    crawler = AsyncWebCrawler(verbose=False)
+    await crawler.start()
+    app["crawler"] = crawler
+    app["semaphore"] = asyncio.Semaphore(CONCURRENT_CRAWL_LIMIT)
+    logger.info("AsyncWebCrawler ready to serve requests.")
+    try:
+        yield
+    finally:
+        logger.info("Closing AsyncWebCrawler...")
         try:
-            length = int(self.headers.get("Content-Length") or 0)
-            if length <= 0:
-                raise ValueError("missing body")
-            body = json.loads(self.rfile.read(length).decode("utf-8"))
-            urls = body.get("urls")
-            if not isinstance(urls, list):
-                raise ValueError("expected {\"urls\": [...]}")
-            urls = [u for u in urls if isinstance(u, str) and u.strip()]
-        except Exception as exc:  # noqa: BLE001 - malformed input must not kill the server
-            self._send(400, {"success": False, "error": f"bad request: {exc}"})
-            return
-        code, payload = _handle_crawl(urls, self.server.page_timeout_ms)  # type: ignore[attr-defined]
-        self._send(code, payload)
+            await crawler.close()
+        except Exception as exc:
+            logger.warning(f"Error during crawler shutdown: {exc}")
+        logger.info("AsyncWebCrawler closed cleanly.")
 
-    def log_message(self, format: str, *args) -> None:  # keep stdout clean
-        print(f"[bridge] {self.address_string()} {format % args}", flush=True)
+
+def create_app(page_timeout_ms: int = 60000) -> web.Application:
+    app = web.Application()
+    app["page_timeout_ms"] = page_timeout_ms
+    app.cleanup_ctx.append(crawler_lifespan)
+    app.router.add_get("/health", handle_health)
+    app.router.add_post("/crawl", handle_crawl)
+    return app
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="[bridge] %(asctime)s %(levelname)s: %(message)s")
     parser = argparse.ArgumentParser(description="Crawl4AI HTTP bridge for Should Know")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=11235)
     parser.add_argument("--page-timeout-ms", type=int, default=60000)
     args = parser.parse_args()
 
-    server = ThreadingHTTPServer((args.host, args.port), Handler)
-    server.page_timeout_ms = args.page_timeout_ms  # type: ignore[attr-defined]
-    print(f"[bridge] crawl4ai bridge listening on http://{args.host}:{args.port} (POST /crawl)", flush=True)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("[bridge] shutting down", flush=True)
+    app = create_app(page_timeout_ms=args.page_timeout_ms)
+    logger.info(f"Starting crawl4ai bridge on http://{args.host}:{args.port}")
+    web.run_app(app, host=args.host, port=args.port, print=None)
 
 
 if __name__ == "__main__":

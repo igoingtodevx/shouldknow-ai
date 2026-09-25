@@ -90,7 +90,7 @@ def _safe_directory_candidate(candidate_url: str, source_url: str | None) -> boo
 
 
 @app.get('/v1/discovery')
-def discovery(limit: int = Query(12, ge=1, le=30)) -> list[dict[str, Any]]:
+def discovery(limit: int = Query(50, ge=1, le=100)) -> list[dict[str, Any]]:
     with db() as conn, conn.cursor() as cur:
         cur.execute(
             '''

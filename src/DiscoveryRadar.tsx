@@ -29,12 +29,13 @@ function sourceSummary(item: RadarItem) {
 export default function DiscoveryRadar() {
   const [items, setItems] = useState<RadarItem[]>(bootstrap)
   const [mode, setMode] = useState<RadarMode>('snapshot')
+  const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
     if (!API_BASE) return
     const controller = new AbortController()
     const timeout = window.setTimeout(() => controller.abort(), 5000)
-    fetch(`${API_BASE}/v1/discovery?limit=12`, { signal: controller.signal })
+    fetch(`${API_BASE}/v1/discovery?limit=60`, { signal: controller.signal })
       .then(response => {
         if (!response.ok) throw new Error(`Discovery API returned ${response.status}`)
         return response.json()
@@ -54,7 +55,7 @@ export default function DiscoveryRadar() {
     }
   }, [])
 
-  const visible = useMemo(() => items.slice(0, 12), [items])
+  const visible = useMemo(() => (expanded ? items : items.slice(0, 12)), [items, expanded])
   if (!visible.length) return null
 
   return <section className="discovery-radar" aria-labelledby="discovery-radar-heading">
@@ -68,7 +69,7 @@ export default function DiscoveryRadar() {
 
     <div className="radar-status" aria-label="Discovery radar source">
       <span>{mode === 'live' ? 'LIVE DIRECTORY DISCOVERY' : 'BOOTSTRAP SNAPSHOT'}</span>
-      <span>{visible.length} candidates</span>
+      <span>{expanded ? `${items.length} candidates` : `Showing ${visible.length} of ${items.length} candidates`}</span>
     </div>
 
     <div className="radar-list">
@@ -88,6 +89,18 @@ export default function DiscoveryRadar() {
         </article>
       })}
     </div>
+
+    {items.length > 12 && (
+      <div className="radar-actions">
+        <button
+          type="button"
+          className="radar-toggle-btn"
+          onClick={() => setExpanded(prev => !prev)}
+        >
+          {expanded ? 'Show top 12 only' : `Show all ${items.length} candidates`}
+        </button>
+      </div>
+    )}
 
     <p className="radar-footnote">Discovery candidates are not recommendations and are not counted as reviewed Should Know signals.</p>
   </section>
