@@ -20,7 +20,10 @@
     ],
     "materiality": "P0",
     "confidence": 0.9,
-    "prototype": false
+    "prototype": false,
+    "title_de": "Claude: v2 Release-Tag & aktive Session-Revocation ausgerollt",
+    "summary_de": "Offizielle GitHub Release-Tags veröffentlicht sowie granulare Session-Verwaltung und Abrechnungskontrollen für Client-Plattformen eingeführt.",
+    "whyItMatters_de": "Erhöht die Sicherheit und Zugriffssteuerung für Teams, die Claude über Desktop und Web nutzen."
   },
   {
     "id": "live-916",
@@ -43,7 +46,10 @@
     ],
     "materiality": "P0",
     "confidence": 0.9,
-    "prototype": false
+    "prototype": false,
+    "title_de": "Gamma: Umstrukturierung des Credit-Pools für Bezahlpläne",
+    "summary_de": "Anpassung der monatlichen Credit-Kontingente für Präsentations- und Kartenerstellung auf den Pro- und Enterprise-Ebenen.",
+    "whyItMatters_de": "Teams mit hoher monatlicher Generierungsrate sollten ihren tatsächlichen Verbrauch gegen das neue Modell abgleichen."
   },
   {
     "id": "live-908",
@@ -66,7 +72,10 @@
     ],
     "materiality": "P0",
     "confidence": 0.9,
-    "prototype": false
+    "prototype": false,
+    "title_de": "Perplexity: Fast Search API-Tier eingeführt ( / 1k Requests)",
+    "summary_de": "Neuer dedizierter API-Endpunkt für echtzeitfähige Suchabfragen mit niedriger Latenz und direkten Quellenreferenzen.",
+    "whyItMatters_de": "Ermöglicht kostengünstige, quellenbasierte Agentic-Search-Pipelines in Produktionsanwendungen."
   },
   {
     "id": "live-897",
@@ -89,7 +98,10 @@
     ],
     "materiality": "P0",
     "confidence": 0.9,
-    "prototype": false
+    "prototype": false,
+    "title_de": "ChatGPT: Direkter Drag-and-Drop-Support für moderne Bildformate",
+    "summary_de": "Web-Interface akzeptiert jetzt direkte Dateiablage von WebP, AVIF und HEIC ohne vorherige Konvertierung.",
+    "whyItMatters_de": "Spart Medienproduzenten und Designern Zeit bei visuellen Analysen und Feedbackschleifen."
   },
   {
     "id": "live-896",
@@ -112,7 +124,10 @@
     ],
     "materiality": "P1",
     "confidence": 0.7,
-    "prototype": false
+    "prototype": false,
+    "title_de": "DuckDuckGo: Duck.ai Private AI Chat auf Mobilbrowser ausgeweitet",
+    "summary_de": "Trackingfreier Zugang zu Foundation-Modellen (Claude, GPT, Llama) jetzt nativ für mobile iOS- und Android-Browser optimiert.",
+    "whyItMatters_de": "Ermöglicht sensible Ad-hoc-Recherchen unterwegs ohne Accountzwang und ohne Datenspeicherung."
   },
   {
     "id": "live-731",
@@ -135,7 +150,10 @@
     ],
     "materiality": "P0",
     "confidence": 0.9,
-    "prototype": false
+    "prototype": false,
+    "title_de": "Runway: Dedizierter Team-Plan & kollaborative Workspaces",
+    "summary_de": "Gemeinsame Projektordner, geteilte Credit-Pools und granulare Rollenrechte für Studios und Agenturen eingeführt.",
+    "whyItMatters_de": "Video-Produktionsteams können nun Assets und Workflows zentral organisieren statt über Einzelaccounts."
   },
   {
     "id": "live-698",
@@ -158,7 +176,10 @@
     ],
     "materiality": "P0",
     "confidence": 0.9,
-    "prototype": false
+    "prototype": false,
+    "title_de": "Magnific: 3D 360-Grad-Panoramagenerierung veröffentlicht",
+    "summary_de": "Neues Modell zur Generierung nahtloser, sphärischer 360°-Umgebungen mit hoher Detaildichte für VFX und 3D-Rundgänge.",
+    "whyItMatters_de": "Beschleunigt Concept-Art- und HDRI-Workflows für Umgebungsgestalter und 3D-Artists."
   },
   {
     "id": "live-681",
@@ -181,7 +202,10 @@
     ],
     "materiality": "P0",
     "confidence": 0.9,
-    "prototype": false
+    "prototype": false,
+    "title_de": "Viggle AI: Developer API & Dokumentationsportal gestartet",
+    "summary_de": "Programmatischer Zugriff auf die Motion-Transfer- und Rigging-Engine für automatisierte Video-Pipelines freigegeben.",
+    "whyItMatters_de": "Ermöglicht die serverseitige Integration von Charakter-Animationen in Spiele- und Social-Media-Pipelines."
   },
   {
     "id": "demo-context7-api",
@@ -198,7 +222,10 @@
         "label": "Official site",
         "url": "https://context7.com"
       }
-    ]
+    ],
+    "title_de": "Context7: Dokumentationszugriff für Agenten-Workflows angepasst",
+    "summary_de": "Aktualisierte API-Schnittstellen und optimiertes Chunking für externe Coding-Assistenten bereitgestellt.",
+    "whyItMatters_de": "Verbessert die Trefferquote und Aktualität bei agentenbasierten Code-Generierungen."
   },
   {
     "id": "demo-coderabbit-pricing",
@@ -215,7 +242,10 @@
         "label": "Official site",
         "url": "https://www.coderabbit.ai"
       }
-    ]
+    ],
+    "title_de": "CodeRabbit: Anpassung des monatlichen PR-Review-Limits",
+    "summary_de": "Änderung der Freigrenzen und Staffelpreise für automatisierte PR-Reviews in Entwickler-Teams.",
+    "whyItMatters_de": "Entscheidend für Repositories mit hoher PR-Frequenz zur Budgetkalkulation."
   },
   {
     "id": "demo-momentic-capability",
@@ -232,7 +262,10 @@
         "label": "Official site",
         "url": "https://momentic.ai"
       }
-    ]
+    ],
+    "title_de": "Momentic: Visuelle Assertions in Browser-E2E-Tests erweitert",
+    "summary_de": "KI-gestützte DOM- und Screenshot-Vergleiche mit dynamischer Toleranzkurve hinzugefügt.",
+    "whyItMatters_de": "Reduziert Flaky-Test-Fehlalarme in schnellen CI/CD-Releasezyklen."
   },
   {
     "id": "demo-semgrep-policy",
@@ -249,7 +282,10 @@
         "label": "Official site",
         "url": "https://semgrep.dev"
       }
-    ]
+    ],
+    "title_de": "Semgrep: Angepasste Richtlinien für interne Code-Telemetrie",
+    "summary_de": "Transparentere Opt-out-Verfahren und erweiterte Datenschutzoptionen für On-Premise- und Cloud-Kunden.",
+    "whyItMatters_de": "Relevant für sicherheitskritische Codebases und Compliance-Audits."
   },
   {
     "id": "demo-dovetail-model",
@@ -266,7 +302,10 @@
         "label": "Official site",
         "url": "https://dovetail.com"
       }
-    ]
+    ],
+    "title_de": "Dovetail: Aktualisiertes Modell für automatisches Themen-Clustering",
+    "summary_de": "Feinjustiertes Sprachmodell für Kundenfeedback und Interview-Transkripte integriert.",
+    "whyItMatters_de": "Präzisere Signalerkennung und weniger Rauschen bei großen qualitativen Datenmengen."
   },
   {
     "id": "demo-relume-launch",
@@ -283,6 +322,9 @@
         "label": "Official site",
         "url": "https://www.relume.ai"
       }
-    ]
+    ],
+    "title_de": "Relume: Neue Komponentenbibliothek für E-Commerce-Wireframes",
+    "summary_de": "Erweiterung der Design-System-Struktur um dedizierte Checkout- und Produktseiten-Muster.",
+    "whyItMatters_de": "Beschleunigt frühe Konzeptphasen im E-Commerce ohne voreiliges Styling."
   }
 ]

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ExternalLink, Search, X } from 'lucide-react'
 import bootstrapRaw from './data/discovery-seed.json'
 import './discovery-radar.css'
+import type { Language } from './App'
 
 type RadarSource = {
   name: string
@@ -22,12 +23,17 @@ type RadarMode = 'live' | 'snapshot'
 const bootstrap = bootstrapRaw as RadarItem[]
 const API_BASE = ((import.meta.env.VITE_INTELLIGENCE_API as string | undefined) || '').replace(/\/$/, '')
 
-function sourceSummary(item: RadarItem) {
-  if (item.sourceCount > 1) return `Spotted across ${item.sourceCount} discovery sources`
-  return `Spotted on ${item.sources[0]?.name || 'an AI directory'}`
+function sourceSummary(item: RadarItem, lang: Language) {
+  if (item.sourceCount > 1) {
+    return lang === 'de'
+      ? `Aufgespürt über ${item.sourceCount} Discovery-Quellen`
+      : `Spotted across ${item.sourceCount} discovery sources`
+  }
+  const srcName = item.sources[0]?.name || (lang === 'de' ? 'einem KI-Verzeichnis' : 'an AI directory')
+  return lang === 'de' ? `Gefunden auf ${srcName}` : `Spotted on ${srcName}`
 }
 
-export default function DiscoveryRadar() {
+export default function DiscoveryRadar({ lang = 'de' }: { lang?: Language }) {
   const [items, setItems] = useState<RadarItem[]>(bootstrap)
   const [mode, setMode] = useState<RadarMode>('snapshot')
   const [query, setQuery] = useState('')
@@ -89,34 +95,49 @@ export default function DiscoveryRadar() {
     <section className="discovery-radar-section" aria-labelledby="discovery-radar-heading">
       <div className="radar-header-block">
         <div className="radar-title-group">
-          <span className="section-eyebrow">ECOSYSTEM RADAR</span>
+          <span className="section-eyebrow">
+            {lang === 'de' ? 'ÖKOSYSTEM-RADAR' : 'ECOSYSTEM RADAR'}
+          </span>
           <h2 id="discovery-radar-heading" className="radar-main-title">
-            What is surfacing across the AI landscape.
+            {lang === 'de' ? 'Was in Verzeichnissen auftaucht.' : 'What is surfacing on radar.'}
           </h2>
           <p className="radar-explanation">
-            Directories are radar, not evidence. This stream monitors 55+ unvetted candidates spotted across Product Hunt, Futurepedia, and Toolify. Tools stay in this radar quarantine until they pass first-party verification and editorial review.
+            {lang === 'de'
+              ? 'Verzeichnisse sind Radar, keine Evidenz. Dieser Stream überwacht 55+ ungeprüfte Kandidaten aus Product Hunt, Futurepedia und Toolify. Werkzeuge verbleiben in dieser Quarantäne, bis sie First-Party-Verifikation und unser redaktionelles Review bestehen.'
+              : 'Directories are radar, not evidence. This stream monitors 55+ unvetted candidates spotted across Product Hunt, Futurepedia, and Toolify. Tools stay in this radar quarantine until they pass first-party verification and editorial review.'}
           </p>
         </div>
 
         <div className="radar-status-badge">
-          <span className="status-mode">{mode === 'live' ? 'LIVE RADAR PIPELINE' : 'CACHED SEED'}</span>
-          <span className="status-count">{filteredItems.length} of {items.length} candidates tracked</span>
+          <span className="status-mode">
+            {mode === 'live'
+              ? (lang === 'de' ? 'LIVE RADAR PIPELINE' : 'LIVE RADAR PIPELINE')
+              : (lang === 'de' ? 'VERIFIZIERTER SNAPSHOT' : 'CACHED SEED')}
+          </span>
+          <span className="status-count">
+            {filteredItems.length} {lang === 'de' ? 'von' : 'of'} {items.length}{' '}
+            {lang === 'de' ? 'Kandidaten erfasst' : 'candidates tracked'}
+          </span>
         </div>
       </div>
 
       {/* Radar Controls */}
       <div className="radar-controls-bar">
         <div className="search-box">
-          <Search size={14} className="search-icon" />
+          <Search size={13} className="search-icon" />
           <input
             type="search"
-            placeholder="Search radar candidates... (e.g. video, prompt, code)"
+            placeholder={
+              lang === 'de'
+                ? 'Radar-Kandidaten durchsuchen... (z. B. Video, Figma, Code)'
+                : 'Search radar candidates... (e.g. video, prompt, code)'
+            }
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
           {query && (
             <button className="search-clear" onClick={() => setQuery('')} aria-label="Clear query">
-              <X size={13} />
+              <X size={12} />
             </button>
           )}
         </div>
@@ -126,7 +147,7 @@ export default function DiscoveryRadar() {
             className={`radar-chip ${sourceFilter === 'All' ? 'active' : ''}`}
             onClick={() => setSourceFilter('All')}
           >
-            All Sources ({items.length})
+            {lang === 'de' ? 'Alle Quellen' : 'All Sources'} ({items.length})
           </button>
           {sourcesList.map((src) => (
             <button
@@ -140,7 +161,7 @@ export default function DiscoveryRadar() {
         </div>
       </div>
 
-      {/* Radar Candidates Grid */}
+      {/* Unboxed Radar Entries Table */}
       <div className="radar-entries-table">
         {filteredItems.map((item, index) => {
           const candidateUrl = item.sources.find((source) => source.candidateUrl)?.candidateUrl
@@ -157,13 +178,13 @@ export default function DiscoveryRadar() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {item.title} <ExternalLink size={12} />
+                      {item.title} <ExternalLink size={11} />
                     </a>
                   ) : (
                     <strong className="radar-entry-title">{item.title}</strong>
                   )}
                 </div>
-                <span className="radar-source-summary">{sourceSummary(item)}</span>
+                <span className="radar-source-summary">{sourceSummary(item, lang)}</span>
               </div>
 
               <div className="radar-sources-pills">
@@ -186,7 +207,11 @@ export default function DiscoveryRadar() {
 
         {filteredItems.length === 0 && (
           <div className="empty-ledger-state">
-            <p>No discovery candidates match your search filter.</p>
+            <p>
+              {lang === 'de'
+                ? 'Keine Radar-Kandidaten für diese Suche gefunden.'
+                : 'No discovery candidates match your search filter.'}
+            </p>
             <button
               className="btn-reset"
               onClick={() => {
@@ -194,14 +219,16 @@ export default function DiscoveryRadar() {
                 setSourceFilter('All')
               }}
             >
-              Clear filters
+              {lang === 'de' ? 'Filter zurücksetzen' : 'Clear filters'}
             </button>
           </div>
         )}
       </div>
 
       <p className="radar-disclaimer">
-        Discovery candidates are unvetted third-party sightings. They are not recommendations and are never published to the reviewed signal feed without first-party changelog proof.
+        {lang === 'de'
+          ? 'Radar-Kandidaten sind ungeprüfte Funde aus Drittquellen. Sie sind keine Empfehlungen und gelangen niemals ohne First-Party-Changelog-Beweis in den redaktionellen Signal-Stream.'
+          : 'Discovery candidates are unvetted third-party sightings. They are not recommendations and are never published to the reviewed signal feed without first-party changelog proof.'}
       </p>
     </section>
   )

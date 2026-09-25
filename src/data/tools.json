@@ -10,7 +10,10 @@
     "why": "Macht Accessibility zu einem sichtbaren QA-Schritt, nicht zu einer späten Checkliste",
     "caveat": "Automatische Prüfung ersetzt keine Tests mit betroffenen Menschen / Rechtsprüfung.",
     "score": 9.4,
-    "evidenceUrl": "https://www.getstark.co"
+    "evidenceUrl": "https://www.getstark.co",
+    "job_en": "Detect accessibility barriers in Figma, browser, or dev workflows prior to release",
+    "why_en": "Transforms accessibility into an active QA milestone rather than a late-stage checklist",
+    "caveat_en": "Automated audits do not replace testing with affected individuals or legal counsel."
   },
   {
     "id": "core-50-2",
@@ -23,7 +26,10 @@
     "why": "Gute UI scheitert oft an Mikrocopy; hier wird sie systematischer statt bloß „AI-writerig“",
     "caveat": "Braucht ein gepflegtes Glossar und Content-Entscheidungen im Team.",
     "score": 9.1,
-    "evidenceUrl": "https://www.frontitude.com"
+    "evidenceUrl": "https://www.frontitude.com",
+    "job_en": "Maintain consistent UX copy across product surfaces, tonality, and localizations",
+    "why_en": "Great UI often stumbles on microcopy; structures copy systematically instead of ad-hoc AI phrasing",
+    "caveat_en": "Requires an actively maintained glossary and committed content decisions across the team."
   },
   {
     "id": "core-50-3",
@@ -36,7 +42,10 @@
     "why": "Nicht nur Transkript-Zusammenfassung: Research bleibt als Evidenz auffindbar",
     "caveat": "Falsche oder dünne Forschung wird durch KI nicht valide.",
     "score": 9.2,
-    "evidenceUrl": "https://dovetail.com"
+    "evidenceUrl": "https://dovetail.com",
+    "job_en": "Synthesize customer interviews and feedback into traceable, actionable product signals",
+    "why_en": "Far more than transcript summarization: user research remains permanently discoverable as evidence",
+    "caveat_en": "Superficial or flawed research will not become valid simply through AI synthesis."
   },
   {
     "id": "core-50-4",
@@ -49,7 +58,10 @@
     "why": "Spart die unproduktive Transkript-/Tagging-Arbeit, lässt aber Clips und Kontext kontrollierbar",
     "caveat": "Sprecherzuordnung und Nuancen immer stichprobenartig prüfen.",
     "score": 9.1,
-    "evidenceUrl": "https://www.looppanel.com"
+    "evidenceUrl": "https://www.looppanel.com",
+    "job_en": "Rapidly search, bookmark, and tag user interview recordings with full context",
+    "why_en": "Eliminates tedious transcription and manual tagging while keeping clips and raw context verifiable",
+    "caveat_en": "Speaker attribution and conversational nuances still require periodic spot-checks."
   },
   {
     "id": "core-50-5",
@@ -62,7 +74,10 @@
     "why": "Erzwingt reale Nutzerreaktion statt Design-Entscheidungen aus dem Bauch",
     "caveat": "Ein schöner Report ist kein Ersatz für gute Testaufgaben und Zielgruppe.",
     "score": 8.8,
-    "evidenceUrl": "https://maze.co"
+    "evidenceUrl": "https://maze.co",
+    "job_en": "Test interactive prototypes and uncover empirical patterns in user drop-offs",
+    "why_en": "Enforces real user behavioral feedback instead of gut-feeling design decisions",
+    "caveat_en": "A sleek report cannot compensate for poorly structured task prompts or mismatched cohorts."
   },
   {
     "id": "core-50-6",
@@ -75,7 +90,10 @@
     "why": "Hilft, frühe Designannahmen zu falsifizieren, bevor man sie teuer implementiert",
     "caveat": "Panel-Qualität und Stichprobe entscheiden über die Aussagekraft.",
     "score": 8.7,
-    "evidenceUrl": "https://www.lyssna.com"
+    "evidenceUrl": "https://www.lyssna.com",
+    "job_en": "Conduct rapid user tests, preference audits, and targeted feedback surveys",
+    "why_en": "Falsifies early design assumptions before committing to expensive production engineering",
+    "caveat_en": "Panel composition and sampling quality entirely dictate statistical confidence."
   },
   {
     "id": "core-50-7",
@@ -88,7 +106,10 @@
     "why": "Gut für frühe Hierarchie- und Fokusfehler; ein konkreter Gegenpol zum „sieht cool aus“",
     "caveat": "Predictive Heatmaps sind Hypothesen, keine echte Eye-Tracking-Studie.",
     "score": 8.6,
-    "evidenceUrl": "https://attentioninsight.com"
+    "evidenceUrl": "https://attentioninsight.com",
+    "job_en": "Simulate visual attention and gaze distribution across landing pages and interfaces",
+    "why_en": "Surfaces visual hierarchy flaws early; serves as an empirical counterweight to purely aesthetic taste",
+    "caveat_en": "Predictive heatmaps represent algorithmic hypotheses, not empirical laboratory eye-tracking."
   },
   {
     "id": "core-50-8",
@@ -101,7 +122,10 @@
     "why": "Der Anti-Slop-Hebel: echte Komponenten, Zustände und Regeln statt einmal generierter Screens",
     "caveat": "Ohne Ownership verkommt auch das zur hübschen Doku-Friedhof.",
     "score": 9.2,
-    "evidenceUrl": "https://zeroheight.com"
+    "evidenceUrl": "https://zeroheight.com",
+    "job_en": "Document design system standards so engineering and design teams actually adopt them",
+    "why_en": "The anti-slop lever: living components, states, and rules over single-use generated screens",
+    "caveat_en": "Without dedicated ownership, documentation turns into a visually pleasing ghost town."
   },
   {
     "id": "core-50-9",
@@ -114,7 +138,10 @@
     "why": "Macht Design-System-Arbeit exportier- und nachvollziehbar statt copy/paste-lastig",
     "caveat": "Erst lohnt sich ein halbwegs konsistentes System; KI repariert kein Chaos automatisch.",
     "score": 8.9,
-    "evidenceUrl": "https://www.supernova.io"
+    "evidenceUrl": "https://www.supernova.io",
+    "job_en": "Manage tokens, component knowledge, and system documentation as a standalone product",
+    "why_en": "Makes design system engineering exportable and audit-proof rather than copy-paste glue",
+    "caveat_en": "Only delivers leverage on an already cohesive architecture; AI does not untangle structural chaos."
   },
   {
     "id": "core-50-10",
@@ -127,7 +154,10 @@
     "why": "Stark, weil AI/Design-Kontext an echte Komponenten gekoppelt bleibt",
     "caveat": "Eher Team-/Enterprise-Workflow als Solo-Tool.",
     "score": 9,
-    "evidenceUrl": "https://www.knapsack.cloud"
+    "evidenceUrl": "https://www.knapsack.cloud",
+    "job_en": "Unify production components and living design system documentation in a single workspace",
+    "why_en": "Tethers design context and AI directly to real production components",
+    "caveat_en": "Built primarily for enterprise engineering teams rather than solo developers."
   },
   {
     "id": "core-50-11",
@@ -140,7 +170,10 @@
     "why": "Einer der wenigen Generatoren, bei dem die Struktur vor dem Look kommt",
     "caveat": "Für Marken-DNA, Editorial Taste und Sonderfälle bleibt Handarbeit nötig.",
     "score": 8.6,
-    "evidenceUrl": "https://www.relume.ai"
+    "evidenceUrl": "https://www.relume.ai",
+    "job_en": "Structure information architecture and wireframes prior to assembling component grids",
+    "why_en": "A rare generative system where structural hierarchy precedes visual styling",
+    "caveat_en": "Brand character, bespoke editorial rhythm, and edge cases still require bespoke craft."
   },
   {
     "id": "core-50-12",
@@ -153,7 +186,10 @@
     "why": "Besser als Prompt-to-UI, weil ein konkretes Designartefakt der Ausgangspunkt ist",
     "caveat": "Output ist Startpunkt: Komponenten-API, Accessibility und Responsiveness reviewen.",
     "score": 8.6,
-    "evidenceUrl": "https://www.builder.io/m/design-to-code"
+    "evidenceUrl": "https://www.builder.io/m/design-to-code",
+    "job_en": "Compile existing Figma design decisions into clean, editable production code",
+    "why_en": "Superior to prompt-to-UI because an intentional, validated design artifact is the baseline",
+    "caveat_en": "Output is a starting foundation: component APIs, accessibility, and fluid layouts need human review."
   },
   {
     "id": "core-50-13",
@@ -166,7 +202,10 @@
     "why": "Greift in den bestehenden PR-Qualitätsprozess ein statt eine zweite IDE zu sein",
     "caveat": "Kommentare sind Vorschläge; Rechte, Datenzugriff und False Positives kritisch konfigurieren.",
     "score": 9.2,
-    "evidenceUrl": "https://www.coderabbit.ai"
+    "evidenceUrl": "https://www.coderabbit.ai",
+    "job_en": "Audit pull requests with context-aware code reviews prior to merging",
+    "why_en": "Integrates directly into existing PR gates rather than forcing developers into another IDE",
+    "caveat_en": "Comments are advisory; repository permissions, data access, and false positives need active calibration."
   },
   {
     "id": "core-50-14",
@@ -179,7 +218,10 @@
     "why": "Nützlich, weil der Engpass meist Kontext über mehrere Dateien ist, nicht Code-Vervollständigung",
     "caveat": "Index/Permissions bewusst begrenzen; kritische Architekturantworten verifizieren.",
     "score": 9.1,
-    "evidenceUrl": "https://www.greptile.com"
+    "evidenceUrl": "https://www.greptile.com",
+    "job_en": "Query complex codebases and validate proposed changes against full repository context",
+    "why_en": "Addresses the true engineering bottleneck: multi-file dependency context, not inline auto-complete",
+    "caveat_en": "Index permissions must be tightly guarded; critical architectural proposals require peer verification."
   },
   {
     "id": "core-50-15",
@@ -192,7 +234,10 @@
     "why": "Gute Ergänzung bei vielen kleinen PRs und klaren Review-Standards",
     "caveat": "Kein Ersatz für Ownership bei fachlich riskanten Änderungen.",
     "score": 8.8,
-    "evidenceUrl": "https://graphite.com/diamond"
+    "evidenceUrl": "https://graphite.com/diamond",
+    "job_en": "Review pull requests against team conventions, commit intent, and stack rules",
+    "why_en": "Ideal companion for teams shipping high volumes of stacked, bite-sized pull requests",
+    "caveat_en": "Does not replace human accountability on high-risk domain logic or migration paths."
   },
   {
     "id": "core-50-16",
@@ -205,7 +250,10 @@
     "why": "Wertvoll, wenn KI an Tests/Review hängt statt nur „implementier mal“ sagt",
     "caveat": "Generierte Tests können den falschen Contract absichern.",
     "score": 8.8,
-    "evidenceUrl": "https://www.qodo.ai"
+    "evidenceUrl": "https://www.qodo.ai",
+    "job_en": "Generate specification-grounded test suites and rigorous engineering reviews",
+    "why_en": "High leverage because it anchors AI to verification and tests rather than unconstrained implementation",
+    "caveat_en": "Generated tests can inadvertently codify and assert incorrect contract behavior."
   },
   {
     "id": "core-50-17",
@@ -218,7 +266,10 @@
     "why": "Macht klar umrissene Repo-Hygiene reproduzierbar",
     "caveat": "Nur für eng begrenzte Aufgaben freigeben, nicht blind mergen lassen.",
     "score": 8.5,
-    "evidenceUrl": "https://www.ellipsis.dev"
+    "evidenceUrl": "https://www.ellipsis.dev",
+    "job_en": "Automate recurring PR hygiene checks, minor fixes, and repository maintenance",
+    "why_en": "Turns routine maintenance and small fixes into reproducible background runs",
+    "caveat_en": "Must be constrained to narrow tasks; never allow automated auto-merging on production branches."
   },
   {
     "id": "core-50-18",
@@ -231,7 +282,10 @@
     "why": "Regel- und Codeebene bleiben überprüfbar; guter Gegenpol zu generischem KI-Review",
     "caveat": "Regeln und Severity brauchen projektspezifisches Tuning.",
     "score": 9.2,
-    "evidenceUrl": "https://semgrep.dev"
+    "evidenceUrl": "https://semgrep.dev",
+    "job_en": "Detect and triage security vulnerabilities and code smells using deterministic rules",
+    "why_en": "Rule logic remains auditable and deterministic; a rigorous counterweight to non-deterministic AI reviews",
+    "caveat_en": "Rule sets and severity thresholds require project-specific tuning to avoid notification fatigue."
   },
   {
     "id": "core-50-19",
@@ -244,7 +298,10 @@
     "why": "Hilft, aus einer Scanner-Flut tatsächlich abarbeitbare Risikofälle zu machen",
     "caveat": "Abdeckung, Compliance und Remediation nicht ungeprüft dem Tool delegieren.",
     "score": 8.8,
-    "evidenceUrl": "https://www.aikido.dev"
+    "evidenceUrl": "https://www.aikido.dev",
+    "job_en": "Consolidate and prioritize security vulnerabilities into actionable developer tasks",
+    "why_en": "Filters out scanner noise to highlight real, exploitable risk vectors",
+    "caveat_en": "Compliance certification, coverage scope, and remediations cannot be blindly abdicated to a tool."
   },
   {
     "id": "core-50-20",
@@ -257,7 +314,10 @@
     "why": "Sehr stark, weil reale Produktpfade statt bloßer Unit-Tests im Mittelpunkt stehen",
     "caveat": "Kritische Payment/Auth-Flows brauchen weiterhin deterministische Assertions.",
     "score": 9.1,
-    "evidenceUrl": "https://momentic.ai"
+    "evidenceUrl": "https://momentic.ai",
+    "job_en": "Author and maintain resilient end-to-end browser tests based on user intent",
+    "why_en": "Anchors test suites to real user journeys and DOM states rather than brittle unit selectors",
+    "caveat_en": "Mission-critical payment and auth flows still require deterministic state assertions."
   },
   {
     "id": "core-50-21",
@@ -270,7 +330,10 @@
     "why": "Guter Shift von „wir hoffen, dass QA alles klickt“ zu breiterem Verhaltenstest",
     "caveat": "Sensible Daten, Testisolierung und Flaky-Analyse sind Pflicht.",
     "score": 9.1,
-    "evidenceUrl": "https://www.meticulous.ai"
+    "evidenceUrl": "https://www.meticulous.ai",
+    "job_en": "Catch visual and functional regressions early using recorded real user execution paths",
+    "why_en": "Shifts QA from hoping manual testers catch edge cases to comprehensive behavioral replays",
+    "caveat_en": "Sanitizing sensitive user data, test isolation, and flakiness triage are non-negotiable."
   },
   {
     "id": "core-50-22",
@@ -283,7 +346,10 @@
     "why": "Verhindert eine häufige KI-Fehlerquelle: Code aus veralteten API-Annahmen",
     "caveat": "Auch Docs können versioniert/unklar sein; Quelle und Version im Zweifel öffnen.",
     "score": 9.3,
-    "evidenceUrl": "https://context7.com"
+    "evidenceUrl": "https://context7.com",
+    "job_en": "Inject version-accurate library documentation directly into coding agent contexts",
+    "why_en": "Eliminates a primary hallucination source: generating code based on deprecated or fabricated APIs",
+    "caveat_en": "Documentation can still contain ambiguities; always cross-reference source releases when in doubt."
   },
   {
     "id": "core-50-23",
@@ -296,7 +362,10 @@
     "why": "Stark für Onboarding und „warum ist das so?“, nicht nur für Codegenerierung",
     "caveat": "Berechtigungen und Indexqualität entscheiden komplett über den Nutzen.",
     "score": 8.6,
-    "evidenceUrl": "https://getunblocked.com"
+    "evidenceUrl": "https://getunblocked.com",
+    "job_en": "Answer engineering architectural questions grounded in codebase and team documentation",
+    "why_en": "Superb for developer onboarding and contextual understanding, far beyond simple code generation",
+    "caveat_en": "Knowledge fidelity depends entirely on access permissions and indexing freshness."
   },
   {
     "id": "core-50-24",
@@ -309,7 +378,10 @@
     "why": "Praktisch, wenn nicht nur eine Antwort, sondern Analyse-/Code-Output kontrolliert wird",
     "caveat": "Datenbereinigung, Ausreißer und Kausalinterpretation bleiben dein Job.",
     "score": 8.9,
-    "evidenceUrl": "https://julius.ai"
+    "evidenceUrl": "https://julius.ai",
+    "job_en": "Analyze and manipulate CSV/Excel datasets with reproducible, visible Python scripts",
+    "why_en": "Inspectable code execution: inspect both the methodology and the output rather than a black-box answer",
+    "caveat_en": "Data sanitization, outlier handling, and causal interpretations remain your responsibility."
   },
   {
     "id": "core-50-25",
@@ -322,7 +394,10 @@
     "why": "Die Tabelle bleibt der prüfbare Arbeitsgegenstand, nicht ein Chat-Blackbox-Resultat",
     "caveat": "Bei Geschäftslogik Formeln/Quellen immer nachvollziehen.",
     "score": 8.7,
-    "evidenceUrl": "https://rows.com/ai"
+    "evidenceUrl": "https://rows.com/ai",
+    "job_en": "Execute AI enrichment steps directly inside a collaborative spreadsheet workflow",
+    "why_en": "The spreadsheet remains the inspectable source of truth, not an ephemeral chat prompt",
+    "caveat_en": "Always audit formula derivations and external data sources for mission-critical business logic."
   },
   {
     "id": "core-50-26",
@@ -335,7 +410,10 @@
     "why": "Senkt die Einstiegshürde für konkrete Datenfragen, ohne gleich ein Data-Team zu spielen",
     "caveat": "Prognosequalität hängt brutal an Label, Datenmenge und Leakage-Check.",
     "score": 8.4,
-    "evidenceUrl": "https://www.akkio.com"
+    "evidenceUrl": "https://www.akkio.com",
+    "job_en": "Explore tabular business data and formulate predictive models without custom notebooks",
+    "why_en": "Lowers friction for data exploration without necessitating a dedicated data science infrastructure",
+    "caveat_en": "Model reliability depends ruthlessly on feature hygiene, sample size, and target leakage checks."
   },
   {
     "id": "core-50-27",
@@ -348,7 +426,10 @@
     "why": "Nische mit echtem Schmerzpunkt: Datenmenge, die Excel nicht mehr angenehm trägt",
     "caveat": "Keine Statistik-Sicherheit aus einer gut formulierten Zusammenfassung ableiten.",
     "score": 8.3,
-    "evidenceUrl": "https://gigasheet.com"
+    "evidenceUrl": "https://gigasheet.com",
+    "job_en": "Inspect and filter massive tabular datasets in an intuitive spreadsheet-style interface",
+    "why_en": "Solves an acute operational pain point: datasets too heavy for Excel to handle comfortably",
+    "caveat_en": "Never confuse statistical certainty with an eloquently phrased natural language summary."
   },
   {
     "id": "core-50-28",
@@ -361,7 +442,10 @@
     "why": "Besonders gut für den Übergang von Analyse-Experiment zu wartbarer Datenpipeline",
     "caveat": "Generierten Code testen und in den eigenen Datenstandard überführen.",
     "score": 8.8,
-    "evidenceUrl": "https://www.trymito.io"
+    "evidenceUrl": "https://www.trymito.io",
+    "job_en": "Transform spreadsheet data operations into clean, reproducible Python data pipelines",
+    "why_en": "Bridges the gap between rapid interactive exploration and production-grade maintenance",
+    "caveat_en": "Generated code must be tested and aligned to organizational code standards."
   },
   {
     "id": "core-50-29",
@@ -374,7 +458,10 @@
     "why": "Besser als bloße Websuche, wenn Evidenzfelder und Studienvergleich zählen",
     "caveat": "Paper lesen und Quellencheck bleiben Pflicht; Coverage ist nie vollständig.",
     "score": 9,
-    "evidenceUrl": "https://elicit.com"
+    "evidenceUrl": "https://elicit.com",
+    "job_en": "Discover and synthesize academic literature for specific research questions with structured claims",
+    "why_en": "Substantially more rigorous than web search when study comparisons and evidence matrices matter",
+    "caveat_en": "Reading primary papers remains mandatory; database coverage is never fully exhaustive."
   },
   {
     "id": "core-50-30",
@@ -387,7 +474,10 @@
     "why": "Sehr guter Discovery-Modus für „was hängt fachlich wirklich zusammen?“",
     "caveat": "Zitationsnetz = Entdeckung, nicht Qualitätsurteil.",
     "score": 8.7,
-    "evidenceUrl": "https://www.researchrabbit.ai"
+    "evidenceUrl": "https://www.researchrabbit.ai",
+    "job_en": "Map citation graphs, co-authors, and conceptual descendants around seminal papers",
+    "why_en": "Exceptional discovery engine for uncovering actual intellectual lineages and related work",
+    "caveat_en": "A citation network represents academic attention, not an endorsement of methodological validity."
   },
   {
     "id": "core-50-31",
@@ -400,7 +490,10 @@
     "why": "Besserer erster Schritt als abstrakte Paper-Summary ohne Textstelle",
     "caveat": "Mathematische/kausale Erklärung gegen Original und ggf. Lehrbuch prüfen.",
     "score": 8.4,
-    "evidenceUrl": "https://www.explainpaper.com"
+    "evidenceUrl": "https://www.explainpaper.com",
+    "job_en": "Deconstruct complex academic passages and equations directly within document context",
+    "why_en": "Far more grounded than reading abstract summaries stripped of primary document context",
+    "caveat_en": "Cross-reference mathematical derivations and causal claims against textbooks and peer reviews."
   },
   {
     "id": "core-50-32",
@@ -413,7 +506,10 @@
     "why": "Nützlich für Dossiers, Verträge oder Forschungspakete mit vielen Quellseiten",
     "caveat": "Immer auf Fundstellen zurückspringen; Summary ist kein Beleg.",
     "score": 8.5,
-    "evidenceUrl": "https://unriddle.ai"
+    "evidenceUrl": "https://unriddle.ai",
+    "job_en": "Index and query extensive technical documents in a connected, searchable workspace",
+    "why_en": "Invaluable for contracts, regulatory dossiers, and extensive multi-source research binders",
+    "caveat_en": "Always verify against cited passages; AI synthesis does not constitute legal or technical proof."
   },
   {
     "id": "core-50-33",
@@ -426,7 +522,10 @@
     "why": "Interessant, weil menschliche Zusammenarbeit, Quellen und Berechtigungen Teil des Workflows sind",
     "caveat": "Connectors und Rollenmodell vor dem Roll-out prüfen.",
     "score": 9,
-    "evidenceUrl": "https://dust.tt"
+    "evidenceUrl": "https://dust.tt",
+    "job_en": "Deploy internal assistants grounded in authorized team repositories and SaaS tools",
+    "why_en": "Permissions, human oversight, and verifiable citations are baked directly into the orchestration layer",
+    "caveat_en": "Connector hygiene and data governance roles must be audited prior to organization-wide rollout."
   },
   {
     "id": "core-50-34",
@@ -439,7 +538,10 @@
     "why": "Nicht nur Chat-Zusammenfassung: das Denkmodell bleibt als Struktur erhalten",
     "caveat": "Hat Einarbeitungskosten; ohne klare Capture-Gewohnheit wird es Overhead.",
     "score": 8.7,
-    "evidenceUrl": "https://tana.inc"
+    "evidenceUrl": "https://tana.inc",
+    "job_en": "Capture unstructured thoughts as schema-driven supertags and queryable knowledge graphs",
+    "why_en": "Preserves conceptual structure and mental models instead of burying thoughts in linear chat history",
+    "caveat_en": "Steep initial learning curve; without disciplined capture habits, it risks becoming overhead."
   },
   {
     "id": "core-50-35",
@@ -452,7 +554,10 @@
     "why": "Für Menschen mit viel Input deutlich wertvoller als eine weitere To-do-App",
     "caveat": "Kein Ersatz für eine eigene Lesepraxis oder verlässliche Quellenkritik.",
     "score": 8.8,
-    "evidenceUrl": "https://readwise.io/read"
+    "evidenceUrl": "https://readwise.io/read",
+    "job_en": "Annotate articles and PDFs, synthesize arguments, and interrogate sources in context",
+    "why_en": "Significantly more durable for deep reading workflows than fleeting summarizers or generic notes",
+    "caveat_en": "Does not replace rigorous critical reading habits or active source interrogation."
   },
   {
     "id": "core-50-36",
@@ -465,7 +570,10 @@
     "why": "Gut für Automatisierung, wenn man den Ablauf sichtbar statt magisch hält",
     "caveat": "Kosten, Datenfluss und Failure-Handling explizit designen.",
     "score": 8.6,
-    "evidenceUrl": "https://www.gumloop.com"
+    "evidenceUrl": "https://www.gumloop.com",
+    "job_en": "Construct multi-stage automation workflows connecting enterprise SaaS tools with visible state",
+    "why_en": "Exposes every operational step and data transformation instead of relying on opaque agentic magic",
+    "caveat_en": "Error handling, branch retries, and API credit limits must be deliberately architected."
   },
   {
     "id": "core-50-37",
@@ -478,7 +586,10 @@
     "why": "Das Human-in-the-loop-Prinzip schützt vor den schlimmsten Agentenfehlern",
     "caveat": "Freigabeschritte müssen bei Risiko wirklich verbindlich sein.",
     "score": 8.6,
-    "evidenceUrl": "https://www.relay.app"
+    "evidenceUrl": "https://www.relay.app",
+    "job_en": "Orchestrate automations with mandatory human approvals between critical AI execution steps",
+    "why_en": "The human-in-the-loop paradigm prevents catastrophic runaway agent hallucinations",
+    "caveat_en": "Approval steps must be treated as serious gates, not rubber-stamped out of alert fatigue."
   },
   {
     "id": "core-50-38",
@@ -491,7 +602,10 @@
     "why": "Nicht nur TTS: sinnvoll, wenn Dialoglogik, Übergabe und Messung sauber modelliert sind",
     "caveat": "Consent, Fehlerfälle, Halluzinationen und Eskalation vor Livebetrieb testen.",
     "score": 8.5,
-    "evidenceUrl": "https://www.retellai.com"
+    "evidenceUrl": "https://www.retellai.com",
+    "job_en": "Engineer and stress-test interactive conversational voice bots with stateful logic",
+    "why_en": "Models conversational flow, fallback escalation, and latency metrics as first-class engineering",
+    "caveat_en": "Consent disclosures, edge-case routing, and hallucination containment must be proven in staging."
   },
   {
     "id": "core-50-39",
@@ -504,7 +618,10 @@
     "why": "Gut, weil Auswahl, Referenzen und Iteration sichtbar bleiben",
     "caveat": "Multi-Model-Output wird nicht automatisch zur kohärenten Art Direction.",
     "score": 8.7,
-    "evidenceUrl": "https://www.florafauna.ai"
+    "evidenceUrl": "https://www.florafauna.ai",
+    "job_en": "Compose and iterate across multiple generative image models in a unified visual canvas",
+    "why_en": "Keeps reference inspiration, prompt variations, and lineage decisions visually organized",
+    "caveat_en": "Multi-model experimentation does not automatically produce cohesive, art-directed branding."
   },
   {
     "id": "core-50-40",
@@ -517,7 +634,10 @@
     "why": "Kreative Qualität beginnt oft bei Referenzbibliothek und Auswahl, nicht beim letzten Prompt",
     "caveat": "Rechte an Referenzen/Assets und saubere Benennung bleiben nötig.",
     "score": 8.7,
-    "evidenceUrl": "https://www.kive.ai"
+    "evidenceUrl": "https://www.kive.ai",
+    "job_en": "Curate visual moodboards and asset libraries to establish contextual foundations for creative projects",
+    "why_en": "High visual quality begins with curated references and intentional curation, not prompt roulette",
+    "caveat_en": "Asset usage rights, licensing parameters, and file nomenclature must be managed manually."
   },
   {
     "id": "core-50-41",
@@ -530,7 +650,10 @@
     "why": "Sehr viel sinnvoller als Stock-3D: eine eigene Skizze steuert die Richtung",
     "caveat": "Kein CAD- oder Engineering-Nachweis; Konstruktion separat validieren.",
     "score": 9,
-    "evidenceUrl": "https://www.vizcom.ai"
+    "evidenceUrl": "https://www.vizcom.ai",
+    "job_en": "Transform industrial and product sketches into controllable, photo-rendered concepts",
+    "why_en": "Far more purposeful than generic text-to-3D: designer sketches dictate geometry and perspective",
+    "caveat_en": "Not an engineering or CAD deliverable; physical manufacturing feasibility must be checked independently."
   },
   {
     "id": "core-50-42",
@@ -543,7 +666,10 @@
     "why": "Spart Budget, weil Narrativ und Shots vor Generation/Editing geklärt werden",
     "caveat": "Storyboardqualität hängt weiterhin an Dramaturgie und Bildsprache.",
     "score": 8.5,
-    "evidenceUrl": "https://www.katalist.ai"
+    "evidenceUrl": "https://www.katalist.ai",
+    "job_en": "Generate cohesive cinematic storyboards before committing budget to video production",
+    "why_en": "Saves substantial capital by locking narrative beats and framing prior to shooting or rendering",
+    "caveat_en": "Storyboard quality remains downstream of screenwriting fundamentals and visual grammar."
   },
   {
     "id": "core-50-43",
@@ -556,7 +682,10 @@
     "why": "Der Mehrwert ist Planbarkeit der Produktion, nicht der einzelne Glamour-Clip",
     "caveat": "Marken-/Figurenkonsistenz und finale Schnittqualität aktiv führen.",
     "score": 8.7,
-    "evidenceUrl": "https://ltx.studio"
+    "evidenceUrl": "https://ltx.studio",
+    "job_en": "Orchestrate script, shot lists, character continuity, and editing in a pre-production suite",
+    "why_en": "Provides production predictability rather than generating disconnected, uneditable video clips",
+    "caveat_en": "Character facial fidelity across lighting shifts and final cuts still demand hands-on curation."
   },
   {
     "id": "core-50-44",
@@ -569,7 +698,10 @@
     "why": "Stark, wenn Script, Stimme und Szenen gezielt bearbeitet werden können",
     "caveat": "Stimme, Aussprache, Faktentreue und Lizenzbedingungen immer abnehmen.",
     "score": 8.5,
-    "evidenceUrl": "https://www.wondercraft.ai"
+    "evidenceUrl": "https://www.wondercraft.ai",
+    "job_en": "Produce narrative audio and video explainers from verified scripts with synchronized pacing",
+    "why_en": "High utility when speech cadence, vocal timbre, and scene transitions can be edited deterministically",
+    "caveat_en": "Pronunciation nuances, factual assertions, and commercial licensing must be formally verified."
   },
   {
     "id": "core-50-45",
@@ -582,7 +714,10 @@
     "why": "Konkreter Produktionshebel mit gut kontrollierbarem Vorher/Nachher",
     "caveat": "Überbearbeitung kann Rhythmus und Persönlichkeit zerstören.",
     "score": 8.4,
-    "evidenceUrl": "https://cleanvoice.ai"
+    "evidenceUrl": "https://cleanvoice.ai",
+    "job_en": "Eliminate filler words, acoustic stutter, and dead air prior to the editorial cut",
+    "why_en": "A targeted post-production lever with a clear, verifiable before-and-after improvement",
+    "caveat_en": "Aggressive filtering can strip natural cadence, emotional breath, and conversational warmth."
   },
   {
     "id": "core-50-46",
@@ -595,7 +730,10 @@
     "why": "Unsexy, aber extrem wirkungsvoll: professionelle Verständlichkeit statt KI-Gimmick",
     "caveat": "Schlechte Aufnahme oder falscher Schnitt wird nicht vollständig gerettet.",
     "score": 8.8,
-    "evidenceUrl": "https://auphonic.com"
+    "evidenceUrl": "https://auphonic.com",
+    "job_en": "Balance broadcast loudness, EQ dynamics, and audio consistency for publishing delivery",
+    "why_en": "Unflashy but indispensable: professional acoustic clarity and compliance over AI parlor tricks",
+    "caveat_en": "Cannot salvage compromised source recordings, distorted microphones, or poor room acoustics."
   },
   {
     "id": "core-50-47",
@@ -608,7 +746,10 @@
     "why": "Hilft beim Lernen durch Abruf, nicht nur beim konsumierbaren Zusammenfassen",
     "caveat": "Schlechte Karten bleiben schlechte Karten; aktives Verständnis zählt.",
     "score": 8.7,
-    "evidenceUrl": "https://www.remnote.com"
+    "evidenceUrl": "https://www.remnote.com",
+    "job_en": "Synthesize study material into networked concept notes and spaced-repetition flashcards",
+    "why_en": "Reinforces knowledge retention through active recall rather than passive consumption of summaries",
+    "caveat_en": "Poorly formulated cards yield poor retention; true conceptual mastery cannot be outsourced."
   },
   {
     "id": "core-50-48",
@@ -621,7 +762,10 @@
     "why": "Praktisch, weil es Output/Übung statt passives Vokabellernen erzwingt",
     "caveat": "Akzent, Pragmatik und echte soziale Gesprächssituationen bleiben begrenzt.",
     "score": 8.5,
-    "evidenceUrl": "https://www.speak.com"
+    "evidenceUrl": "https://www.speak.com",
+    "job_en": "Practice conversational language fluency through real-time dialogue and corrective feedback",
+    "why_en": "Forces active verbal output and sentence formation rather than passive vocabulary memorization",
+    "caveat_en": "Nuanced idiomatic pragmatics and spontaneous cultural banter remain limited in synthetic tutors."
   },
   {
     "id": "core-50-49",
@@ -634,7 +778,10 @@
     "why": "Nützlicher als generisches Umschreiben, wenn du die eigene Aussage behalten willst",
     "caveat": "Änderungen nicht blind übernehmen; Fachtermini und persönliche Stimme schützen.",
     "score": 8.6,
-    "evidenceUrl": "https://www.deepl.com/write"
+    "evidenceUrl": "https://www.deepl.com/write",
+    "job_en": "Refine written prose for tone, precision, and clarity while preserving the author's intent",
+    "why_en": "Far more constructive than generic rewriting when you want to protect your authentic voice",
+    "caveat_en": "Never accept suggestions uncritically; safeguard specialized technical terms and stylistic intent."
   },
   {
     "id": "core-50-50",
@@ -647,7 +794,10 @@
     "why": "Beseitigt Capture-Reibung; stark für Ideen, Gespräche und persönliche Worklogs",
     "caveat": "Private Inhalte, Retention und Datenfreigaben vor Nutzung prüfen.",
     "score": 8.4,
-    "evidenceUrl": "https://voicenotes.com"
+    "evidenceUrl": "https://voicenotes.com",
+    "job_en": "Transcribe spoken voice memos rapidly and retrieve them with contextual search",
+    "why_en": "Eliminates cognitive friction in idea capture; ideal for worklogs, debriefs, and spontaneous thoughts",
+    "caveat_en": "Review privacy policies, retention defaults, and team data sharing before logging sensitive data."
   },
   {
     "id": "next-wave-1",
@@ -660,7 +810,10 @@
     "why": "Der Agent bekommt die realen Komponenten und kann sich an laufenden Stories/Tests orientieren – nicht frei erfundene UI erzeugen.",
     "caveat": "Laut Ankündigung noch Preview und auf React/TypeScript zugeschnitten.",
     "score": 9.2,
-    "evidenceUrl": "https://storybook.js.org/blog/storybook-mcp-for-react/"
+    "evidenceUrl": "https://storybook.js.org/blog/storybook-mcp-for-react/",
+    "job_en": "Expose production design system components, stories, and props directly to coding agents",
+    "why_en": "Agents reference actual production components and verified stories rather than hallucinating ad-hoc UI",
+    "caveat_en": "Currently in developer preview and optimized primarily for React and TypeScript ecosystems."
   },
   {
     "id": "next-wave-2",
@@ -673,7 +826,10 @@
     "why": "Kombiniert Analyse, konkrete Guidance und Accessibility-Unit-Tests im Dev-Kontext.",
     "caveat": "Automatisierung deckt nicht alle WCAG-/Usability-Fragen ab; manuelle Tests bleiben Pflicht.",
     "score": 9.1,
-    "evidenceUrl": "https://www.evinced.com/blog/2025-q3-new-product-and-feature-updates"
+    "evidenceUrl": "https://www.evinced.com/blog/2025-q3-new-product-and-feature-updates",
+    "job_en": "Detect component-level accessibility flaws, suggest code remedies, and generate test specs",
+    "why_en": "Integrates accessibility analysis and unit assertions directly into developer workflows",
+    "caveat_en": "Automated scanners cannot evaluate full WCAG usability or screen reader ergonomics."
   },
   {
     "id": "next-wave-3",
@@ -686,7 +842,10 @@
     "why": "Es lenkt auf konkrete manuelle Prüfschritte statt auf eine irreführende „WCAG passed“-Meldung.",
     "caveat": "Die Beschleunigung ist eine Herstellerangabe; Assistive-Tech- und manuelle Prüfung bleiben nötig.",
     "score": 8.8,
-    "evidenceUrl": "https://www.deque.com/blog/make-accessibility-testing-up-to-4x-faster-with-deques-new-ai-powered-features/"
+    "evidenceUrl": "https://www.deque.com/blog/make-accessibility-testing-up-to-4x-faster-with-deques-new-ai-powered-features/",
+    "job_en": "Execute guided accessibility inspections and intelligent audits alongside automated scans",
+    "why_en": "Steers developers toward actionable manual inspection points rather than misleading '100% passed' badges",
+    "caveat_en": "Performance gains are vendor claims; hands-on assistive technology testing remains mandatory."
   },
   {
     "id": "next-wave-4",
@@ -699,7 +858,10 @@
     "why": "Prüft visuelle Parität – etwa Typografie, Abstände, Farbe und Drift – vor einem Release.",
     "caveat": "Visual parity ist weder UX-Test noch vollständiger A11y-Test.",
     "score": 9,
-    "evidenceUrl": "https://applitools.com/blog/figma-design-testing-applitools-plugin"
+    "evidenceUrl": "https://applitools.com/blog/figma-design-testing-applitools-plugin",
+    "job_en": "Assert visual parity between canonical Figma design files and production browser builds",
+    "why_en": "Catches subtle styling drift, line-height anomalies, and spacing regressions before deployment",
+    "caveat_en": "Visual parity does not constitute comprehensive UX validation or functional accessibility."
   },
   {
     "id": "next-wave-5",
@@ -712,7 +874,10 @@
     "why": "Ziel ist weniger Pixelvergleich-Rauschen und mehr nachvollziehbare Regressionen in echten Tests.",
     "caveat": "Fachliches Release-Sign-off und gute Testfälle bleiben erforderlich.",
     "score": 8.5,
-    "evidenceUrl": "https://www.mabl.com/blog/visual-ai-context-aware-regression-detection"
+    "evidenceUrl": "https://www.mabl.com/blog/visual-ai-context-aware-regression-detection",
+    "job_en": "Prioritize visual regressions using DOM state context and functional test execution data",
+    "why_en": "Filters out benign pixel noise to surface actionable regressions during test runs",
+    "caveat_en": "Disciplined test suite authoring and engineering release sign-off remain indispensable."
   },
   {
     "id": "next-wave-6",
@@ -725,7 +890,10 @@
     "why": "Output sind gewöhnliche Testdateien und CI-Schritte, nicht eine nicht überprüfbare Chat-Antwort.",
     "caveat": "Fokus liegt auf Java/Kotlin; komplexe Runtimes brauchen oft Setup und Review.",
     "score": 8.6,
-    "evidenceUrl": "https://cover-docs.diffblue.com/get-started/what-is-diffblue-cover.md"
+    "evidenceUrl": "https://cover-docs.diffblue.com/get-started/what-is-diffblue-cover.md",
+    "job_en": "Synthesize and execute Java and Kotlin unit test suites directly in IDE or CI pipelines",
+    "why_en": "Outputs standard, committable JUnit test files rather than unverifiable chatbot snippets",
+    "caveat_en": "Specialized for Java/Kotlin; intricate enterprise runtimes require thorough setup and review."
   },
   {
     "id": "next-wave-7",
@@ -738,7 +906,10 @@
     "why": "KI ist an ein konkretes, regelbasiert erkanntes Issue gekoppelt – kein unspezifischer „fix my code“-Prompt.",
     "caveat": "Laut Doku im Server nur Enterprise/Data Center; jeden Patch testen.",
     "score": 8.4,
-    "evidenceUrl": "https://docs.sonarsource.com/sonarqube-server/2026.1/instance-administration/ai-features/enable-ai-codefix.md"
+    "evidenceUrl": "https://docs.sonarsource.com/sonarqube-server/2026.1/instance-administration/ai-features/enable-ai-codefix.md",
+    "job_en": "Generate verifiable code patches for static analysis violations detected by SonarQube",
+    "why_en": "Anchors AI suggestions directly to deterministic, rule-based static analysis findings",
+    "caveat_en": "Enterprise/Data Center license tier required on server; every suggested patch demands test execution."
   },
   {
     "id": "next-wave-8",
@@ -751,7 +922,10 @@
     "why": "Kombiniert statische Analyse mit fixbaren, reviewbaren Remediation-Vorschlägen.",
     "caveat": "Vorschläge sind keine Garantie für korrektes Verhalten; Tests sind Pflicht.",
     "score": 8.4,
-    "evidenceUrl": "https://docs.deepsource.com/docs/platform/getting-started/fix-issues"
+    "evidenceUrl": "https://docs.deepsource.com/docs/platform/getting-started/fix-issues",
+    "job_en": "Remediate static analysis findings and security vulnerabilities with automated pull requests",
+    "why_en": "Combines deterministic code scanning with verifiable, reviewable remediation branches",
+    "caveat_en": "Suggested fixes do not guarantee architectural correctness; peer review and test suites are required."
   },
   {
     "id": "next-wave-9",
@@ -764,7 +938,10 @@
     "why": "Der Agent erzeugt/repariert Zellen, aber das Ergebnis bleibt ein nachvollziehbares Notebook-Artefakt.",
     "caveat": "Eher Team-/Data-Stack-Produkt; SQL und Kennzahlen weiterhin reviewen.",
     "score": 8.7,
-    "evidenceUrl": "https://learn.hex.tech/docs/explore-data/notebook-view/notebook-agent"
+    "evidenceUrl": "https://learn.hex.tech/docs/explore-data/notebook-view/notebook-agent",
+    "job_en": "Develop collaborative analysis notebooks unifying SQL, Python, and interactive charts",
+    "why_en": "Agent generates or fixes cells, but the deliverable remains a reproducible, inspectable notebook",
+    "caveat_en": "Geared toward modern data teams; SQL transformations and metric definitions still require review."
   },
   {
     "id": "next-wave-10",
@@ -777,7 +954,10 @@
     "why": "Ein explizites Business-Modell und Regeln begrenzen Antworten besser als Text-to-SQL ohne Daten-Governance.",
     "caveat": "Hebel entsteht erst mit sauberem semantischem Modell und Berechtigungen.",
     "score": 8.7,
-    "evidenceUrl": "https://docs.getwren.ai/oss/reference/architecture"
+    "evidenceUrl": "https://docs.getwren.ai/oss/reference/architecture",
+    "job_en": "Generate governance-compliant SQL and BI visualizations from enterprise databases",
+    "why_en": "Enforces an explicit business semantic model to prevent the hallucinations common to raw text-to-SQL",
+    "caveat_en": "Delivers genuine leverage only when supported by a rigorously maintained semantic layer."
   },
   {
     "id": "next-wave-11",
@@ -790,7 +970,10 @@
     "why": "RAG-Antworten basieren auf einer kontrollierten Knowledge Base statt auf freiem Modellwissen.",
     "caveat": "Der Agent ist nur so zuverlässig wie Quellenabdeckung, Aktualität und Zugriffsmodell.",
     "score": 8.5,
-    "evidenceUrl": "https://docs.kapa.ai/analytics/guides/troubleshooting-improving-answers"
+    "evidenceUrl": "https://docs.kapa.ai/analytics/guides/troubleshooting-improving-answers",
+    "job_en": "Deploy source-grounded technical support and documentation agents across product channels",
+    "why_en": "Answers strictly cite indexed product documentation rather than relying on ungrounded model weights",
+    "caveat_en": "Answer fidelity is strictly capped by documentation freshness, completeness, and indexing scope."
   },
   {
     "id": "next-wave-12",
@@ -803,7 +986,10 @@
     "why": "Antworten sollen Referenzen enthalten und die Rechte der Quellsysteme respektieren.",
     "caveat": "Enterprise-Einführung: Connector-, Index- und Rechtequalität entscheiden über alles.",
     "score": 8.6,
-    "evidenceUrl": "https://docs.glean.com/user-guide/assistant/ai-answers"
+    "evidenceUrl": "https://docs.glean.com/user-guide/assistant/ai-answers",
+    "job_en": "Perform permission-aware enterprise search across internal repositories, chats, and wikis",
+    "why_en": "Responses cite verifiable references while strictly honoring source ACLs and security boundaries",
+    "caveat_en": "Enterprise deployment requires meticulous connector setup and continuous data governance audits."
   },
   {
     "id": "next-wave-13",
@@ -816,7 +1002,10 @@
     "why": "Die Knowledge Base ist ein sichtbarer Workflow-Knoten mit nachfolgenden Automationsschritten.",
     "caveat": "RAG braucht Evaluation; Indexierung, Berechtigungen und Prompting sind Implementierungsarbeit.",
     "score": 8.2,
-    "evidenceUrl": "https://docs.stack-ai.com/stack-ai/workflow-builder/apps/knowledge-base"
+    "evidenceUrl": "https://docs.stack-ai.com/stack-ai/workflow-builder/apps/knowledge-base",
+    "job_en": "Integrate custom document knowledge bases into triggered enterprise automation workflows",
+    "why_en": "Knowledge retrieval operates as an explicit, auditable workflow node connected to execution actions",
+    "caveat_en": "RAG pipelines demand systematic evaluation; chunking, retrieval calibration, and prompting require care."
   },
   {
     "id": "next-wave-14",
@@ -829,7 +1018,10 @@
     "why": "Liefert bearbeitbare Motion-Capture-Daten und Retargeting statt generischer Effektclips.",
     "caveat": "Bodenkontakt, Okklusionen und komplexe Bewegungen brauchen Nacharbeit.",
     "score": 8.6,
-    "evidenceUrl": "https://www.rokoko.com/insights/motion-capture-suit-vs-vision-ai-camera-mocap"
+    "evidenceUrl": "https://www.rokoko.com/insights/motion-capture-suit-vs-vision-ai-camera-mocap",
+    "job_en": "Convert standard video recordings into 3D character motion capture for Unreal and Blender",
+    "why_en": "Produces editable, retargetable motion curves rather than locked generative video clips",
+    "caveat_en": "Ground contact, limb occlusion, and fast rotations require manual cleanup in 3D suites."
   },
   {
     "id": "next-wave-15",
@@ -842,7 +1034,10 @@
     "why": "Bearbeitet vorhandenes Material als Produktionsasset; kein Text-to-Video-Gimmick.",
     "caveat": "Rechenintensiv; Details können halluziniert oder Artefakte erzeugt werden.",
     "score": 8.9,
-    "evidenceUrl": "https://community.topazlabs.com/c/video-ai/video-ai-releases/69"
+    "evidenceUrl": "https://community.topazlabs.com/c/video-ai/video-ai-releases/69",
+    "job_en": "Restore, denoise, and upscale archival or low-resolution video assets for production pipelines",
+    "why_en": "Processes existing master footage as a production asset without generative hallucinations",
+    "caveat_en": "Compute-heavy; extreme upscaling can generate uncanny artifacts or over-smoothed textures."
   },
   {
     "id": "next-wave-16",
@@ -855,7 +1050,10 @@
     "why": "Die eigenen Notizen bleiben Anker; KI ergänzt Kontext statt ein unkontrollierter Meeting-Bot zu sein.",
     "caveat": "Teilnehmer informieren; bei sensiblen Meetings Datenschutz, Speicherung und Ergebnisse prüfen.",
     "score": 8.9,
-    "evidenceUrl": "https://www.granola.ai/blog"
+    "evidenceUrl": "https://www.granola.ai/blog",
+    "job_en": "Synthesize meeting notes with transcript context into crisp decisions and actionable follow-ups",
+    "why_en": "Human notes remain the editorial anchor; AI enriches context rather than acting as a noisy bot",
+    "caveat_en": "Obtain attendee consent; verify compliance, retention, and storage when handling confidential meetings."
   },
   {
     "id": "next-wave-17",
@@ -868,7 +1066,10 @@
     "why": "Bearbeitet ein reales Ressourcenproblem – Kalenderkapazität – statt nur eine weitere To-do-Liste anzulegen.",
     "caveat": "Funktioniert nur mit gepflegten Prioritäten und Team-Verfügbarkeiten.",
     "score": 8.7,
-    "evidenceUrl": "https://reclaim.ai/blog/startup-deals"
+    "evidenceUrl": "https://reclaim.ai/blog/startup-deals",
+    "job_en": "Defend focus blocks, task time, and flexible meetings against calendar conflicts",
+    "why_en": "Solves an acute operational bottleneck—finite calendar time—rather than creating another to-do list",
+    "caveat_en": "Requires clear task prioritization and team adoption of calendar conventions to remain effective."
   },
   {
     "id": "next-wave-18",
@@ -881,7 +1082,10 @@
     "why": "Ein trainierter „Robot“ liefert Änderungsdaten in Tabelle/API statt einmaliger Chat-Ergebnisse.",
     "caveat": "AGB, robots.txt, Datenschutz und Layoutänderungen der Zielseiten beachten.",
     "score": 8.5,
-    "evidenceUrl": "https://www.browse.ai/blog/automatically-monitor-product-availability-across-multiple-websites-save-business-costly-refunds"
+    "evidenceUrl": "https://www.browse.ai/blog/automatically-monitor-product-availability-across-multiple-websites-save-business-costly-refunds",
+    "job_en": "Extract structured competitor, price, inventory, and job board changes from web targets",
+    "why_en": "A trained robot pipes clean, structured diffs directly into APIs or spreadsheets on schedule",
+    "caveat_en": "Respect site terms, robots.txt, and rate limits; target DOM layout changes can break extraction rules."
   },
   {
     "id": "next-wave-19",
@@ -894,7 +1098,10 @@
     "why": "Ausnahmen, Tabellenoutput und Integrationen sind für dokumentenlastige Vorgänge gebaut, nicht nur für PDF-Summaries.",
     "caveat": "Braucht Testkorpus, Qualitätsmetriken und Human Review; meist Enterprise-Vertrieb.",
     "score": 8.8,
-    "evidenceUrl": "https://www.v7labs.com/news"
+    "evidenceUrl": "https://www.v7labs.com/news",
+    "job_en": "Process complex document archives like invoices and due diligence binders into structured audits",
+    "why_en": "Engineered for document-dense enterprise processes with audit trails, tables, and human review gates",
+    "caveat_en": "Demands representative validation datasets and human verification; enterprise-only sales model."
   },
   {
     "id": "next-wave-20",
@@ -907,7 +1114,10 @@
     "why": "Spezialisiert auf Klauseln, Richtlinien und Vertragskontext statt eines allgemeinen Legal-Prompts.",
     "caveat": "Enterprise-Tool; keine Rechtsberatung und kein Ersatz für juristische Freigabe.",
     "score": 8.3,
-    "evidenceUrl": "https://www.luminance.com/press/luminance-launches-new-legal-ai-with-institutional-memory-addressing-enterprise-amnesia-and-giving-legal-teams-30-of-their-time-back"
+    "evidenceUrl": "https://www.luminance.com/press/luminance-launches-new-legal-ai-with-institutional-memory-addressing-enterprise-amnesia-and-giving-legal-teams-30-of-their-time-back",
+    "job_en": "Draft, negotiate, and audit commercial contracts against corporate precedent and risk policies",
+    "why_en": "Specialized for contractual clauses and institutional legal knowledge rather than generic text prompts",
+    "caveat_en": "Enterprise legal tool; does not provide formal legal counsel or replace attorney sign-off."
   },
   {
     "id": "claude",
@@ -920,7 +1130,10 @@
     "why": "Branchenweit führendes Verständnis für große Kontextfenster, Nuancen in Code und direkt iterierbare Artefakte",
     "caveat": "Token-Kosten und Kontext-Limits bei riesigen Monorepos; erfordert klare Prompting-Konventionen.",
     "score": 9.6,
-    "evidenceUrl": "https://www.anthropic.com"
+    "evidenceUrl": "https://www.anthropic.com",
+    "job_en": "Deep codebase refactoring, extended analytical reasoning, and interactive UI prototypes",
+    "why_en": "Industry-leading extended context comprehension, nuanced code syntax, and steerable artifacts",
+    "caveat_en": "Rate limits on high tiers can be reached during heavy CLI sessions; require disciplined context scoping."
   },
   {
     "id": "chatgpt",
@@ -933,7 +1146,10 @@
     "why": "Größtes Ökosystem, verlässliche Alltags-Performance und native Voice-/Vision-Integration direkt im Browser",
     "caveat": "Halluzinationen bei obskuren APIs; Unternehmensdaten nur mit Opt-out oder Enterprise-Privacy verarbeiten.",
     "score": 9.3,
-    "evidenceUrl": "https://openai.com"
+    "evidenceUrl": "https://openai.com",
+    "job_en": "Multimodal analysis across images, complex documents, and ad-hoc operational inquiries",
+    "why_en": "Extensive ecosystem with dependable multimodal tools, advanced voice, and browser-native workflows",
+    "caveat_en": "Occasional hallucinations on obscure APIs; enterprise data requires verified privacy opt-outs."
   },
   {
     "id": "perplexity",
@@ -946,7 +1162,10 @@
     "why": "Ersetzt mühsame Google-Recherche durch synthetisierte Antworten mit anklickbaren, überprüfbaren Quellenbelegen",
     "caveat": "Zitiert gelegentlich SEO-Spam oder flache Zusammenfassungen; Primärquellen müssen gegengelesen werden.",
     "score": 9.5,
-    "evidenceUrl": "https://www.perplexity.ai"
+    "evidenceUrl": "https://www.perplexity.ai",
+    "job_en": "Real-time search synthesis linking every assertion to verifiable, clickable primary sources",
+    "why_en": "Replaces tedious search result wading with synthesized answers supported by inspectable citations",
+    "caveat_en": "Can cite SEO-optimized content farms; primary source verification remains mandatory."
   },
   {
     "id": "midjourney",
@@ -959,7 +1178,10 @@
     "why": "Referenzklasse für visuelle Ästhetik, Lichtführung und Stimmungs-Exploration in Creative- und Brand-Workflows",
     "caveat": "Schwierig für exakte typografische Details oder Pixel-Grid-Grafik; kein traditionelles Layer-Editing.",
     "score": 9.4,
-    "evidenceUrl": "https://www.midjourney.com"
+    "evidenceUrl": "https://www.midjourney.com",
+    "job_en": "High-fidelity visual concept art and aesthetic ideation with superior lighting and texture",
+    "why_en": "The benchmark for cinematic lighting, visual coherence, and aesthetic exploration in creative teams",
+    "caveat_en": "Challenging for exact typographical placement or pixel-grid UI; lacks native layer editing."
   },
   {
     "id": "runway",
@@ -972,7 +1194,10 @@
     "why": "Führende zeitliche Kohärenz, realistische Kamerabewegungen und Motion-Brushing bei KI-generierten Videoclips",
     "caveat": "Hoher Credit-Verbrauch; physikalische Konsistenz bei schnellen Objekt-Interaktionen variiert noch.",
     "score": 9.2,
-    "evidenceUrl": "https://runway.com"
+    "evidenceUrl": "https://runway.com",
+    "job_en": "Generative cinematic video and motion scenes (Gen-3) for film, visual effects, and social assets",
+    "why_en": "Leading temporal coherence, director-level camera control, and motion brushing capabilities",
+    "caveat_en": "High credit consumption; physical consistency can drift during rapid object interactions."
   },
   {
     "id": "gamma",
@@ -985,7 +1210,10 @@
     "why": "Erzeugt ansprechende, anpassbare Kartenlayouts in Sekunden statt starrer PowerPoint-Folien",
     "caveat": "Design-Freiheit ist an Gammas Kartensystem gebunden; komplexe individuelle Vektorlayouts sind eingeschränkt.",
     "score": 9.1,
-    "evidenceUrl": "https://gamma.app"
+    "evidenceUrl": "https://gamma.app",
+    "job_en": "Generate responsive slide decks, memos, and visual briefs from raw outlines and notes",
+    "why_en": "Constructs polished, responsive card decks in seconds rather than wrestling with PowerPoint templates",
+    "caveat_en": "Stylistic flexibility is bounded by Gamma's layout cards; complex bespoke vector design is constrained."
   },
   {
     "id": "viggle-ai",
@@ -998,7 +1226,10 @@
     "why": "Ermöglicht controllables Motion-Retargeting auf beliebige Charaktere ohne aufwendiges 3D-Rigging",
     "caveat": "Auflösung und Artefakte an Händen/Füßen erfordern in professionellen Produktionen oft Maskierung.",
     "score": 8.9,
-    "evidenceUrl": "https://viggle.ai"
+    "evidenceUrl": "https://viggle.ai",
+    "job_en": "Physics-aware character animation and video motion retargeting for creative assets",
+    "why_en": "Enables controllable motion transfer onto arbitrary character models without manual 3D rigging",
+    "caveat_en": "Output resolution and boundary artifacts around limbs frequently require post-production masking."
   },
   {
     "id": "magnific",
@@ -1011,7 +1242,10 @@
     "why": "Fügt fotorealistische Mikrotexturen und Details hinzu, die in der Originalauflösung nicht vorhanden waren",
     "caveat": "Kann Gesichter, Logos und feine Typografie verfälschen, wenn die Halluzinationsstärke zu hoch eingestellt ist.",
     "score": 9.2,
-    "evidenceUrl": "https://www.magnific.com"
+    "evidenceUrl": "https://www.magnific.com",
+    "job_en": "Upscale low-resolution imagery with controllable high-frequency texture hallucination",
+    "why_en": "Breathes photorealistic micro-details and textures into assets where none existed in the source",
+    "caveat_en": "Aggressive creativity parameters will hallucinate unintended facial features and distorted logos."
   },
   {
     "id": "duckduckgo",
@@ -1024,6 +1258,9 @@
     "why": "Kostenlos, werbefrei und garantiert speicherfrei; ideal für vertrauliche Recherchen und schnelle Prompts",
     "caveat": "Kein Session-Speicher; Konversationsverlauf geht beim Schließen des Tabs unwiederbringlich verloren.",
     "score": 9,
-    "evidenceUrl": "https://duckduckgo.com"
+    "evidenceUrl": "https://duckduckgo.com",
+    "job_en": "Private AI chat across frontier models without user tracking, accounts, or telemetry retention",
+    "why_en": "Free, zero-logging gateway for confidential queries and rapid model comparisons without data silos",
+    "caveat_en": "Session history is strictly ephemeral; closing the browser tab purges conversation logs permanently."
   }
 ]

@@ -5,15 +5,18 @@ import {
   Check,
   Clock3,
   ExternalLink,
+  Layers,
   Search,
   Shuffle,
+  Table,
   X,
-  Zap,
 } from 'lucide-react'
 import rawTools from './data/tools.json'
 import rawDossiers from './data/dossiers.json'
 import prototypeSignalsRaw from './data/signals.json'
 import DiscoveryRadar from './DiscoveryRadar'
+
+export type Language = 'de' | 'en'
 
 export type Axis = {
   label: 'LEVERAGE' | 'MATURITY' | 'SETUP' | 'CONTROL' | 'PRICE' | 'EVIDENCE'
@@ -25,9 +28,15 @@ export type Dossier = {
   name: string
   url: string
   verdict: string
+  verdict_de?: string
+  verdict_en?: string
   axes: Axis[]
   bestFor: string[]
+  bestFor_de?: string[]
+  bestFor_en?: string[]
   caveat: string
+  caveat_de?: string
+  caveat_en?: string
 }
 
 export type Tool = {
@@ -38,8 +47,11 @@ export type Tool = {
   category: string
   edition?: string
   job: string
+  job_en?: string
   why: string
+  why_en?: string
   caveat: string
+  caveat_en?: string
   score?: number
   evidenceUrl?: string
 }
@@ -58,8 +70,11 @@ export type Signal = {
   impact: string
   ageHours: number
   title: string
+  title_de?: string
   summary: string
+  summary_de?: string
   whyItMatters: string
+  whyItMatters_de?: string
   sources: Source[]
   prototype?: boolean
   materiality?: string
@@ -69,6 +84,7 @@ export type Signal = {
 }
 
 type View = 'signals' | 'registry' | 'radar' | 'stack'
+type RegistryMode = 'ledger' | 'specimen'
 type SignalTimeframe = 'all' | 'today' | 'week'
 type SignalImpact = 'all' | 'p0' | 'p1'
 type ToolSort = 'number' | 'signals' | 'name'
@@ -88,15 +104,36 @@ function clean(text: string) {
   return (text || '').replace(/\*\*/g, '').replace(/`/g, '').trim()
 }
 
-function relativeHours(hours: number) {
-  if (hours < 1) return '< 1h ago'
-  if (hours < 24) return `${hours}h ago`
+function formatRelativeTime(hours: number, lang: Language) {
+  if (hours < 1) return lang === 'de' ? '< 1 Std. her' : '< 1h ago'
+  if (hours < 24) return lang === 'de' ? `vor ${hours} Std.` : `${hours}h ago`
   const days = Math.floor(hours / 24)
-  return `${days}d ago`
+  return lang === 'de' ? `vor ${days} T.` : `${days}d ago`
+}
+
+const CATEGORY_NAMES: Record<string, { de: string; en: string }> = {
+  'UI & Design Systems': { de: 'UI & Designsysteme', en: 'UI & Design Systems' },
+  'Code & Engineering': { de: 'Code & Engineering', en: 'Code & Engineering' },
+  'Research & Data': { de: 'Recherche & Daten', en: 'Research & Data' },
+  'Knowledge & Workflows': { de: 'Wissenssysteme & Workflows', en: 'Knowledge & Workflows' },
+  'Creative & Media': { de: 'Kreation & Medien', en: 'Creative & Media' },
+  'Language & Learning': { de: 'Sprache & Verständnis', en: 'Language & Learning' },
+  'Productivity & Flow': { de: 'Fokus & Produktivität', en: 'Productivity & Flow' },
 }
 
 export default function App() {
+  const [lang, setLang] = useState<Language>(() => {
+    try {
+      const stored = localStorage.getItem('shouldknow-lang')
+      if (stored === 'de' || stored === 'en') return stored
+      return 'de'
+    } catch {
+      return 'de'
+    }
+  })
+
   const [view, setView] = useState<View>('signals')
+  const [registryMode, setRegistryMode] = useState<RegistryMode>('ledger')
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
   const [toolSort, setToolSort] = useState<ToolSort>('number')
@@ -118,6 +155,15 @@ export default function App() {
   const [liveSignals, setLiveSignals] = useState<Signal[]>(prototypeSignals)
   const [isLiveApi, setIsLiveApi] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Persist language
+  useEffect(() => {
+    try {
+      localStorage.setItem('shouldknow-lang', lang)
+    } catch {
+      // ignore
+    }
+  }, [lang])
 
   // Track visit timestamp in localStorage
   useEffect(() => {
@@ -159,7 +205,7 @@ export default function App() {
     }
   }, [])
 
-  // Keyboard navigation (⌘K for search, Esc to close modal)
+  // Keyboard navigation (⌘K for search, Esc to close drawer)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -207,7 +253,18 @@ export default function App() {
       if (impactFilter === 'p1' && signal.impact !== 'medium') return false
       if (kindFilter !== 'all' && signal.kind !== kindFilter) return false
       if (needle) {
-        const text = [signal.tool, signal.title, signal.summary, signal.whyItMatters, signal.kind].join(' ').toLowerCase()
+        const text = [
+          signal.tool,
+          signal.title,
+          signal.title_de || '',
+          signal.summary,
+          signal.summary_de || '',
+          signal.whyItMatters,
+          signal.whyItMatters_de || '',
+          signal.kind,
+        ]
+          .join(' ')
+          .toLowerCase()
         if (!text.includes(needle)) return false
       }
       return true
@@ -222,7 +279,18 @@ export default function App() {
         if (view === 'stack' && !saved.includes(t.id)) return false
         if (category !== 'All' && t.category !== category) return false
         if (needle) {
-          const haystack = [t.name, t.job, t.why, t.category, t.caveat].join(' ').toLowerCase()
+          const haystack = [
+            t.name,
+            t.job,
+            t.job_en || '',
+            t.why,
+            t.why_en || '',
+            t.category,
+            t.caveat,
+            t.caveat_en || '',
+          ]
+            .join(' ')
+            .toLowerCase()
           if (!haystack.includes(needle)) return false
         }
         return true
@@ -263,18 +331,66 @@ export default function App() {
     setSelectedTool(random)
   }
 
+  // Selected tool dossier lookup
+  const selectedDossier = useMemo(() => {
+    if (!selectedTool) return null
+    return (
+      dossiersMap.get(selectedTool.id.toLowerCase()) ||
+      dossiersMap.get(selectedTool.name.toLowerCase()) ||
+      null
+    )
+  }, [selectedTool])
+
+  const selectedToolSignals = useMemo(() => {
+    if (!selectedTool) return []
+    return (
+      toolSignalsMap.get(selectedTool.id.toLowerCase()) ||
+      toolSignalsMap.get(selectedTool.name.toLowerCase()) ||
+      []
+    )
+  }, [selectedTool, toolSignalsMap])
+
   return (
     <div className="site-shell">
-      {/* Topbar Navigation */}
+      {/* Topbar Architecture */}
       <header className="topbar">
-        <div className="topbar-left">
-          <button className="brand-logo" onClick={() => setView('signals')} aria-label="Should Know home">
-            <span className="brand-mark">S</span>
-            <span className="brand-name">
-              SHOULD <i>KNOW</i>
+        <div className="topbar-main-bar">
+          <div className="topbar-left">
+            <button className="brand-logo" onClick={() => setView('signals')} aria-label="Should Know home">
+              <span className="brand-mark">S</span>
+              <span className="brand-name">
+                SHOULD <i>KNOW</i>
+              </span>
+            </button>
+            <span className="brand-badge">
+              {lang === 'de' ? 'PRODUKT-INTELLIGENCE' : 'PRODUCT INTELLIGENCE'}
             </span>
-          </button>
-          <span className="brand-badge">PRODUCT INTELLIGENCE</span>
+          </div>
+
+          <div className="topbar-actions">
+            {/* Architectural Language Switch */}
+            <div className="lang-switcher" role="group" aria-label="Language selector">
+              <button
+                className={`lang-btn ${lang === 'de' ? 'active' : ''}`}
+                onClick={() => setLang('de')}
+                title="Deutsch"
+              >
+                DE
+              </button>
+              <span className="lang-divider">/</span>
+              <button
+                className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
+                onClick={() => setLang('en')}
+                title="English"
+              >
+                EN
+              </button>
+            </div>
+
+            <button className="btn-surprise" onClick={surpriseMe} title={lang === 'de' ? 'Zufälliges Werkzeug öffnen' : 'Inspect a random curated tool'}>
+              <Shuffle size={12} /> {lang === 'de' ? 'Zufall' : 'Surprise'}
+            </button>
+          </div>
         </div>
 
         <nav className="topbar-nav" aria-label="Main navigation">
@@ -282,172 +398,252 @@ export default function App() {
             className={`nav-link ${view === 'signals' ? 'active' : ''}`}
             onClick={() => setView('signals')}
           >
-            <span className="pulse-dot" aria-hidden="true" />
-            Signals <b>{liveSignals.length}</b>
+            <span className="nav-index">01</span>
+            {lang === 'de' ? 'Signale' : 'Signals'} <b>{liveSignals.length}</b>
           </button>
           <button
             className={`nav-link ${view === 'registry' ? 'active' : ''}`}
             onClick={() => setView('registry')}
           >
-            Registry <b>{tools.length}</b>
+            <span className="nav-index">02</span>
+            {lang === 'de' ? 'Register' : 'Registry'} <b>{tools.length}</b>
           </button>
           <button
             className={`nav-link ${view === 'radar' ? 'active' : ''}`}
             onClick={() => setView('radar')}
           >
+            <span className="nav-index">03</span>
             Radar <b>55</b>
           </button>
           <button
             className={`nav-link ${view === 'stack' ? 'active' : ''}`}
             onClick={() => setView('stack')}
           >
-            My Stack <b>{saved.length}</b>
+            <span className="nav-index">04</span>
+            {lang === 'de' ? 'Mein Stack' : 'My Stack'} <b>{saved.length}</b>
           </button>
         </nav>
-
-        <div className="topbar-actions">
-          <button className="btn-surprise" onClick={surpriseMe} title="Inspect a random curated tool">
-            <Shuffle size={13} /> Surprise
-          </button>
-        </div>
       </header>
 
       <main id="content">
-        {/* Monolithic Editorial Hero */}
+        {/* Monolithic Classical Hero (Awwwards Standard) */}
         <section className="hero-editorial">
-          <div className="hero-main-col">
-            <div className="telemetry-pill">
-              <span className="telemetry-live-tag">{isLiveApi ? 'ENGINE LIVE' : 'REVIEWED FEED'}</span>
-              <span>CONTINUOUS HEADLESS CRAWL // ZERO SPONSORED LISTINGS</span>
-            </div>
-
-            <h1 className="hero-title">
-              Know what changed.
-              <br />
-              <em>Know what matters.</em>
-            </h1>
-
-            <p className="hero-desc">
-              Evidence-first AI intelligence across 79 curated frontier products. We monitor official changelogs, pricing tables, and GitHub releases with headless browser crawls, filter out marketing noise, and enforce mandatory caveats on every tool.
-            </p>
-
-            <div className="hero-segmented-tabs">
-              <button
-                className={`tab-btn ${view === 'signals' ? 'active' : ''}`}
-                onClick={() => setView('signals')}
-              >
-                Verified Signals ({liveSignals.length})
-              </button>
-              <button
-                className={`tab-btn ${view === 'registry' ? 'active' : ''}`}
-                onClick={() => setView('registry')}
-              >
-                Curated Registry ({tools.length})
-              </button>
-              <button
-                className={`tab-btn ${view === 'radar' ? 'active' : ''}`}
-                onClick={() => setView('radar')}
-              >
-                Discovery Radar (55)
-              </button>
-            </div>
-          </div>
-
-          <aside className="hero-telemetry-sidebar">
-            <div className="telemetry-box">
-              <span className="telemetry-heading">THE EDITORIAL LEDGER</span>
-              <div className="telemetry-stat-row">
-                <span className="telemetry-num">{tools.length}</span>
-                <span className="telemetry-meta">
-                  <strong>Curated Tools</strong>
-                  <small>Explicit jobs &amp; honest caveats</small>
+          <div className="hero-grid-container">
+            <div className="hero-editorial-col">
+              <div className="telemetry-stamp">
+                <span className="telemetry-status-dot" aria-hidden="true" />
+                <span className="telemetry-lead">{isLiveApi ? 'ENGINE LIVE' : 'VERIFIED AUDIT'}</span>
+                <span className="telemetry-sep">·</span>
+                <span>
+                  {lang === 'de'
+                    ? 'AUSGABE 04 · 79 FRONTIER-WERKZEUGE · EVIDENZ-PROTOKOLL'
+                    : 'ISSUE 04 · 79 FRONTIER TOOLS · EVIDENCE PROTOCOL'}
                 </span>
               </div>
-              <div className="telemetry-stat-row">
-                <span className="telemetry-num">72</span>
-                <span className="telemetry-meta">
-                  <strong>Monitored Targets</strong>
-                  <small>Crawl4AI headless Chromium</small>
-                </span>
-              </div>
-              <div className="telemetry-stat-row">
-                <span className="telemetry-num">{liveSignals.length}</span>
-                <span className="telemetry-meta">
-                  <strong>Verified Signals</strong>
-                  <small>P0/P1 reviewed publications</small>
-                </span>
-              </div>
-              <div className="telemetry-stat-row">
-                <span className="telemetry-num">55</span>
-                <span className="telemetry-meta">
-                  <strong>Radar Candidates</strong>
-                  <small>Cross-source directory tracking</small>
-                </span>
+
+              <h1 className="hero-title">
+                {lang === 'de' ? (
+                  <>
+                    EVIDENZ STATT MARKETING.
+                    <br />
+                    <em>Was sich wirklich verändert.</em>
+                  </>
+                ) : (
+                  <>
+                    EVIDENCE OVER NOISE.
+                    <br />
+                    <em>Know what changed. Know what matters.</em>
+                  </>
+                )}
+              </h1>
+
+              <p className="hero-desc">
+                {lang === 'de'
+                  ? 'Evidenzbasierte Produkt-Intelligence über 79 handkuratierte Frontier-Werkzeuge. Wir überwachen Changelogs, Pricing-Tabellen und GitHub-Releases per Headless-Browser. Keine gesponserten Einträge, ausnahmslos mit ungeschminkten Grenzen (Honest Caveats).'
+                  : 'Evidence-first product intelligence across 79 curated frontier tools. Continuous headless monitoring of official changelogs, pricing tables, and GitHub releases. Zero pay-to-play listings, mandatory honest caveats.'}
+              </p>
+
+              <div className="hero-segmented-tabs">
+                <button
+                  className={`tab-btn ${view === 'signals' ? 'active' : ''}`}
+                  onClick={() => setView('signals')}
+                >
+                  {lang === 'de' ? 'Verifizierte Signale' : 'Verified Signals'} ({liveSignals.length})
+                </button>
+                <button
+                  className={`tab-btn ${view === 'registry' ? 'active' : ''}`}
+                  onClick={() => setView('registry')}
+                >
+                  {lang === 'de' ? 'Kuratierte Werkzeuge' : 'Curated Registry'} ({tools.length})
+                </button>
+                <button
+                  className={`tab-btn ${view === 'radar' ? 'active' : ''}`}
+                  onClick={() => setView('radar')}
+                >
+                  {lang === 'de' ? 'Ökosystem-Radar' : 'Ecosystem Radar'} (55)
+                </button>
               </div>
             </div>
-          </aside>
-        </section>
 
-        {/* Return Strip */}
-        {lastVisit && sinceCount > 0 && (
-          <div className="return-notification-strip">
-            <div className="return-strip-left">
-              <Clock3 size={15} />
-              <span>SINCE YOUR LAST VISIT</span>
-              <strong>{sinceCount} new signal{sinceCount === 1 ? '' : 's'} landed across monitored tools</strong>
-            </div>
-            <button className="return-strip-cta" onClick={() => { setView('signals'); setTimeframe('today') }}>
-              Review updates <ArrowRight size={13} />
-            </button>
-          </div>
-        )}
-
-        {/* ===================== VIEW 1: SIGNALS ===================== */}
-        {view === 'signals' && (
-          <section className="feed-section" aria-labelledby="feed-heading">
-            <div className="section-toolbar">
-              <div className="toolbar-header">
-                <span className="section-eyebrow">INTELLIGENCE PULSE</span>
-                <h2 id="feed-heading" className="section-title">
-                  {stackOnlySignals ? 'Changes touching your stack' : 'Changes worth your attention'}
-                </h2>
-              </div>
-
-              <div className="toolbar-controls">
-                <div className="search-box">
-                  <Search size={14} className="search-icon" />
-                  <input
-                    ref={searchInputRef}
-                    type="search"
-                    placeholder="Filter signals, tools, APIs... (⌘K)"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                  {query && (
-                    <button className="search-clear" onClick={() => setQuery('')} aria-label="Clear query">
-                      <X size={13} />
-                    </button>
-                  )}
+            {/* Asymmetrical Telemetry Ledger */}
+            <div className="hero-telemetry-col">
+              <div className="telemetry-ledger-card">
+                <span className="telemetry-card-label">
+                  {lang === 'de' ? 'SYSTEM-TELEMETRIE & AUDIT' : 'SYSTEM TELEMETRY & AUDIT'}
+                </span>
+                
+                <div className="telemetry-metric-item">
+                  <div className="metric-number">79</div>
+                  <div className="metric-info">
+                    <strong>{lang === 'de' ? 'Kuratierte Werkzeuge' : 'Curated Products'}</strong>
+                    <small>{lang === 'de' ? 'Ausnahmslos mit Honest Caveat' : 'With mandatory caveats'}</small>
+                  </div>
                 </div>
 
+                <div className="telemetry-metric-item">
+                  <div className="metric-number">{liveSignals.length}</div>
+                  <div className="metric-info">
+                    <strong>{lang === 'de' ? 'Verifizierte Signale' : 'Verified Signals'}</strong>
+                    <small>{lang === 'de' ? 'First-Party Diffs & Releases' : 'First-party diffs & releases'}</small>
+                  </div>
+                </div>
+
+                <div className="telemetry-metric-item">
+                  <div className="metric-number">55</div>
+                  <div className="metric-info">
+                    <strong>{lang === 'de' ? 'Radar-Kandidaten' : 'Radar Candidates'}</strong>
+                    <small>{lang === 'de' ? 'In redaktioneller Quarantäne' : 'In editorial quarantine'}</small>
+                  </div>
+                </div>
+
+                <div className="telemetry-metric-item">
+                  <div className="metric-number zero-bias">0</div>
+                  <div className="metric-info">
+                    <strong>{lang === 'de' ? 'Gekaufte Platzierungen' : 'Sponsored Bias'}</strong>
+                    <small>{lang === 'de' ? '100% Unabhängig kuratiert' : '100% Independent audit'}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Return Visitor Strip */}
+        {sinceCount > 0 && (
+          <aside className="return-notification-strip">
+            <div className="return-strip-left">
+              <span className="pulse-dot-clean" />
+              <span>
+                <strong>{sinceCount}</strong> {lang === 'de' ? 'neue verifizierte Signale seit Ihrem letzten Besuch erfasst.' : 'new verified signals landed across monitored tools.'}
+              </span>
+            </div>
+            <button
+              className="return-strip-cta"
+              onClick={() => {
+                setView('signals')
+                setTimeframe('today')
+              }}
+            >
+              {lang === 'de' ? 'Zu den Neuerungen ansehen' : 'Inspect recent updates'} <ArrowRight size={12} />
+            </button>
+          </aside>
+        )}
+
+        {/* Section Toolbar & Controls */}
+        {view !== 'radar' && (
+          <section className="section-toolbar">
+          <div className="toolbar-header">
+            <div>
+              <span className="section-eyebrow">
+                {view === 'signals' && (lang === 'de' ? 'INTELLIGENCE-FEED' : 'INTELLIGENCE FEED')}
+                {view === 'registry' && (lang === 'de' ? 'WERKZEUG-REGISTER' : 'PRODUCT REGISTRY')}
+                {view === 'stack' && (lang === 'de' ? 'MEIN STACK' : 'MY STACK')}
+              </span>
+              <h2 className="section-title">
+                {view === 'signals' && (lang === 'de' ? 'Was sich verändert hat.' : 'What changed.')}
+                {view === 'registry' && (lang === 'de' ? '79 Werkzeuge, die ihre Zeit wert sind.' : '79 tools worth your time.')}
+                {view === 'stack' && (lang === 'de' ? 'Ihre beobachteten Werkzeuge.' : 'Your monitored toolstack.')}
+              </h2>
+              <p className="section-subtitle">
+                {view === 'signals' &&
+                  (lang === 'de'
+                    ? 'Verifizierte Changelogs, Pricing-Anpassungen und API-Releases. Nach redaktioneller Relevanz gewichtet.'
+                    : 'Verified changelogs, pricing tier shifts, and API releases filtered for architectural consequence.')}
+                {view === 'registry' &&
+                  (lang === 'de'
+                    ? 'Jedes Werkzeug mit genau einem konkreten Einsatzzweck, redaktioneller Begründung und ungeschminkter Schwachstelle.'
+                    : 'Every tool evaluated with one concrete job, editorial rationale, and mandatory honest caveat.')}
+                {view === 'stack' &&
+                  (lang === 'de'
+                    ? 'Ihre gemerkten Werkzeuge. Filtern Sie Signale direkt auf Ihren persönlichen Arbeits-Stack.'
+                    : 'Your saved tools. Filter verified signals down to the products your team relies on.')}
+              </p>
+            </div>
+          </div>
+
+          <div className="toolbar-controls">
+            {/* Search Input */}
+            <div className="search-box">
+              <Search size={13} className="search-icon" />
+              <input
+                ref={searchInputRef}
+                type="search"
+                placeholder={
+                  lang === 'de'
+                    ? 'Werkzeuge, Jobs oder Signale suchen... (⌘K)'
+                    : 'Search tools, jobs, or signals... (⌘K)'
+                }
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query && (
+                <button className="search-clear" onClick={() => setQuery('')} aria-label="Clear query">
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            {/* Registry Specific View Modes */}
+            {(view === 'registry' || view === 'stack') && (
+              <div className="view-mode-toggle" role="group" aria-label="Registry layout switch">
+                <button
+                  className={`mode-btn ${registryMode === 'ledger' ? 'active' : ''}`}
+                  onClick={() => setRegistryMode('ledger')}
+                  title={lang === 'de' ? 'Archiv-Ledger (Breite Tabelle)' : 'Archive Ledger (Broadsheet Table)'}
+                >
+                  <Table size={12} /> {lang === 'de' ? 'Ledger' : 'Ledger'}
+                </button>
+                <button
+                  className={`mode-btn ${registryMode === 'specimen' ? 'active' : ''}`}
+                  onClick={() => setRegistryMode('specimen')}
+                  title={lang === 'de' ? 'Exemplar-Zellen (Raster)' : 'Specimen Cells (Grid)'}
+                >
+                  <Layers size={12} /> {lang === 'de' ? 'Zellen' : 'Cells'}
+                </button>
+              </div>
+            )}
+
+            {/* Signals Specific Filters */}
+            {view === 'signals' && (
+              <>
                 <div className="filter-button-group">
                   <button
                     className={`filter-btn ${timeframe === 'all' ? 'active' : ''}`}
                     onClick={() => setTimeframe('all')}
                   >
-                    All Time
+                    {lang === 'de' ? 'Alle Zeiten' : 'All Time'}
                   </button>
                   <button
                     className={`filter-btn ${timeframe === 'today' ? 'active' : ''}`}
                     onClick={() => setTimeframe('today')}
                   >
-                    Today (24h)
+                    {lang === 'de' ? '24 Stunden' : 'Today'}
                   </button>
                   <button
                     className={`filter-btn ${timeframe === 'week' ? 'active' : ''}`}
                     onClick={() => setTimeframe('week')}
                   >
-                    7 Days
+                    {lang === 'de' ? '7 Tage' : 'This Week'}
                   </button>
                 </div>
 
@@ -456,633 +652,595 @@ export default function App() {
                     className={`filter-btn ${impactFilter === 'all' ? 'active' : ''}`}
                     onClick={() => setImpactFilter('all')}
                   >
-                    All Tiers
+                    {lang === 'de' ? 'Alle Relevanzen' : 'All Impact'}
                   </button>
                   <button
                     className={`filter-btn ${impactFilter === 'p0' ? 'active' : ''}`}
                     onClick={() => setImpactFilter('p0')}
                   >
-                    P0 Should Know
+                    P0 · Critical
                   </button>
                   <button
                     className={`filter-btn ${impactFilter === 'p1' ? 'active' : ''}`}
                     onClick={() => setImpactFilter('p1')}
                   >
-                    P1 Worth a Look
+                    P1 · Capability
                   </button>
                 </div>
 
+                {saved.length > 0 && (
+                  <button
+                    className={`filter-btn ${stackOnlySignals ? 'active' : ''}`}
+                    onClick={() => setStackOnlySignals(!stackOnlySignals)}
+                  >
+                    <Bookmark size={11} /> {lang === 'de' ? 'Nur mein Stack' : 'My Stack Only'}
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Sorters */}
+            {(view === 'registry' || view === 'stack') && (
+              <div className="sort-group">
+                <span className="sort-label">{lang === 'de' ? 'SORTIERUNG:' : 'SORT:'}</span>
                 <button
-                  className={`filter-btn ${stackOnlySignals ? 'active' : ''}`}
-                  onClick={() => setStackOnlySignals(!stackOnlySignals)}
+                  className={`filter-btn ${toolSort === 'number' ? 'active' : ''}`}
+                  onClick={() => setToolSort('number')}
                 >
-                  <Bookmark size={13} /> My Stack ({saved.length})
+                  № Index
+                </button>
+                <button
+                  className={`filter-btn ${toolSort === 'signals' ? 'active' : ''}`}
+                  onClick={() => setToolSort('signals')}
+                >
+                  {lang === 'de' ? 'Diffs' : 'Signals'}
+                </button>
+                <button
+                  className={`filter-btn ${toolSort === 'name' ? 'active' : ''}`}
+                  onClick={() => setToolSort('name')}
+                >
+                  A–Z
                 </button>
               </div>
-            </div>
+            )}
+          </div>
 
-            {/* Signal Stream */}
-            <div className="signal-ledger">
-              {filteredSignals.map((signal, idx) => {
-                const isSaved = saved.includes(signal.toolId)
+          {/* Category Bar for Registry */}
+          {(view === 'registry' || view === 'stack') && (
+            <div className="category-scroll-bar">
+              <button
+                className={`category-chip ${category === 'All' ? 'active' : ''}`}
+                onClick={() => setCategory('All')}
+              >
+                {lang === 'de' ? 'Alle Werkzeuge' : 'All Categories'} ({tools.length})
+              </button>
+              {categories.map((cat) => {
+                const count = tools.filter((t) => t.category === cat).length
+                const label = CATEGORY_NAMES[cat] ? (lang === 'de' ? CATEGORY_NAMES[cat].de : CATEGORY_NAMES[cat].en) : cat
                 return (
-                  <article className="signal-entry" key={signal.id}>
-                    <div className="signal-index-col">
-                      <span className="entry-index">{String(idx + 1).padStart(2, '0')}</span>
-                    </div>
-
-                    <div className="signal-content-col">
-                      <div className="signal-meta-bar">
-                        <span className={`materiality-tag ${signal.impact}`}>
-                          {signal.impact === 'high' ? 'P0 — SHOULD KNOW' : 'P1 — WORTH A LOOK'}
-                        </span>
-                        <span className="kind-tag">{signal.kind.toUpperCase()}</span>
-                        <span className="timestamp-tag">{relativeHours(signal.ageHours)}</span>
-                        {signal.prototype && <span className="prototype-tag">DEMO DIFF</span>}
-                      </div>
-
-                      <div className="signal-heading-group">
-                        <button
-                          className="tool-trigger-btn"
-                          onClick={() => openToolModal(signal.toolId || signal.tool)}
-                          title="Open tool dossier"
-                        >
-                          {signal.tool} <ArrowRight size={12} />
-                        </button>
-                        <h3 className="signal-headline">{clean(signal.title)}</h3>
-                      </div>
-
-                      <p className="signal-body">{clean(signal.summary)}</p>
-
-                      <div className="signal-consequence-box">
-                        <span className="consequence-label">WHY IT MATTERS</span>
-                        <p>{clean(signal.whyItMatters)}</p>
-                      </div>
-
-                      <div className="signal-footer-row">
-                        <div className="signal-sources-list">
-                          {signal.sources.map((src) => (
-                            <a
-                              key={src.url}
-                              href={src.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="source-evidence-link"
-                            >
-                              <span>{src.label}</span>
-                              <ExternalLink size={11} />
-                            </a>
-                          ))}
-                        </div>
-
-                        <div className="signal-actions">
-                          <button
-                            className="btn-text-link"
-                            onClick={() => openToolModal(signal.toolId || signal.tool)}
-                          >
-                            Open Dossier &rarr;
-                          </button>
-                          <button
-                            className={`btn-icon-watch ${isSaved ? 'active' : ''}`}
-                            onClick={() => toggleSave(signal.toolId)}
-                            title={isSaved ? 'In your stack' : 'Add tool to My Stack'}
-                            aria-label={`Save ${signal.tool}`}
-                          >
-                            <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
+                  <button
+                    key={cat}
+                    className={`category-chip ${category === cat ? 'active' : ''}`}
+                    onClick={() => setCategory(cat)}
+                  >
+                    {label} ({count})
+                  </button>
                 )
               })}
-
-              {filteredSignals.length === 0 && (
-                <div className="empty-ledger-state">
-                  <p>No verified signals matched your current filter criteria.</p>
-                  <button
-                    className="btn-reset"
-                    onClick={() => {
-                      setTimeframe('all')
-                      setImpactFilter('all')
-                      setKindFilter('all')
-                      setStackOnlySignals(false)
-                      setQuery('')
-                    }}
-                  >
-                    Reset all filters
-                  </button>
-                </div>
-              )}
             </div>
-          </section>
-        )}
+          )}
+        </section>
+      )}
 
-        {/* ===================== VIEW 2: REGISTRY ===================== */}
-        {view === 'registry' && (
-          <section className="registry-section" aria-labelledby="registry-heading">
-            <div className="section-toolbar">
-              <div className="toolbar-header">
-                <span className="section-eyebrow">THE LIVING REGISTRY</span>
-                <h2 id="registry-heading" className="section-title">
-                  79 hand-curated tools. Zero directory slop.
-                </h2>
-                <p className="section-subtitle">
-                  Every tool in this catalog has passed editorial review: a mandatory single-line job, explicit assessment axes, and an unvarnished caveat.
-                </p>
-              </div>
+        {/* VIEW 1: SIGNALS WIRE (THE GAZETTE) */}
+        {view === 'signals' && (
+          <section className="signal-ledger" aria-label="Live Signals Wire">
+            {filteredSignals.map((signal, idx) => {
+              const sigTitle = lang === 'de' && signal.title_de ? signal.title_de : signal.title
+              const sigSummary = lang === 'de' && signal.summary_de ? signal.summary_de : signal.summary
+              const sigWhy = lang === 'de' && signal.whyItMatters_de ? signal.whyItMatters_de : signal.whyItMatters
+              const isP0 = signal.impact === 'high'
 
-              {/* Category Chips */}
-              <div className="category-scroll-bar">
-                <button
-                  className={`category-chip ${category === 'All' ? 'active' : ''}`}
-                  onClick={() => setCategory('All')}
-                >
-                  All ({tools.length})
-                </button>
-                {categories.map((cat) => {
-                  const count = tools.filter((t) => t.category === cat).length
-                  return (
-                    <button
-                      key={cat}
-                      className={`category-chip ${category === cat ? 'active' : ''}`}
-                      onClick={() => setCategory(cat)}
-                    >
-                      {cat} ({count})
-                    </button>
-                  )
-                })}
-              </div>
+              return (
+                <article key={signal.id} className="signal-entry">
+                  {/* Column 1: Swiss Telemetry Stamp */}
+                  <div className="entry-telemetry-col">
+                    <span className="entry-index">{String(idx + 1).padStart(2, '0')}</span>
+                    <span className={`materiality-badge ${isP0 ? 'p0' : 'p1'}`}>
+                      {isP0 ? 'P0 · CRITICAL' : 'P1 · UPDATE'}
+                    </span>
+                    <span className="time-badge">{formatRelativeTime(signal.ageHours, lang)}</span>
+                    <span className="kind-badge">{signal.kind}</span>
+                  </div>
 
-              {/* Search & Sort */}
-              <div className="toolbar-controls">
-                <div className="search-box">
-                  <Search size={14} className="search-icon" />
-                  <input
-                    ref={searchInputRef}
-                    type="search"
-                    placeholder="Search 79 curated tools... (⌘K)"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                  {query && (
-                    <button className="search-clear" onClick={() => setQuery('')} aria-label="Clear query">
-                      <X size={13} />
-                    </button>
-                  )}
-                </div>
-
-                <div className="sort-group">
-                  <span className="sort-label">SORT:</span>
-                  <button
-                    className={`filter-btn ${toolSort === 'number' ? 'active' : ''}`}
-                    onClick={() => setToolSort('number')}
-                  >
-                    Index
-                  </button>
-                  <button
-                    className={`filter-btn ${toolSort === 'signals' ? 'active' : ''}`}
-                    onClick={() => setToolSort('signals')}
-                  >
-                    Recent Changes
-                  </button>
-                  <button
-                    className={`filter-btn ${toolSort === 'name' ? 'active' : ''}`}
-                    onClick={() => setToolSort('name')}
-                  >
-                    A &ndash; Z
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Architectural Tool Ledger */}
-            <div className="registry-grid">
-              {filteredTools.map((tool) => {
-                const dossier = dossiersMap.get(tool.id.toLowerCase()) || dossiersMap.get(tool.name.toLowerCase())
-                const signals = toolSignalsMap.get(tool.id.toLowerCase()) || toolSignalsMap.get(tool.name.toLowerCase()) || []
-                const isSaved = saved.includes(tool.id)
-
-                const leverageVal = dossier?.axes?.find((a) => a.label === 'LEVERAGE')?.value || 'High'
-                const maturityVal = dossier?.axes?.find((a) => a.label === 'MATURITY')?.value || 'Proven'
-                const priceVal = dossier?.axes?.find((a) => a.label === 'PRICE')?.value || '$$'
-
-                return (
-                  <article
-                    className={`registry-card ${signals.length > 0 ? 'has-signals' : ''}`}
-                    key={tool.id}
-                    onClick={() => setSelectedTool(tool)}
-                  >
-                    <div className="card-top-bar">
-                      <span className="card-index">#{String(tool.number || 0).padStart(2, '0')}</span>
-                      <span className="card-category-tag">{tool.category}</span>
+                  {/* Column 2: Journalistic Synthesis */}
+                  <div className="entry-content-col">
+                    <div className="signal-heading-group">
                       <button
-                        className={`card-bookmark-btn ${isSaved ? 'active' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleSave(tool.id)
-                        }}
-                        title={isSaved ? 'In your stack' : 'Add to My Stack'}
-                        aria-label={`Bookmark ${tool.name}`}
+                        className="tool-trigger-btn"
+                        onClick={() => openToolModal(signal.toolId || signal.tool)}
+                        title={lang === 'de' ? 'Dossier dieses Werkzeugs öffnen' : 'Open tool dossier'}
                       >
-                        <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
+                        {signal.tool} <ArrowRight size={11} />
                       </button>
+                      <h3 className="signal-headline">{sigTitle}</h3>
                     </div>
 
-                    <div className="card-identity">
-                      <h3 className="card-tool-name">
-                        {tool.name}
-                        <span className="card-open-arrow">&rarr;</span>
-                      </h3>
-                      <p className="card-job-line">{clean(tool.job)}</p>
+                    <p className="signal-body">{clean(sigSummary)}</p>
+
+                    <div className="signal-consequence-box">
+                      <span className="consequence-label">
+                        {lang === 'de' ? 'REDAKTIONELLE EINORDNUNG & RELEVANZ' : 'STRATEGIC CONSEQUENCE & VERDICT'}
+                      </span>
+                      <p>{clean(sigWhy)}</p>
                     </div>
 
-                    {/* Swiss Telemetry Badges */}
-                    <div className="card-axes-row">
-                      <span className="axis-mini-badge">LEVERAGE: {leverageVal}</span>
-                      <span className="axis-mini-badge">{maturityVal}</span>
-                      <span className="axis-mini-badge">{priceVal}</span>
-                    </div>
+                    <div className="signal-footer-row">
+                      <div className="signal-sources-list">
+                        {signal.sources.map((s) => (
+                          <a
+                            key={s.url}
+                            href={s.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="source-evidence-link"
+                          >
+                            <span>{s.label || (lang === 'de' ? 'Primärquelle' : 'Primary Source')}</span>
+                            <ExternalLink size={10} />
+                          </a>
+                        ))}
+                      </div>
 
-                    {/* Signals Indicator */}
-                    <div className="card-bottom-bar">
-                      {signals.length > 0 ? (
-                        <span className="pulse-signal-tag">
-                          <Zap size={11} /> {signals.length} verified change{signals.length === 1 ? '' : 's'}
-                        </span>
-                      ) : (
-                        <span className="quiescent-tag">NO RECENT BREAKING DIFFS</span>
-                      )}
-                      <span className="card-dossier-cta">Open Dossier</span>
+                      <div className="signal-actions">
+                        <button
+                          className="btn-text-link"
+                          onClick={() => openToolModal(signal.toolId || signal.tool)}
+                        >
+                          {lang === 'de' ? 'Dossier einsehen →' : 'Inspect Dossier →'}
+                        </button>
+                        <button
+                          className={`btn-icon-watch ${saved.includes(signal.toolId) ? 'active' : ''}`}
+                          onClick={() => toggleSave(signal.toolId)}
+                          title={lang === 'de' ? 'Zu Mein Stack hinzufügen' : 'Toggle tool in My Stack'}
+                        >
+                          <Bookmark size={14} />
+                        </button>
+                      </div>
                     </div>
-                  </article>
-                )
-              })}
-            </div>
+                  </div>
+                </article>
+              )
+            })}
 
-            {filteredTools.length === 0 && (
+            {filteredSignals.length === 0 && (
               <div className="empty-ledger-state">
-                <p>No tools matched your search or category filter.</p>
+                <p>
+                  {lang === 'de'
+                    ? 'Keine Signale für diese Filtereinstellungen gefunden.'
+                    : 'No verified signals match the current filter selection.'}
+                </p>
                 <button
                   className="btn-reset"
                   onClick={() => {
-                    setCategory('All')
                     setQuery('')
+                    setTimeframe('all')
+                    setImpactFilter('all')
+                    setKindFilter('all')
+                    setStackOnlySignals(false)
                   }}
                 >
-                  Show all 79 tools
+                  {lang === 'de' ? 'Filter zurücksetzen' : 'Reset Filters'}
                 </button>
               </div>
             )}
           </section>
         )}
 
-        {/* ===================== VIEW 3: RADAR ===================== */}
-        {view === 'radar' && <DiscoveryRadar />}
+        {/* VIEW 2 & 4: MASTER REGISTRY & MY STACK */}
+        {(view === 'registry' || view === 'stack') && (
+          <>
+            {/* View Mode 1: Architectural Archive Ledger (Default) */}
+            {registryMode === 'ledger' && (
+              <div className="archive-ledger-container">
+                <div className="ledger-header-row">
+                  <div className="col-idx">{lang === 'de' ? '№' : '№'}</div>
+                  <div className="col-entity">{lang === 'de' ? 'WERKZEUG & EDITION' : 'TOOL & EDITION'}</div>
+                  <div className="col-job">{lang === 'de' ? 'DER KONKRETE EINSATZZWECK' : 'THE CONCRETE JOB'}</div>
+                  <div className="col-caveat">{lang === 'de' ? 'EHRLICHE GRENZE (CAVEAT)' : 'MANDATORY CAVEAT'}</div>
+                  <div className="col-telemetry">{lang === 'de' ? 'TELEMETRIE' : 'TELEMETRY'}</div>
+                  <div className="col-action">{lang === 'de' ? 'AKTION' : 'ACTION'}</div>
+                </div>
 
-        {/* ===================== VIEW 4: MY STACK ===================== */}
-        {view === 'stack' && (
-          <section className="stack-section" aria-labelledby="stack-heading">
-            <div className="section-toolbar">
-              <div className="toolbar-header">
-                <span className="section-eyebrow">PERSONAL WATCHLIST</span>
-                <h2 id="stack-heading" className="section-title">
-                  My Stack ({saved.length} tools watched)
-                </h2>
-                <p className="section-subtitle">
-                  Tools saved here are highlighted across the signal feed. You receive immediate diff alerts whenever our headless crawler detects a breaking capability or pricing change.
-                </p>
-              </div>
-            </div>
+                <div className="ledger-body">
+                  {filteredTools.map((t) => {
+                    const sigs = toolSignalsMap.get(t.id.toLowerCase()) || []
+                    const tJob = lang === 'en' && t.job_en ? t.job_en : t.job
+                    const tCaveat = lang === 'en' && t.caveat_en ? t.caveat_en : t.caveat
+                    const catLabel = CATEGORY_NAMES[t.category]
+                      ? (lang === 'de' ? CATEGORY_NAMES[t.category].de : CATEGORY_NAMES[t.category].en)
+                      : t.category
 
-            {saved.length === 0 ? (
-              <div className="empty-stack-guide">
-                <h3>Your stack is currently empty.</h3>
-                <p>
-                  Browse the curated registry or verified signals and click the bookmark icon on any tool you use in your workflow.
-                </p>
-                <button className="btn-primary" onClick={() => setView('registry')}>
-                  Explore 79 Curated Tools &rarr;
-                </button>
+                    return (
+                      <div
+                        key={t.id}
+                        className={`ledger-row ${sigs.length > 0 ? 'has-signals' : ''}`}
+                        onClick={() => setSelectedTool(t)}
+                      >
+                        <div className="col-idx">
+                          <span className="row-number">{String(t.number).padStart(2, '0')}</span>
+                        </div>
+
+                        <div className="col-entity">
+                          <div className="entity-name-row">
+                            <strong className="entity-title">{t.name}</strong>
+                            {sigs.length > 0 && (
+                              <span className="diff-count-indicator" title={`${sigs.length} verified diffs`}>
+                                {sigs.length} {lang === 'de' ? 'Diffs' : 'Diffs'}
+                              </span>
+                            )}
+                          </div>
+                          <span className="entity-category">{catLabel}</span>
+                        </div>
+
+                        <div className="col-job">
+                          <p className="job-text">{clean(tJob)}</p>
+                        </div>
+
+                        <div className="col-caveat">
+                          <p className="caveat-text">{clean(tCaveat)}</p>
+                        </div>
+
+                        <div className="col-telemetry">
+                          <span className="telemetry-chip">
+                            {t.edition || 'Core 50'}
+                          </span>
+                        </div>
+
+                        <div className="col-action" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            className={`btn-row-bookmark ${saved.includes(t.id) ? 'active' : ''}`}
+                            onClick={() => toggleSave(t.id)}
+                            title={lang === 'de' ? 'Zu Mein Stack' : 'Save to My Stack'}
+                          >
+                            <Bookmark size={13} />
+                          </button>
+                          <button
+                            className="btn-inspect-dossier"
+                            onClick={() => setSelectedTool(t)}
+                          >
+                            {lang === 'de' ? 'Dossier →' : 'Dossier →'}
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
-            ) : (
-              <div className="registry-grid">
-                {filteredTools.map((tool) => {
-                  const dossier = dossiersMap.get(tool.id.toLowerCase()) || dossiersMap.get(tool.name.toLowerCase())
-                  const signals = toolSignalsMap.get(tool.id.toLowerCase()) || toolSignalsMap.get(tool.name.toLowerCase()) || []
+            )}
+
+            {/* View Mode 2: Specimen Cells (Architectural Grid) */}
+            {registryMode === 'specimen' && (
+              <div className="specimen-grid">
+                {filteredTools.map((t) => {
+                  const sigs = toolSignalsMap.get(t.id.toLowerCase()) || []
+                  const tJob = lang === 'en' && t.job_en ? t.job_en : t.job
+                  const tCaveat = lang === 'en' && t.caveat_en ? t.caveat_en : t.caveat
+                  const catLabel = CATEGORY_NAMES[t.category]
+                    ? (lang === 'de' ? CATEGORY_NAMES[t.category].de : CATEGORY_NAMES[t.category].en)
+                    : t.category
 
                   return (
                     <article
-                      className="registry-card"
-                      key={tool.id}
-                      onClick={() => setSelectedTool(tool)}
+                      key={t.id}
+                      className={`specimen-cell ${sigs.length > 0 ? 'has-signals' : ''}`}
+                      onClick={() => setSelectedTool(t)}
                     >
-                      <div className="card-top-bar">
-                        <span className="card-index">#{String(tool.number || 0).padStart(2, '0')}</span>
-                        <span className="card-category-tag">{tool.category}</span>
+                      <div className="cell-top-bar">
+                        <span className="cell-index">{String(t.number).padStart(2, '0')}</span>
+                        <span className="cell-category">{catLabel}</span>
                         <button
-                          className="card-bookmark-btn active"
+                          className={`cell-bookmark-btn ${saved.includes(t.id) ? 'active' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            toggleSave(tool.id)
+                            toggleSave(t.id)
                           }}
-                          title="Remove from stack"
+                          aria-label="Bookmark tool"
                         >
-                          <Bookmark size={15} fill="currentColor" />
+                          <Bookmark size={13} />
                         </button>
                       </div>
 
-                      <div className="card-identity">
-                        <h3 className="card-tool-name">{tool.name}</h3>
-                        <p className="card-job-line">{clean(tool.job)}</p>
+                      <div className="cell-header">
+                        <h3 className="cell-tool-name">
+                          {t.name}
+                          <span className="cell-arrow">→</span>
+                        </h3>
+                        <p className="cell-job-line">{clean(tJob)}</p>
                       </div>
 
-                      <div className="card-axes-row">
-                        <span className="axis-mini-badge">
-                          LEVERAGE: {dossier?.axes?.find((a) => a.label === 'LEVERAGE')?.value || 'High'}
+                      <div className="cell-caveat-callout">
+                        <span className="cell-caveat-label">
+                          {lang === 'de' ? 'EHRLICHE GRENZE' : 'HONEST CAVEAT'}
                         </span>
-                        <span className="axis-mini-badge">
-                          {dossier?.axes?.find((a) => a.label === 'MATURITY')?.value || 'Proven'}
-                        </span>
+                        <p>{clean(tCaveat)}</p>
                       </div>
 
-                      <div className="card-bottom-bar">
-                        {signals.length > 0 ? (
-                          <span className="pulse-signal-tag">
-                            <Zap size={11} /> {signals.length} verified change{signals.length === 1 ? '' : 's'}
+                      <div className="cell-bottom-bar">
+                        <span className="cell-edition">{t.edition || 'Core 50'}</span>
+                        {sigs.length > 0 ? (
+                          <span className="cell-signals-tag">
+                            {sigs.length} {lang === 'de' ? 'Signale erfasst' : 'Signals active'}
                           </span>
                         ) : (
-                          <span className="quiescent-tag">NO RECENT BREAKING DIFFS</span>
+                          <span className="cell-quiescent">
+                            {lang === 'de' ? 'Stabil' : 'Quiescent'}
+                          </span>
                         )}
-                        <span className="card-dossier-cta">Open Dossier</span>
                       </div>
                     </article>
                   )
                 })}
               </div>
             )}
-          </section>
+
+            {filteredTools.length === 0 && view === 'stack' && (
+              <div className="empty-stack-guide">
+                <h3>{lang === 'de' ? 'Ihr Stack ist noch leer' : 'Your stack is currently empty'}</h3>
+                <p>
+                  {lang === 'de'
+                    ? 'Klicken Sie im Register auf das Lesezeichen-Symbol, um Werkzeuge zu beobachten und deren Signale gesammelt zu filtern.'
+                    : 'Click the bookmark icon on any tool to monitor its diffs and filter signals specifically for your stack.'}
+                </p>
+                <button className="btn-primary" onClick={() => setView('registry')}>
+                  {lang === 'de' ? 'Zum Register (79 Werkzeuge)' : 'Explore Registry (79 Tools)'}
+                </button>
+              </div>
+            )}
+
+            {filteredTools.length === 0 && view === 'registry' && (
+              <div className="empty-ledger-state">
+                <p>
+                  {lang === 'de'
+                    ? 'Keine Werkzeuge für diese Suchkombination gefunden.'
+                    : 'No tools match your active search criteria.'}
+                </p>
+                <button
+                  className="btn-reset"
+                  onClick={() => {
+                    setQuery('')
+                    setCategory('All')
+                  }}
+                >
+                  {lang === 'de' ? 'Filter zurücksetzen' : 'Reset Search'}
+                </button>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Editorial Standards Accordion */}
+        {/* VIEW 3: DISCOVERY RADAR */}
+        {view === 'radar' && <DiscoveryRadar lang={lang} />}
+
+        {/* Editorial Protocol Contract Accordion */}
         <section className="editorial-contract-section">
           <div className="contract-header">
-            <span className="section-eyebrow">THE EDITORIAL CONTRACT</span>
-            <h2>How signals are filtered &amp; verified.</h2>
+            <span className="section-eyebrow">
+              {lang === 'de' ? 'DAS EVIDENZ-PROTOKOLL' : 'THE EVIDENCE PROTOCOL'}
+            </span>
+            <h2>{lang === 'de' ? 'Wie wir Signale von Hype trennen.' : 'How we separate signal from marketing noise.'}</h2>
           </div>
 
           <div className="contract-grid">
             <div className="contract-col">
-              <span className="contract-tier p0">P0 — SHOULD KNOW</span>
-              <h4>Pricing shifts, breaking APIs, major capabilities</h4>
+              <span className="contract-tier p0">P0 · CRITICAL ARCHITECTURE</span>
+              <h4>{lang === 'de' ? 'Kritische System-Verschiebungen' : 'Critical Architectural Shifts'}</h4>
               <p>
-                Published when a tool alters its unit economics, changes data/privacy terms, deprecates a key API, or introduces an fundamentally new workflow capability.
+                {lang === 'de'
+                  ? 'Session-Revocations, API-Deprecations, fundamentale Pricing-Anpassungen und Modell-Wechsel. Verifikation nur über offizielle Commits, GitHub Releases oder First-Party-Dokumentation.'
+                  : 'Session revocations, API deprecations, radical pricing reallocations, and core model shifts. Verified exclusively via official commits, GitHub releases, or primary documentation.'}
               </p>
             </div>
 
             <div className="contract-col">
-              <span className="contract-tier p1">P1 — WORTH A LOOK</span>
-              <h4>Meaningful features &amp; ecosystem expansions</h4>
+              <span className="contract-tier p1">P1 · CAPABILITY RELEASE</span>
+              <h4>{lang === 'de' ? 'Wesentliche Produkterweiterungen' : 'Substantive Capability Releases'}</h4>
               <p>
-                Published when a new integration, model tier, or workflow improvement reduces friction in a measurable, repeatable way.
+                {lang === 'de'
+                  ? 'Konkrete funktionale Erweiterungen wie Drag-and-Drop, neue Exportformate oder Team-Workspaces. Reines PR-Vokabular wird konsequent herausgefiltert.'
+                  : 'Actionable functional enhancements like native drag-and-drop, export pipelines, or team workspaces. Filtered rigorously to eliminate marketing jargon.'}
               </p>
             </div>
 
             <div className="contract-col">
-              <span className="contract-tier p2">P2 — DROPPED NOISE</span>
-              <h4>Cosmetic UI tweaks &amp; marketing buzzwords</h4>
+              <span className="contract-tier p2">P2 · NOISE QUARANTINE</span>
+              <h4>{lang === 'de' ? 'Kosmetik & Marketing-Rauschen' : 'Cosmetic & Marketing Quarantine'}</h4>
               <p>
-                Button renames, minor CSS polish, vague promotional claims, and repetitive release-note churn are automatically filtered out.
+                {lang === 'de'
+                  ? 'Visuelle Facelifts, Prompt-Vorlagen und ungeprüfte Verzeichnis-Listen. Verbleiben im Radar oder werden aus dem verifizierten Signal-Stream komplett ausgeschlossen.'
+                  : 'Cosmetic button redesigns, prompt templates, and unvetted directory links. Quarantined on radar and blocked entirely from the verified signal stream.'}
               </p>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="site-footer">
-        <div className="footer-left">
-          <span className="brand-mark">S</span>
-          <div>
-            <strong>SHOULD KNOW</strong>
-            <p>Evidence-first AI product intelligence &amp; curated registry.</p>
-          </div>
-        </div>
-
-        <div className="footer-center">
-          <p>
-            Zero affiliate bias. Zero sponsored placements. Every tool must have a concrete job and an honest caveat.
-          </p>
-        </div>
-
-        <div className="footer-right">
-          <a
-            href="https://github.com/igoingtodevx/shouldknow-ai"
-            target="_blank"
-            rel="noreferrer"
-            className="footer-link"
-          >
-            GitHub Repository &rarr;
-          </a>
-        </div>
-      </footer>
-
-      {/* Deep Dossier Modal / Drawer */}
+      {/* Slide-over Architectural Dossier Inspector Sheet */}
       {selectedTool && (
-        <DossierModal
-          tool={selectedTool}
-          dossier={
-            dossiersMap.get(selectedTool.id.toLowerCase()) ||
-            dossiersMap.get(selectedTool.name.toLowerCase()) || {
-              id: selectedTool.id,
-              name: selectedTool.name,
-              url: selectedTool.url,
-              verdict: clean(selectedTool.why),
-              axes: [
-                { label: 'LEVERAGE', value: 'High' },
-                { label: 'MATURITY', value: 'Proven' },
-                { label: 'SETUP', value: 'Low' },
-                { label: 'CONTROL', value: 'Medium' },
-                { label: 'PRICE', value: '$$' },
-                { label: 'EVIDENCE', value: 'Strong' },
-              ],
-              bestFor: [clean(selectedTool.job)],
-              caveat: clean(selectedTool.caveat),
-            }
-          }
-          signals={
-            toolSignalsMap.get(selectedTool.id.toLowerCase()) ||
-            toolSignalsMap.get(selectedTool.name.toLowerCase()) ||
-            []
-          }
-          isSaved={saved.includes(selectedTool.id)}
-          onToggleSave={() => toggleSave(selectedTool.id)}
-          onClose={() => setSelectedTool(null)}
-        />
-      )}
-    </div>
-  )
-}
-
-function DossierModal({
-  tool,
-  dossier,
-  signals,
-  isSaved,
-  onToggleSave,
-  onClose,
-}: {
-  tool: Tool
-  dossier: Dossier
-  signals: Signal[]
-  isSaved: boolean
-  onToggleSave: () => void
-  onClose: () => void
-}) {
-  return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <article
-        className="dossier-modal-window"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="dossier-title"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <button className="modal-close-btn" onClick={onClose} aria-label="Close dossier">
-          <X size={18} />
-        </button>
-
-        <div className="dossier-header-strip">
-          <div className="dossier-eyebrow-row">
-            <span className="dossier-edition-badge">{tool.edition || 'Core 50'}</span>
-            <span className="dossier-category-badge">{tool.category}</span>
-          </div>
-
-          <div className="dossier-title-row">
-            <h2 id="dossier-title" className="dossier-tool-title">
-              {tool.name}
-            </h2>
-            <button
-              className={`btn-dossier-stack ${isSaved ? 'active' : ''}`}
-              onClick={onToggleSave}
-            >
-              {isSaved ? <Check size={14} /> : <Bookmark size={14} />}
-              {isSaved ? 'In My Stack' : 'Watch in Stack'}
-            </button>
-          </div>
-        </div>
-
-        {/* The Concrete Job */}
-        <section className="dossier-section">
-          <span className="dossier-section-tag">THE CONCRETE JOB</span>
-          <p className="dossier-job-text">{clean(tool.job)}</p>
-        </section>
-
-        {/* Why it made the cut / Verdict */}
-        <section className="dossier-section">
-          <span className="dossier-section-tag">WHY IT MADE THE CUT (EDITORIAL VERDICT)</span>
-          <p className="dossier-verdict-text">{clean(dossier.verdict || tool.why)}</p>
-        </section>
-
-        {/* The 6 Assessment Axes (Swiss Grid) */}
-        <section className="dossier-section">
-          <span className="dossier-section-tag">ASSESSMENT AXES</span>
-          <div className="axes-telemetry-grid">
-            {dossier.axes.map((axis) => (
-              <div className="axis-telemetry-cell" key={axis.label}>
-                <span className="axis-label">{axis.label}</span>
-                <strong className="axis-value">{axis.value}</strong>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Honest Caveat */}
-        <section className="dossier-caveat-section">
-          <span className="dossier-caveat-tag">KEEP IN MIND (THE HONEST CAVEAT)</span>
-          <p className="dossier-caveat-text">{clean(dossier.caveat || tool.caveat)}</p>
-        </section>
-
-        {/* Best For */}
-        {dossier.bestFor && dossier.bestFor.length > 0 && (
-          <section className="dossier-section">
-            <span className="dossier-section-tag">BEST FOR</span>
-            <ul className="dossier-bullets">
-              {dossier.bestFor.map((item) => (
-                <li key={item}>{clean(item)}</li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* Verified Crawler Changelog */}
-        <section className="dossier-section dossier-signals-block">
-          <span className="dossier-section-tag">VERIFIED CRAWLER DIFFS &amp; SIGNALS</span>
-          {signals.length > 0 ? (
-            <div className="dossier-signals-list">
-              {signals.map((sig) => (
-                <div className="dossier-signal-card" key={sig.id}>
-                  <div className="dossier-sig-meta">
-                    <span className={`materiality-tag ${sig.impact}`}>
-                      {sig.impact === 'high' ? 'P0 — SHOULD KNOW' : 'P1 — WORTH A LOOK'}
-                    </span>
-                    <span className="kind-tag">{sig.kind.toUpperCase()}</span>
-                    <span className="timestamp-tag">{relativeHours(sig.ageHours)}</span>
-                  </div>
-                  <strong className="dossier-sig-title">{clean(sig.title)}</strong>
-                  <p className="dossier-sig-summary">{clean(sig.summary)}</p>
-                  <div className="signal-consequence-box">
-                    <span className="consequence-label">WHY IT MATTERS</span>
-                    <p>{clean(sig.whyItMatters)}</p>
-                  </div>
-                  {sig.sources.length > 0 && (
-                    <div className="signal-sources-list">
-                      {sig.sources.map((s) => (
-                        <a
-                          key={s.url}
-                          href={s.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="source-evidence-link"
-                        >
-                          <span>{s.label}</span>
-                          <ExternalLink size={11} />
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="dossier-empty-signals">
-              <p>Monitored on 6h crawler cycle. No breaking changes detected in the last 30 days.</p>
-            </div>
-          )}
-        </section>
-
-        {/* Modal Action Bar */}
-        <div className="dossier-actions-bar">
-          <a
-            className="btn-action-primary"
-            href={tool.url}
-            target="_blank"
-            rel="noreferrer"
+        <aside
+          className="dossier-overlay-container"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setSelectedTool(null)}
+        >
+          <div
+            className="dossier-slide-sheet"
+            onClick={(e) => e.stopPropagation()}
           >
-            Visit official site <ExternalLink size={14} />
-          </a>
-          {tool.evidenceUrl && (
-            <a
-              className="btn-action-secondary"
-              href={tool.evidenceUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Source evidence trail &rarr;
-            </a>
-          )}
-        </div>
-      </article>
+            <div className="dossier-sheet-header">
+              <div className="sheet-header-left">
+                <span className="dossier-num">№ {String(selectedTool.number).padStart(2, '0')}</span>
+                <span className="dossier-edition-badge">{selectedTool.edition || 'Core 50'}</span>
+                <span className="dossier-cat-badge">
+                  {CATEGORY_NAMES[selectedTool.category]
+                    ? (lang === 'de' ? CATEGORY_NAMES[selectedTool.category].de : CATEGORY_NAMES[selectedTool.category].en)
+                    : selectedTool.category}
+                </span>
+              </div>
+
+              <button
+                className="btn-sheet-close"
+                onClick={() => setSelectedTool(null)}
+                aria-label="Close dossier"
+              >
+                <span>{lang === 'de' ? 'SCHLIESSEN [ESC]' : 'CLOSE [ESC]'}</span>
+                <X size={14} />
+              </button>
+            </div>
+
+            <div className="dossier-sheet-body">
+              <div className="dossier-sheet-title-row">
+                <h2 className="dossier-tool-title">{selectedTool.name}</h2>
+                <div className="sheet-actions">
+                  <a
+                    href={selectedTool.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-open-site"
+                  >
+                    <span>{lang === 'de' ? 'Werkzeug öffnen' : 'Visit Website'}</span>
+                    <ExternalLink size={12} />
+                  </a>
+                  <button
+                    className={`btn-sheet-bookmark ${saved.includes(selectedTool.id) ? 'active' : ''}`}
+                    onClick={() => toggleSave(selectedTool.id)}
+                  >
+                    <Bookmark size={13} />
+                    <span>
+                      {saved.includes(selectedTool.id)
+                        ? (lang === 'de' ? 'In Mein Stack' : 'In My Stack')
+                        : (lang === 'de' ? 'Zu Mein Stack' : 'Save to Stack')}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Swiss Telemetry Grid */}
+              {selectedDossier && selectedDossier.axes && (
+                <div className="axes-telemetry-block">
+                  <span className="dossier-section-tag">
+                    {lang === 'de' ? 'SYSTEM-TELEMETRIE & AUDIT-ACHSEN' : 'SYSTEM TELEMETRY & AUDIT AXES'}
+                  </span>
+                  <div className="axes-telemetry-grid">
+                    {selectedDossier.axes.map((axis) => (
+                      <div key={axis.label} className="axis-telemetry-cell">
+                        <span className="axis-label">{axis.label}</span>
+                        <strong className="axis-value">{axis.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* The Concrete Job */}
+              <div className="dossier-section">
+                <span className="dossier-section-tag">
+                  {lang === 'de' ? 'DER KONKRETE EINSATZZWECK (5-MINUTEN-JOB)' : 'THE CONCRETE JOB (5-MINUTE LEVERAGE)'}
+                </span>
+                <p className="dossier-job-text">
+                  {clean(lang === 'en' && selectedTool.job_en ? selectedTool.job_en : selectedTool.job)}
+                </p>
+              </div>
+
+              {/* Editorial Verdict */}
+              <div className="dossier-section">
+                <span className="dossier-section-tag">
+                  {lang === 'de' ? 'URTEIL & WARUM IM REGISTER' : 'EDITORIAL VERDICT & RATIONALE'}
+                </span>
+                <p className="dossier-verdict-text">
+                  {clean(lang === 'en' && selectedTool.why_en ? selectedTool.why_en : selectedTool.why)}
+                </p>
+              </div>
+
+              {/* Honest Caveat Callout (Warm Bronze Framed) */}
+              <div className="dossier-caveat-section">
+                <span className="dossier-caveat-tag">
+                  {lang === 'de' ? 'EHRLICHE GRENZE (MANDATORY HONEST CAVEAT)' : 'HONEST CAVEAT & FAILURE MODES'}
+                </span>
+                <p className="dossier-caveat-text">
+                  {clean(lang === 'en' && selectedTool.caveat_en ? selectedTool.caveat_en : selectedTool.caveat)}
+                </p>
+              </div>
+
+              {/* Best For Scenarios */}
+              {selectedDossier && (
+                <div className="dossier-section">
+                  <span className="dossier-section-tag">
+                    {lang === 'de' ? 'GEPRÜFTE EINSATZGEBIETE' : 'VALIDATED WORKFLOW SCENARIOS'}
+                  </span>
+                  <ul className="dossier-bullets">
+                    {(lang === 'en' && selectedDossier.bestFor_en
+                      ? selectedDossier.bestFor_en
+                      : (selectedDossier.bestFor_de || selectedDossier.bestFor || [])
+                    ).map((item, i) => (
+                      <li key={i}>{clean(item)}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Tool Specific Signals Wire */}
+              <div className="dossier-section">
+                <span className="dossier-section-tag">
+                  {lang === 'de' ? 'VERIFIZIERTE CHANGELOG-DIFFS FÜR DIESES WERKZEUG' : 'VERIFIED CHANGELOG DIFFS FOR THIS TOOL'} ({selectedToolSignals.length})
+                </span>
+
+                {selectedToolSignals.length > 0 ? (
+                  <div className="dossier-signals-list">
+                    {selectedToolSignals.map((sig) => {
+                      const sigTitle = lang === 'de' && sig.title_de ? sig.title_de : sig.title
+                      const sigSummary = lang === 'de' && sig.summary_de ? sig.summary_de : sig.summary
+                      const isP0 = sig.impact === 'high'
+
+                      return (
+                        <div key={sig.id} className="dossier-signal-card">
+                          <div className="dossier-sig-meta">
+                            <span className={`materiality-badge ${isP0 ? 'p0' : 'p1'}`}>
+                              {isP0 ? 'P0 · CRITICAL' : 'P1 · UPDATE'}
+                            </span>
+                            <span className="time-badge">{formatRelativeTime(sig.ageHours, lang)}</span>
+                          </div>
+                          <h4 className="dossier-sig-title">{sigTitle}</h4>
+                          <p className="dossier-sig-summary">{clean(sigSummary)}</p>
+                          <div className="dossier-sig-sources">
+                            {sig.sources.map((src) => (
+                              <a
+                                key={src.url}
+                                href={src.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="source-evidence-link"
+                              >
+                                <span>{src.label}</span>
+                                <ExternalLink size={10} />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p className="quiescent-note">
+                    {lang === 'de'
+                      ? 'Keine kritischen P0/P1-Änderungen im aktuellen Überwachungsfenster registriert. Werkzeug läuft stabil.'
+                      : 'No critical architectural shifts recorded in the current crawl window. Product state is quiescent.'}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </aside>
+      )}
     </div>
   )
 }
